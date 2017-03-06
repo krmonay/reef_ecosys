@@ -148,7 +148,7 @@
       real(8), parameter :: Iphy1   = 48.83d0*1.82d0       ! (umol m-2 s-1) PHY optimum light intensity (48.83d0 J m2 s-1; Kawamiya et al., 1995)
       real(8), parameter :: k_Rphy1 =  0.03d0/86400.0d0    ! (s-1)          PHY respiration rate at 0 oC (Kawamiya et al., 1995)
       real(8), parameter :: b_Rphy1 =  0.0519d0            ! (degC-1)       Temperature coefficient for PHY respiration rate (0.03d0 d-1; Kawamiya et al., 1995)
-      real(8), parameter :: k_Mphy1 =  0.0066d0/86400.0d0 ! (umol-1 s-1)   PHY mortality rate at 0 oC (0.00281d0 umol-1 d-1; 0.0585L/umolN/day?0.0088; Kishi et al., 2001)
+      real(8), parameter :: k_Mphy1 =  0.00562d0/86400.0d0 ! (L umol-1 s-1)   PHY mortality rate at 0 oC (0.00562d0 umol-1 d-1; 0.0585L/umolN/day?0.0088; Kishi et al., 2001)0.0066
       real(8), parameter :: b_Mphy1 =  0.069d0             ! (degC-1)       Temperature coefficient for PHY mortality (Kawamiya et al., 1995)
       real(8), parameter :: k_Ephy1 =  0.135d0             ! (no dim.)      PHY ratio of extracellular excretion to production 0.135(Kawamiya et al., 1995)
       real(8), parameter :: k_Pphy2 =  0.6d0/86400.0d0     ! (s-1)          PHY maximum photosynthesis rate at 0 oC (0.8d0 d-1; Kishi et al., 2007)0.6
@@ -156,38 +156,40 @@
       real(8), parameter :: Iphy2   = 48.83d0*1.82d0       ! (umol m-2 s-1) PHY optimum light intensity (48.83d0 J m2 s-1; Kawamiya et al., 1995)
       real(8), parameter :: k_Rphy2 =  0.03d0/86400.0d0    ! (s-1)          PHY respiration rate at 0 oC (Kawamiya et al., 1995)
       real(8), parameter :: b_Rphy2 =  0.0519d0            ! (degC-1)       Temperature coefficient for PHY respiration rate (0.03d0 d-1; Kawamiya et al., 1995)
-      real(8), parameter :: k_Mphy2 =  0.003d0/86400.0d0 ! (umol-1 s-1)   PHY mortality rate at 0 oC (0.00281d0 umol-1 d-1; 0.029L/umolN/day?0.0063; Kishi et al., 2001)
+      real(8), parameter :: k_Mphy2 =  0.00281d0/86400.0d0 ! (L umol-1 s-1)   PHY mortality rate at 0 oC (0.00281d0 umol-1 d-1; 0.029L/umolN/day?0.0063; Kishi et al., 2001)0.003
       real(8), parameter :: b_Mphy2 =  0.069d0             ! (degC-1)       Temperature coefficient for PHY mortality (Kawamiya et al., 1995)
       real(8), parameter :: k_Ephy2 =  0.135d0             ! (no dim.)      PHY ratio of extracellular excretion to production (Kawamiya et al., 1995)
 #if defined NUTRIENTS         
       real(8), parameter :: Kphy1_NH4 = 1.5d0   ! (s-1)0.2         
       real(8), parameter :: Kphy1_NO3 = 0.1d0   ! (s-1)0.1         
       real(8), parameter :: Kphy1_PO4 = 0.01d0   ! (s-1)0.01         
-      real(8), parameter :: Kphy2_NH4 = 9.0d0   ! (s-1)     1.0d0   (Kawamiya et al., 2000) 
-      real(8), parameter :: Kphy2_NO3 = 0.6d0   ! (s-1)     0.03d0  (Kawamiya et al., 2000)  
-      real(8), parameter :: Kphy2_PO4 = 0.06d0   ! (s-1)         
-      real(8), parameter :: psi =  0.5d0    !(L umolC-1)   (1.5L umolN-1; Kishi et al., 2007)  0.01     0.226
+      real(8), parameter :: Kphy2_NH4 = 4.5d0   ! (s-1)     1.0d0   (Kawamiya et al., 2000) 
+      real(8), parameter :: Kphy2_NO3 = 0.3d0   ! (s-1)     0.03d0  (Kawamiya et al., 2000)  
+      real(8), parameter :: Kphy2_PO4 = 0.03d0   ! (s-1)         
+      real(8), parameter :: psi1 =  0.5d0    !(L umolC-1)   (1.5L umolN-1; Kishi et al., 2007)  0.01     0.226
+			real(8), parameter :: psi2 =  0.5d0    !(L umolC-1)   (1.5L umolN-1; Kishi et al., 2007)  0.01     0.226
+
 #endif
 !------- Zooplankton parameters ------------------------
-      real(8), parameter :: k_Gphy12zoo = 0.24d0/86400.0d0 ! (s-1)          Maximum grazing rate of PHY by ZOO (0.3d0 d-1; Kawamiya et al., 1995)0.16
+      real(8), parameter :: k_Gphy12zoo = 0.24d0/86400.0d0 ! (s-1)          Maximum grazing rate of PHY by ZOO at 0 oC (0.3d0 d-1; Kawamiya et al., 1995)0.16
       real(8), parameter :: b_Gphy12zoo = 0.0693d0         ! (degC-1)       Temperature coefficient for ZOO grazing (0.063d0degC-1;Kawamiya et al., 1995)
       real(8), parameter :: e_Gphy12zoo = 0.25d0           ! (no dim.)      Assimilation efficiency of ZOO (0.7:Kawamiya et al., 1995)
-      real(8), parameter :: k_Gphy22zoo = 0.17d0/86400.0d0 ! (s-1)          Maximum grazing rate of PHY by ZOO (0.3d0 d-1; Kawamiya et al., 1995)0.12
+      real(8), parameter :: k_Gphy22zoo = 0.17d0/86400.0d0 ! (s-1)          Maximum grazing rate of PHY by ZOO at 0 oC (0.3d0 d-1; Kawamiya et al., 1995)0.12
       real(8), parameter :: b_Gphy22zoo = 0.063d0         ! (degC-1)       Temperature coefficient for ZOO grazing (Kawamiya et al., 1995)
       real(8), parameter :: e_Gphy22zoo = 0.25d0           ! (no dim.)      Assimilation efficiency of ZOO (0.7:Kawamiya et al., 1995)
       real(8), parameter :: k_Rzoo = 0.005d0/86400.0d0 		!!! (s-1)          ZOO respiration rate at 0  oC  																					!!!(Tuning)
       real(8), parameter :: b_Rzoo = 0.0693d0          	  ! (degC-1)       Temperature coefficient for ZOO respiration rate (Kawamiya et al., 1995)
-      real(8), parameter :: k_Mzoo = 0.0176d0/86400.0d0 	 	!! (umol-1 s-1)   ZOO mortality rate at 0 oC 3.0d0/86400.0d0(0.0088d0 umol-1 d-1; Kawamiya et al., 1995)
+      real(8), parameter :: k_Mzoo = 0.0176d0/86400.0d0 	 	!! (L umol-1 s-1)   ZOO mortality rate at 0 oC 3.0d0/86400.0d0(0.0088d0 umol-1 d-1; Kawamiya et al., 1995)
       real(8), parameter :: b_Mzoo = 0.0693d0            	! (degC-1)       Temperature coefficient for ZOO mortality (Kawamiya et al., 1995)
-      real(8), parameter :: lam1 = 0.211d0            			! ((umol C L-1)-1)       small zooplankton Ivlev constant (1.4L/umolN.0.211; Kishi et al., 2007)
-      real(8), parameter :: lam2 = 0.211d0           				! ((umol C L-1)-1)       large zooplankton Ivlev constant (1.4L/umolN; Kishi et al., 2007)
-      real(8), parameter :: t_Gphy12zoo = 0.265d0          ! (umol C L-1)       phytoplankton threshold value for grazing by ZooP (0.04umolN/L0.265; Kishi et al., 2007)
-      real(8), parameter :: t_Gphy22zoo = 0.265d0          ! (umol C L-1)       phytoplankton threshold value for grazing by ZooP (0.04umolN/L; Kishi et al., 2007)
+      real(8), parameter :: lam1 = 0.211d0            			! ((umol C L-1)-1)       zooplankton Ivlev constant for PHY1 (1.4L/umolN.0.211; Kishi et al., 2007)
+      real(8), parameter :: lam2 = 0.211d0           				! ((umol C L-1)-1)       zooplankton Ivlev constant for PHY2 (1.4L/umolN; Kishi et al., 2007)
+      real(8), parameter :: t_Gphy12zoo = 0.265d0          ! (umol C L-1)       PHY1 threshold value for grazing by ZOO (0.04umolN/L0.265; Kishi et al., 2007)
+      real(8), parameter :: t_Gphy22zoo = 0.265d0          ! (umol C L-1)       PHY2 threshold value for grazing by ZOO (0.04umolN/L; Kishi et al., 2007)
 !------- Microbial loop parameters --------------------
-      real(8), parameter :: k_Gdoc2zoo = 0.0d0          ! (s-1)          Maximum grazing rate of DOC by ZOO rate at 0 oC (0.3d0 d-1; Kawamiya et al., 1995)
-      real(8), parameter :: b_Gdoc2zoo = 0.0d0          ! (degC-1)       Temperature coefficient (Kawamiya et al., 1995)
+      real(8), parameter :: k_Gdoc2zoo = 0.0d0          ! (s-1)          Maximum grazing rate of DOC by ZOO at 0 oC (0.3d0 d-1; Kawamiya et al., 1995)
+      real(8), parameter :: b_Gdoc2zoo = 0.0d0          ! (degC-1)       Temperature coefficient of DOC grazing by ZOO (Kawamiya et al., 1995)
       real(8), parameter :: k_Gpoc2zoo = 0.0d0          ! (s-1)          Maximum grazing rate of POC by ZOO at 0 oC (0.3d0 d-1; Kawamiya et al., 1995)
-      real(8), parameter :: b_Gpoc2zoo = 0.0d0          ! (degC-1)       Temperature coefficient (Kawamiya et al., 1995)
+      real(8), parameter :: b_Gpoc2zoo = 0.0d0          ! (degC-1)       Temperature coefficient of DOC grazing by ZOO (Kawamiya et al., 1995)
 !------- Decomposition parameters --------------------
       real(8), parameter :: k_Ddoc = 0.03d0/86400.0d0   ! (s-1)          Decomposition rate of DOC at 0 oC (0.3d0 d-1; Kishi et al., 2001)
       real(8), parameter :: b_Ddoc = 0.0693d0           ! (degC-1)       Temperature coefficient for decomposition of DOC (Kishi et al., 2001)
@@ -203,17 +205,18 @@
       real(8), parameter :: b_Dpop = 0.0693d0           ! (degC-1)       Temperature coefficient for decomposition of POP 
 !------- Physical parameters --------------------
 #if defined NUTRIENTS
-      real(8), parameter :: k_Nit = 0.0d0   						! (s-1)          Nitrification rate at 0 oC (0.03d0 d-1; Kishi et al., 2007)
+      real(8), parameter :: k_Nit = 0.03/86400.0d0   						! (s-1)          Nitrification rate at 0 oC (0.03d0 d-1; Kishi et al., 2007)
       real(8), parameter :: b_Nit = 0.0693d0           ! (degC-1)       Temperature coefficient for nitrification (Kishi et al., 2007)
 #endif
 !------- Physical parameters --------------------
 #if defined NUTRIENTS         
-      real(8), parameter :: rCNphy1 = 106.0d0/16.0d0   ! (no dim.) PHY C:N ratio (Redfield ratio)
-      real(8), parameter :: rCPphy1 = 106.0d0/1.0d0    ! (no dim.) PHY C:P ratio (Redfield ratio)
-      real(8), parameter :: rCNphy2 = 106.0d0/16.0d0   ! (no dim.) PHY C:N ratio (Redfield ratio)
-      real(8), parameter :: rCPphy2 = 106.0d0/1.0d0    ! (no dim.) PHY C:P ratio (Redfield ratio)
+      real(8), parameter :: rCNphy1 = 106.0d0/16.0d0   ! (no dim.) PHY1 C:N ratio (Redfield ratio)
+      real(8), parameter :: rCPphy1 = 106.0d0/1.0d0    ! (no dim.) PHY1 C:P ratio (Redfield ratio)
+      real(8), parameter :: rCNphy2 = 106.0d0/16.0d0   ! (no dim.) PHY2 C:N ratio (Redfield ratio)
+      real(8), parameter :: rCPphy2 = 106.0d0/1.0d0    ! (no dim.) PHY2 C:P ratio (Redfield ratio)
       real(8), parameter :: rCNzoo = 106.0d0/16.0d0   ! (no dim.) ZOO C:N ratio (Redfield ratio)
       real(8), parameter :: rCPzoo = 106.0d0/1.0d0    ! (no dim.) ZOO C:P ratio (Redfield ratio)
+			real(8), parameter :: rNH4 = 0.3d0    					! (no dim.)  PHY NH4:Nitrogen ratio 
 #endif                                
 
 !------- Local variables --------------------
@@ -248,15 +251,24 @@
 !----- Assimilation rate (umolC L-1 s-1) -----------------
 
 #if defined NUTRIENTS         
-      Vphy1_NH4 = NH4/(NH4+Kphy1_NH4)
-      Vphy1_NO3 = NO3/(NO3+Kphy1_NO3) * exp(-psi * NH4)
+!      Vphy1_NH4 = NH4/(NH4+Kphy1_NH4)
+!      Vphy1_NO3 = NO3/(NO3+Kphy1_NO3) * exp(-psi1 * NH4)
+      Vphy1_NH4 = NH4/(NH4+Kphy1_NH4) * rNH4
+      Vphy1_NO3 = NO3/(NO3+Kphy1_NO3) * exp(-psi1 * NH4) *(1.0d0 - rNH4)
+      
       Vphy1_PO4 = PO4/(PO4+Kphy1_PO4)
+      
+!      Vphy2_NH4 = NH4 * NH4/(NH4 * NH4+Kphy2_NH4 * Kphy2_NH4) * rNH4												!
+!      Vphy2_NO3 = NO3 * NO3/(NO3 * NO3+Kphy2_NO3 * Kphy2_NO3) * exp(-psi2 * NH4)	*(1.0d0 - rNH4)			!
       Vphy2_NH4 = NH4 * NH4/(NH4 * NH4+Kphy2_NH4 * Kphy2_NH4)													!
-      Vphy2_NO3 = NO3 * NO3/(NO3 * NO3+Kphy2_NO3 * Kphy2_NO3) * exp(-psi * NH4)				!
+      Vphy2_NO3 = NO3 * NO3/(NO3 * NO3+Kphy2_NO3 * Kphy2_NO3) * exp(-psi2 * NH4)				!
+      
       Vphy2_PO4 = PO4 * PO4/(PO4 * PO4+Kphy2_PO4 * Kphy2_PO4)													!
       
       Aphy1 = MIN( Vphy1_NH4+Vphy1_NO3, Vphy1_PO4 ) ! Assimilation rate
       Aphy2 = MIN( Vphy2_NH4+Vphy2_NO3, Vphy2_PO4 ) ! Assimilation rate
+!      Aphy1 = Vphy1_NH4+Vphy1_NO3										! Assimilation rate
+!      Aphy2 = Vphy2_NH4+Vphy2_NO3 									! Assimilation rate
 
       Aphy1 = Aphy1 * Pphy1
       Aphy2 = Aphy2 * Pphy2
@@ -363,7 +375,7 @@
 
 !!!------- Nitrification ------------------------
 #if defined NUTRIENTS
-			Nit = k_Nit * exp(b_Nit*Tmp) * NH4
+			Nit = k_Nit * exp(b_Nit*Tmp) * NH4 ** 2.0d0
 #endif
 
 !!!------- Mass barance equations ------------------------
@@ -395,13 +407,13 @@
       dDON_dt = - Gdoc2zoo/rCNzoo - Ddon + Dpon2don
       dPON_dt = (Mphy1 + Gphy12zoo*(1.0d0-e_Gphy12zoo))/rCNphy1        &
      &         +(Mphy2 + Gphy22zoo*(1.0d0-e_Gphy22zoo))/rCNphy2        &
-     &         +(Mzoo - Gpon2zoo)/rCNzoo                               &
+     &         +(Mzoo - Gpoc2zoo)/rCNzoo                               &
      &         - Dpon -Dpon2don
 
-      dDOP_dt = - Gdop2zoo/rCPzoo - Ddop + Dpop2dop
+      dDOP_dt = - Gdoc2zoo/rCPzoo - Ddop + Dpop2dop
       dPOP_dt = (Mphy1 + Gphy12zoo*(1.0d0-e_Gphy12zoo))/rCPphy1        &
      &         +(Mphy2 + Gphy22zoo*(1.0d0-e_Gphy22zoo))/rCPphy2        &
-     &         +(Mzoo - Gpop2zoo)/rCPzoo                               &
+     &         +(Mzoo - Gpoc2zoo)/rCPzoo                               &
      &         - Dpop -Dpop2dop
      dDOx_dt  = Pphy1 - Rphy1 + Pphy2 - Rphy2 - Rzoo - Ddoc - Dpoc - 1.86d0 * Nit
 #else

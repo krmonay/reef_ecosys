@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/02   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/06   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -7,13 +7,15 @@
       PROGRAM ecosys_test
 ! **********************************************************************
 ! *                                                                    *
-! *   Test program of ecosys6.F                                        *
+! *   Test program of mod_reef_ecosys3                                 *
 ! *                                                                    *
 ! **********************************************************************
 !
       USE mod_param
       USE mod_reef_ecosys
+#if defined USE_HEAT
       USE mod_heat
+#endif
       USE mod_input
       USE mod_geochem
 
@@ -57,7 +59,7 @@
       real(8) :: fvol_cre      ! volume flux through the reef crest (m3 m-2 s-1)
       real(8) :: fvol_cha      ! volume flux through the channel(m3 m-2 s-1)
       real(8) :: fvol_pre      ! Precipitation volume flux (m s-1)
-      real(8) :: dw_lwradi     ! Downward longwave radiation (W m-2)
+!      real(8) :: dw_lwradi     ! Downward longwave radiation (W m-2)
       real(8), save :: ereef = 0.0d0   ! sea surface elevation on the reef flat (m)
       real(8), parameter :: z_crest = -0.15d0 ! reef crest position (m)
       real(8), parameter :: kvol_cre   = 5.0d-2 ! reef crest conductivity
@@ -123,9 +125,9 @@
 
 !----- Set initial conditions -------------------------
 
-
+#if defined USE_HEAT
       CALL initialize_heat(1, Ngrids, 1, Im, 1, Jm)
-
+#endif
       CALL initialize_reef_ecosys(1, Ngrids, 1, Im, 1, Jm)
 
 !      call Coral_iniSizeDis
@@ -210,8 +212,8 @@
 
         CALL reef_ecosys          &
 !          input parameters
-     &            (N              &   ! Number of vertical grid (following ROMS vertical grid)
-     &            ,1,1,1          &   ! ng: nested grid number; i,j: position
+     &            (1, 1, 1        &   ! ng: nested grid number; i,j: position
+     &            ,N              &   ! Number of vertical grid (following ROMS vertical grid)
      &            ,isplitc        &   ! Internal loop counts of coral polyp model
      &            ,isplitsed      &   ! Internal loop counts of sediment ecosystem model
      &            ,dt             &   ! Time step (sec)
@@ -220,11 +222,18 @@
      &            ,tau            &   ! bottom shear stress (N m-2)
      &            ,pCO2air        &   ! Air CO2 pertial pressure (uatm)
      &            ,U10            &   ! wind speed (m s-1)
-
-     &            ,p_coral(1,1)        &   ! Coral coverage (0-1)
-     &            ,p_sgrass(1,1)       &   ! seagrass coverage (0-1)
-     &            ,p_algae(1,1)        &   ! algal coverage (0-1)
-     &            ,p_sed(1,1)          &   ! sediment coverage (0-1)
+#ifdef CORAL_POLYP
+     &            ,p_coral(:,1,1) &   ! Coral coverage (0-1)
+#endif
+#ifdef SEAGRASS
+     &            ,p_sgrass(1,1)  &   ! seagrass coverage (0-1)
+#endif
+#ifdef MACROALGAE
+     &            ,p_algae(1,1)   &   ! algal coverage (0-1)
+#endif
+#ifdef SEDIMENT_ECOSYS
+     &            ,p_sand(1,1)    &   ! sediment coverage (0-1)
+#endif
 
      &            ,C(1,1,:,1,iTemp)     &   ! Tmp(N): Temperature (oC)
      &            ,C(1,1,:,1,iSalt)     &   ! Sal(N): Salinity (PSU)
@@ -293,12 +302,7 @@
      &            ,ssCO2flux      &   ! sea surface CO2 flux (mmol m-2 s-1)
      &            ,ssO2flux       &   ! sea surface O2 flux (mmol m-2 s-1)
      &            ,PFDbott        &   ! Bottom photon flux density (umol m-2 s-1)
-     &            ,coral_Pg       &   ! Coral gross photosynthesis rate (nmol cm-2 s-1)
-     &            ,coral_R        &   ! Coral respiration rate (nmol cm-2 s-1)
-     &            ,coral_Gn       &   ! Coral calcification rate (nmol cm-2 s-1)
-     &            ,sgrass_Pg      &   ! seagrass gross photosynthesis rate (mmol m-2 s-1)
-     &            ,sgrass_R       &   ! seagrass respiration rate (mmol m-2 s-1)
-     &             )
+     &             )                    
 !
 
         do k=1,N

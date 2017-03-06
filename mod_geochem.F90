@@ -1,5 +1,5 @@
 
-!!!=== ver 2013/05/16   Copyright (c) 2012-2014 Takashi NAKAMURA  =====
+!!!=== ver 2017/02/01   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
   module mod_geochem
 
@@ -457,6 +457,7 @@
       real(8), intent(in) :: T     ! Temperature (K)
       real(8), intent(in) :: S     ! Salinity (psu)
 
+! --- CO2 Exchange Parameters (Wanninkhof 1992) ------------------------
       real(8), parameter :: Acoef = 2073.1d0      ! Schmidt
       real(8), parameter :: Bcoef = 125.62d0      ! number
       real(8), parameter :: Ccoef = 3.6276d0      ! transfer
@@ -481,8 +482,8 @@
 
       rhoref =1023.0d0
 
-      Sc=Acoef - Bcoef*t_oC + Ccoef*t_oC**2.0d0 - Dcoef*t_oC**3.0d0   !Schmidt number for seawater for temperature ranging from 0 to 50 degrees celsius
-      kvex=0.31d0*u10**2.d0*(Sc/660.d0)**(-0.5d0) !Gas transfer velocity for CO2;Wanninkhof(1992) (cm/hr)
+      Sc=Acoef - Bcoef*t_oC + Ccoef*t_oC**2.0d0 - Dcoef*t_oC**3.0d0   !Schmidt number for seawater for temperature ranging from 0 to 30 degrees celsius
+      kvex=0.31d0*u10*u10*SQRT(660.0d0/Sc) !Gas transfer velocity for O2;Wanninkhof(1992)  (cm/hr)
 
       sol=exp(     A1+A2*(100.d0/T)+A3*log(T/100.d0)       &  !Solubility of CO2 [mol/(kg atm)]; Weiss,1974
      &         +S*(B1+B2*(T/100.d0)+B3*(T/100.d0)**2.d0)   &
@@ -507,24 +508,27 @@
       real(8), intent(in) :: u10    ! Wind speed (m s-1)
       real(8), intent(in) :: T      ! Temperature (K)
       real(8), intent(in) :: S      ! Salinity (psu)
-
-      real(8), parameter :: Acoef = 1953.4d0      ! Schmidt
-      real(8), parameter :: Bcoef = 128.00d0      ! number
-      real(8), parameter :: Ccoef = 3.9918d0      ! transfer
-      real(8), parameter :: Dcoef = 0.050091d0    ! coefficients
+! --- O2 Exchange Parameters (Wanninkhof 1992) ------------------------
+!      real(8), parameter :: Acoef = 1953.4d0      ! Schmidt
+!      real(8), parameter :: Bcoef = 128.00d0      ! number
+!      real(8), parameter :: Ccoef = 3.9918d0      ! transfer
+!      real(8), parameter :: Dcoef = 0.050091d0    ! coefficients
+! --- O2 Exchange Parameters (Keeling et al. 1998) ------------------------
+      real(8), parameter :: Acoef = 1638.0d0       ! Schmidt
+      real(8), parameter :: Bcoef = 81.83d0        ! number
+      real(8), parameter :: Ccoef = 1.483d0        ! transfer
+      real(8), parameter :: Dcoef = 0.008004d0     ! coefficients
 
       real(8)  Sc, kvex, sol
       real(8)  rhoref, t_oC
 
-! --- O2 Exchange Parameters (Wanninkhof 1992) ------------------------
-      
       t_oC=T-273.15d0
-      IF(t_oC >= 30.0d0) THEN  !!! Error handling
-        t_oC = 30.0d0
+      IF(t_oC >= 40.0d0) THEN  !!! Error handling
+        t_oC = 40.0d0
       ENDIF
 
-      Sc=Acoef - Bcoef*t_oC + Ccoef*t_oC**2.0d0 - Dcoef*t_oC**3.0d0   !Schmidt number for seawater for temperature ranging from 0 to 50 degrees celsius
-      kvex=0.31d0*u10**2.d0*(Sc/660.d0)**(-0.5d0) !Gas transfer velocity for O2;Wanninkhof(1992)  (cm/hr)
+      Sc=Acoef - Bcoef*t_oC + Ccoef*t_oC**2.0d0 - Dcoef*t_oC**3.0d0   !Schmidt number for seawater for temperature ranging from 0 to 30 degrees celsius
+      kvex=0.31d0*u10*u10*SQRT(660.0d0/Sc) !Gas transfer velocity for O2;Wanninkhof(1992)  (cm/hr)
 
       Flux_O2 = kvex*(DOw-DOsatu)/100.d0/3600.d0
 

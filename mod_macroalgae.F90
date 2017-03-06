@@ -1,20 +1,21 @@
 
-!!!=== ver 2017/01/27   Copyright (c) 2012-2013 Takashi NAKAMURA  =====
+!!!=== ver 2017/02/01   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
 
-!!!*************** ALGAE ***********************************************
+!!!*************** MACROALGAE *****************************************
 
 
-  MODULE mod_algae
+  MODULE mod_macroalgae
 
     implicit none
 
-    integer, parameter :: Nsg = 1    !! Number of seagrass groups
+    integer, parameter :: Nag = 1    !! Number of algal groups
 
     TYPE T_ALGAE
-
+      real(8), pointer :: Pg(:,:,:) 
+      real(8), pointer :: R (:,:,:) 
       real(8), pointer :: QC(:,:,:)
 #if defined CARBON_ISOTOPE
 !  13C isotope
@@ -31,10 +32,10 @@
   CONTAINS
 
 !!! **********************************************************************
-!!!  set initial conditions for coral polyp model (Nakamura et al. 2013)
+!!!  set initial conditions for algae model
 !!! **********************************************************************
 
-    subroutine initialize_algae(ng, Ngrids, LBi, UBi, LBj, UBj)
+    subroutine initialize_macroalgae(ng, Ngrids, LBi, UBi, LBj, UBj)
 
       USE mod_geochem
       
@@ -45,22 +46,25 @@
       integer i,j,n
 
       IF (ng.eq.1) allocate ( ALGAE(Ngrids) )
-
-      allocate( ALGAE(ng)%QC(Nsg,LBi:UBi,LBj:UBj)     )
+      allocate( ALGAE(ng)%Pg(Nag,LBi:UBi,LBj:UBj)     )
+      allocate( ALGAE(ng)%R (Nag,LBi:UBi,LBj:UBj)     )
+      allocate( ALGAE(ng)%QC(Nag,LBi:UBi,LBj:UBj)     )
 #if defined CARBON_ISOTOPE
-      allocate( ALGAE(ng)%Q13C(Nsg,LBi:UBi,LBj:UBj)   )
+      allocate( ALGAE(ng)%Q13C(Nag,LBi:UBi,LBj:UBj)   )
 #endif
 #if defined NUTRIENTS         
-      allocate( ALGAE(ng)%QN(Nsg,LBi:UBi,LBj:UBj)     )
-      allocate( ALGAE(ng)%QP(Nsg,LBi:UBi,LBj:UBj)     )
+      allocate( ALGAE(ng)%QN(Nag,LBi:UBi,LBj:UBj)     )
+      allocate( ALGAE(ng)%QP(Nag,LBi:UBi,LBj:UBj)     )
 #endif
 
 !------------------------------------------
 !  Set initial conditions
       do j=LBj,UBj
         do i=LBi,UBi
-          do n=1,Nsg
+          do n=1,Nag
 !        seagrass internal conditions
+            ALGAE(ng)%Pg(n,i,j) = 0.0d0
+            ALGAE(ng)%R (n,i,j) = 0.0d0
             ALGAE(ng)%QC(n,i,j) = 15.0d0  !!!‚Ä‚«‚Æ‚¤
 #if defined CARBON_ISOTOPE
             R13C = R13C_fromd13C(-15.0d0)
@@ -77,13 +81,13 @@
       
       RETURN
       
-    END SUBROUTINE initialize_algae
+    END SUBROUTINE initialize_macroalgae
 
 !!! **********************************************************************
 !!!  Main program of algal model
 !!! **********************************************************************
 
-    SUBROUTINE algae           &
+    SUBROUTINE macroalgae         &
 !          input parameters
      &            (ng, n, i, j    &   ! ng: nested grid number; n: seagrass compartment; i,j: position
      &            ,PFD            &   ! Photon flux density (umol m-2 s-1)
@@ -97,8 +101,6 @@
      &            ,DI13Camb       &   ! 13C of DIC (umol kg-1)
 #endif
 !          output parameters
-     &            ,Pg             &   ! Gross photosynthesis rate (mmol m-2 s-1)
-     &            ,R              &   ! Respiration rate (mmol m-2 s-1)
      &            ,DICuptake      &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
      &            ,DOuptake       &   ! DO  uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 #if defined NUTRIENTS         
@@ -129,8 +131,6 @@
       real(8), intent(in) :: DI13Camb
 #endif
 ! output parameters
-      real(8), intent(out) :: Pg
-      real(8), intent(out) :: R
       real(8), intent(out) :: DICuptake
       real(8), intent(out) :: DOuptake
 #if defined NUTRIENTS         
@@ -145,10 +145,12 @@
 ! --- C:N:P ratio of seagrass ---
       real(8), parameter :: nc=27./599.d0 !M.J.Atkinson and SV Smith(1983)
       real(8), parameter :: pc=1./599.d0
-! --- Photosynthesis and Calcification Parameters (coral) ---
-      real(8), parameter :: pmax =  51.3d0 !average of 2009 observation and nakamura
-      real(8), parameter :: pIk  = 589.65d0
-      real(8), parameter :: p0   =  15.05d0 !-15.05
+! --- Photosynthesis Parameters ---
+!      real(8), parameter :: pmax =  51.3d0  ! Nakamura & Nakamori 2009
+!      real(8), parameter :: pIk  = 589.65d0
+!      real(8), parameter :: p0   =  15.05d0 !
+      real(8), parameter :: p1   =  0.0213d0 ! Nakamura & Nakamori 2009
+      real(8), parameter :: p0   = 12.885d0  !
 #if defined NUTRIENTS         
       real(8) npref
       real(8) ldocn,ldocd
@@ -161,18 +163,19 @@
 
 ! --- Organic and Inorganic Production Rate -----------------
 
-      Pg= pmax*tanh(PFD/pIk)/3600.d0   !Light response curve [mmolC/m2/s]
-      R = p0/3600.d0   !Light response curve [mmolC/m2/s]
+!      ALGAE(ng)%Pg(n,i,j)= pmax*tanh(PFD/pIk)/3600.d0   !Light response curve [mmolC/m2/s]
+      ALGAE(ng)%Pg(n,i,j)= p1*PFD/3600.d0   !Linear regression line [mmolC/m2/s]
+      ALGAE(ng)%R (n,i,j)= p0/3600.d0   ! Constant [mmolC/m2/s]
       
       IF(DICamb<=0.d0) THEN !-----For Error handling
-        Pg =0.d0
+        ALGAE(ng)%Pg(n,i,j) = 0.d0
       ENDIF
       IF(DOamb<=0.d0) THEN !-----For Error handling
-        R=0.d0
+        ALGAE(ng)%R (n,i,j) = 0.d0
       ENDIF
       
-      DICuptake= Pg-R
-      DOuptake = R -Pg
+      DICuptake= ALGAE(ng)%Pg(n,i,j)-ALGAE(ng)%R (n,i,j)
+      DOuptake = ALGAE(ng)%R (n,i,j)-ALGAE(ng)%Pg(n,i,j)
 
 !!! ----- Isotope calculation ----------------------------------------------------
 #if defined CARBON_ISOTOPE
@@ -183,7 +186,8 @@
         R13C_DIC =0.d0
       ENDIF
 
-      DI13Cuptake=Pg*R13C_DIC*a_phot - R*R13C_QC*a_resp
+      DI13Cuptake=ALGAE(ng)%Pg(n,i,j)*R13C_DIC*a_phot        &
+     &            - ALGAE(ng)%R (n,i,j)*R13C_QC*a_resp
 #endif
       
 ! --- Nutrient fluxes between water column and coral -----
@@ -195,7 +199,7 @@
 #endif
       RETURN
     
-    END SUBROUTINE algae
+    END SUBROUTINE macroalgae
 
-  END MODULE mod_algae
+  END MODULE mod_macroalgae
 

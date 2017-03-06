@@ -63,10 +63,10 @@
     real(8), allocatable, save :: C(:,:,:,:,:)
     real(8), allocatable, save :: dC_dt(:,:,:,:)
     
-    real(8), allocatable, save :: p_coral(:,:)
+    real(8), allocatable, save :: p_coral(:,:,:)
     real(8), allocatable, save :: p_sgrass(:,:)
     real(8), allocatable, save :: p_algae(:,:)
-    real(8), allocatable, save :: p_sed(:,:)
+    real(8), allocatable, save :: p_sand(:,:)
 
   contains
 
@@ -165,9 +165,9 @@
       allocate( C(LBi:UBi, LBj:UBj, N, 1, Nid) , &
      &          dC_dt(LBi:UBi, LBj:UBj, N, Nid)   )
      
-      allocate( p_coral (LBi:UBi, LBj:UBj) , &
+      allocate( p_coral (2,LBi:UBi, LBj:UBj) , &
      &          p_sgrass(LBi:UBi, LBj:UBj) , &
-     &          p_sed   (LBi:UBi, LBj:UBj) , &
+     &          p_sand  (LBi:UBi, LBj:UBj) , &
      &          p_algae (LBi:UBi, LBj:UBj)   )   
 
 
@@ -227,9 +227,10 @@
 #endif
           enddo
           
-          p_coral(i,j) = 1.0d0
+          p_coral(1,i,j) = 1.0d0
+          p_coral(2,i,j) = 0.0d0
           p_sgrass(i,j)= 1.0d0
-          p_sed(i,j)   = 1.0d0
+          p_sand(i,j)  = 1.0d0
           p_algae(i,j) = 0.0d0
           
           

@@ -158,7 +158,7 @@
       lradi = up_long_wave_radi(Tmp(N))-dw_lwradi
 #else
       lradi = net_long_wave_radi(Tmp(N))
-#end
+#endif
 
 ! Sensible heat (W m-2)
       sens = sensheat(Tmp(N), tair, pair, eair, u10)
