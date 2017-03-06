@@ -379,15 +379,13 @@
 
           else if (nSetting .eq. 5) then
 
-
-
-
-
-
-
-
-
-
+            C(1,1,k,1,iTemp)=C(1,1,k,1,iTemp)+0.
+            C(1,1,k,1,iSalt)=C(1,1,k,1,iSalt)+0.
+            C(1,1,k,1,iSedi)=C(1,1,k,1,iSedi)+0.
+            
+            do id=4,Nid
+              C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
+            end do
 
           end if
 
