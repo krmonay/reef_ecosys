@@ -6,7 +6,7 @@ ch2_file = '.././output/eco5-crl2_his.csv';
 ca1_file = '.././output/eco5-crl1_ave.csv';
 ca2_file = '.././output/eco5-crl2_ave.csv';
 
-xmin=0; ymin=1;
+xmin=0; ymin=5;
 PFDmax =2000;
 
 d   = readtable(box_file,'Delimiter',',', 'ReadVariableNames', true);
