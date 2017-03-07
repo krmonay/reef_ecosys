@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/06   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/07   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -18,10 +18,22 @@
 #endif
       USE mod_input
       USE mod_geochem
+#ifdef CORAL_POLYP
+      USE mod_coral
+#endif
+#ifdef SEAGRASS
+      USE mod_seagrass
+#endif
+#ifdef MACROALGAE
+      USE mod_macroalgae
+#endif
+#ifdef SEDIMENT_ECOSYS
+      USE mod_sedecosys
+#endif
 
       implicit none
       
-      integer, parameter :: Im = 2
+      integer, parameter :: Im = 1
       integer, parameter :: Jm = 1
       integer, parameter :: N  = 1
 
@@ -113,7 +125,7 @@
 !                4: Reef simulation condition
 !                5: Incubation chamber condition
       
-      nSetting = 5  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      nSetting = 1  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
 !----- Set initial conditions -------------------------
 
@@ -121,7 +133,11 @@
 
 !----- Import data -----------------------------------
 
-      CALL read_timeseies
+      if (nSetting .eq. 4) then
+        CALL read_timeseies
+      else if (nSetting .eq. 5) then
+        CALL read_chambercondition
+      endif
 
 !----- Set initial conditions -------------------------
 
@@ -418,7 +434,19 @@
 # endif
         
           write(55,*) time, PFDsurf                              &
-     &       ,coral_Pg, coral_Pg-coral_R, coral_Gn, sgrass_Pg, sgrass_R  &
+     &       ,CORAL(1)%Pg(1,1,1), CORAL(1)%R (1,1,1)             &
+     &       ,CORAL(1)%Pg(1,1,1)-CORAL(1)%R (1,1,1)              &
+     &       ,CORAL(1)%G (1,1,1)                                 &
+     &       ,CORAL(1)%Pg(2,1,1), CORAL(1)%R (2,1,1)             &
+     &       ,CORAL(1)%Pg(2,1,1)-CORAL(1)%R (2,1,1)              &
+     &       ,CORAL(1)%G (2,1,1)                                 &
+     &       ,SGRASS(1)%Pg(1,1,1), SGRASS(1)%R (1,1,1)           &
+     &       ,SGRASS(1)%Pg(1,1,1)-SGRASS(1)%R (1,1,1)            &
+     &       ,ALGAE(1)%Pg(1,1,1), ALGAE(1)%R (1,1,1)             &
+     &       ,ALGAE(1)%Pg(1,1,1)-ALGAE(1)%R (1,1,1)              &
+     &       ,SEDECO(1)%Pg(1,1), SEDECO(1)%R (1,1)               &
+     &       ,SEDECO(1)%Pg(1,1)-SEDECO(1)%R (1,1)                &
+     &       ,SEDECO(1)%G (1,1)                                  &
      &       ,dz(1,1,1),C(1,1,1,1,iTemp),C(1,1,1,1,iSalt)        &
      &       ,sspH, ssfCO2, ssWarg, U10, ssCO2flux, ssO2flux     &
      &       ,etide, ereef, dz(1,1,1)                            &

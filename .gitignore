@@ -31,3 +31,6 @@
 # Output Files
 output/*
 
+# Backup Files
+backup/*
+

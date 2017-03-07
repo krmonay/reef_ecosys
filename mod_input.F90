@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/02   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/07   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -292,10 +292,11 @@
       ssradi=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 25.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
 
 !  --- Set heat data ------------------------------------------------
-
+#if defined USE_HEAT
       Tair=lin_interpol(time,eTair,dt_air,nm_air)   !data from file
       Eair=lin_interpol(time,eEair,dt_air,nm_air)   !data from file
       Psea=lin_interpol(time,ePsea,dt_air,nm_air)   !data from file
+#endif
 
       return
 
