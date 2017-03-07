@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/06   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/07   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -16,9 +16,67 @@
 !-----------------------------------------------------------------------
 !  Grid nesting parameters.
 !-----------------------------------------------------------------------
-!
-!  Number of nested and/or connected grids to solve.
-!
+
+    real(8) :: time    !(day)
+    
+    real(8), allocatable :: tide(:)
+    real(8) :: etide
+    real(8) :: dt_tide
+    integer :: nm_tide
+    
+    real(8), allocatable :: windu(:) 
+    real(8), allocatable :: windv(:)
+    real(8) :: Uwind
+    real(8) :: Vwind
+    real(8) :: dt_wind
+    integer :: nm_wind
+    
+    real(8), allocatable :: sradi(:)
+    real(8), allocatable :: eTair(:)
+    real(8), allocatable :: eEair(:)
+    real(8), allocatable :: ePsea(:)
+    real(8) :: ssradi
+    real(8) :: Tair
+    real(8) :: Eair
+    real(8) :: Psea
+    real(8) :: dt_air
+    integer :: nm_air
+    
+    real(8), allocatable :: dlwrad(:)
+    real(8) :: dw_lwradi
+    real(8) :: dt_dlwrad
+    integer :: nm_dlwrad
+    
+    real(8), allocatable :: Hsin(:)
+    real(8), allocatable :: Tpin(:)
+    real(8) :: Tp
+    real(8) :: Hs
+    real(8) :: dt_wave
+    integer :: nm_wave
+
+
+    real(8) :: PFDsurf    
+    real(8) :: tau        
+    real(8) :: pCO2air    
+    real(8) :: U10        
+    
+    real(8) :: sspH      
+    real(8) :: ssfCO2    
+    real(8) :: ssWarg    
+    real(8) :: ssCO2flux 
+    real(8) :: ssO2flux  
+    real(8) :: PFDbott   
+
+    real(8) :: fvol_cre      ! volume flux through the reef crest (m3 m-2 s-1)
+    real(8) :: fvol_cha      ! volume flux through the channel(m3 m-2 s-1)
+    real(8) :: fvol_pre      ! Precipitation volume flux (m s-1)
+!    real(8) :: dw_lwradi     ! Downward longwave radiation (W m-2)
+    real(8) :: ereef         ! sea surface elevation on the reef flat (m)
+    real(8), parameter :: z_crest = -0.15d0 ! reef crest position (m)
+    real(8), parameter :: kvol_cre   = 5.0d-2 ! reef crest conductivity
+    real(8), parameter :: kvol_cha = 1.0d-1 ! Channel conductivety
+    real(8) :: wave_setup   ! wave setup (m)
+
 
     integer :: iTemp                  ! Temperature
     integer :: iSalt                  ! Salinity
@@ -59,14 +117,14 @@
     integer :: iCOTl                  ! Larvae of crown-of-thorns starfish
 #endif
 
-    real(8), allocatable, save :: dz(:,:,:)    
-    real(8), allocatable, save :: C(:,:,:,:,:)
-    real(8), allocatable, save :: dC_dt(:,:,:,:)
+    real(8), allocatable :: dz(:,:,:)    
+    real(8), allocatable :: C(:,:,:,:,:)
+    real(8), allocatable :: dC_dt(:,:,:,:)
     
-    real(8), allocatable, save :: p_coral(:,:,:)
-    real(8), allocatable, save :: p_sgrass(:,:)
-    real(8), allocatable, save :: p_algae(:,:)
-    real(8), allocatable, save :: p_sand(:,:)
+    real(8), allocatable :: p_coral(:,:,:)
+    real(8), allocatable :: p_sgrass(:,:)
+    real(8), allocatable :: p_algae(:,:)
+    real(8), allocatable :: p_sand(:,:)
 
   contains
 
@@ -228,7 +286,7 @@
           enddo
           
           p_coral(1,i,j) = 1.0d0
-          p_coral(2,i,j) = 0.0d0
+          p_coral(2,i,j) = 1.0d0
           p_sgrass(i,j)= 1.0d0
           p_sand(i,j)  = 1.0d0
           p_algae(i,j) = 0.0d0
@@ -236,6 +294,8 @@
           
         enddo
       enddo
+      
+      ereef = 0.0d0
 
       return
     end subroutine initialize_params

@@ -11,43 +11,6 @@
 
   module mod_input
   
-    implicit none
-    
-    real(8), allocatable, save :: tide(:)
-    real(8), save :: etide
-    real(8), save :: dt_tide
-    integer, save :: nm_tide
-    
-    real(8), allocatable, save :: windu(:) 
-    real(8), allocatable, save :: windv(:)
-    real(8), save :: Uwind
-    real(8), save :: Vwind
-    real(8), save :: dt_wind
-    integer, save :: nm_wind
-    
-    real(8), allocatable, save :: sradi(:)
-    real(8), allocatable, save :: eTair(:)
-    real(8), allocatable, save :: eEair(:)
-    real(8), allocatable, save :: ePsea(:)
-    real(8), save :: ssradi
-    real(8), save :: Tair
-    real(8), save :: Eair
-    real(8), save :: Psea
-    real(8), save :: dt_air
-    integer, save :: nm_air
-    
-    real(8), allocatable, save :: dlwrad(:)
-    real(8), save :: dw_lwradi
-    real(8), save :: dt_dlwrad
-    integer, save :: nm_dlwrad
-    
-    real(8), allocatable, save :: Hsin(:)
-    real(8), allocatable, save :: Tpin(:)
-    real(8), save :: Tp
-    real(8), save :: Hs
-    real(8), save :: dt_wave
-    integer, save :: nm_wave
-
   contains
 
 
@@ -56,6 +19,8 @@
 ! **********************************************************************
 
     subroutine read_timeseies
+    
+      USE mod_param
       
       implicit none
       
@@ -179,6 +144,8 @@
 ! **********************************************************************
 
     subroutine read_chambercondition
+    
+      USE mod_param
       
       implicit none
       
@@ -260,11 +227,13 @@
 !  Set environmental condition
 ! **********************************************************************
 
-    subroutine setdata(time)
-!
+    subroutine setdata
+    
+      USE mod_param
+      
       implicit none
       
-      real(8), intent(in) :: time
+!      real(8), intent(in) :: time
 
 !  -- Set Tide data ---------------------------------------------
 
@@ -291,8 +260,8 @@
 !      ssradi=short_radi(time, 0.0d0, 1.0d0, 24.0d0, 25.0d0, 50.0d0, 1) !shortwave radiation by Zillman equation
       ssradi=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 25.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
 
-!  --- Set heat data ------------------------------------------------
 #if defined USE_HEAT
+!  --- Set heat data ------------------------------------------------
       Tair=lin_interpol(time,eTair,dt_air,nm_air)   !data from file
       Eair=lin_interpol(time,eEair,dt_air,nm_air)   !data from file
       Psea=lin_interpol(time,ePsea,dt_air,nm_air)   !data from file

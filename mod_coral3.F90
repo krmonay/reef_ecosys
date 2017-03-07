@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/01/30   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/07   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -544,18 +544,22 @@
 
 #if defined CORAL_TESTMODE
 !  Output
-      real(8), save :: time        = 0.d0  !sec
-      real(8), save :: S_PFD_dt    = 0.d0
-      real(8), save :: S_Gn_dt     = 0.d0
-      real(8), save :: S_d13CargxGn_dt = 0.d0
-      real(8), save :: S_d13C_QC_dt= 0.d0
-      real(8), save :: S_Pg_dt      = 0.d0
-      real(8), save :: S_R_dt       = 0.d0
-      real(8), save :: S_QC_dt    = 0.d0
-      real(8), save :: dsec         = 0.d0 !sec
-      real(8), save :: dday         = 1.d0 !day
+      real(8), save :: time(Ncl)         = (/ 0.d0, 0.d0 /)  !sec
+      real(8), save :: S_PFD_dt(Ncl)     = (/ 0.d0, 0.d0 /)
+      real(8), save :: S_Gn_dt(Ncl)      = (/ 0.d0, 0.d0 /)
+      real(8), save :: S_Pg_dt(Ncl)      = (/ 0.d0, 0.d0 /)
+      real(8), save :: S_R_dt(Ncl)       = (/ 0.d0, 0.d0 /)
+      real(8), save :: S_QC_dt(Ncl)      = (/ 0.d0, 0.d0 /)
+      real(8), save :: dsec(Ncl)         = (/ 0.d0, 0.d0 /) !sec
+      real(8), save :: dday(Ncl)         = (/ 1.d0, 1.d0 /) !day
+# if defined CORAL_CARBON_ISOTOPE
+      real(8), save :: S_d13CargxGn_dt(Ncl) = (/ 0.d0, 0.d0 /)
+      real(8), save :: S_d13C_QC_dt(Ncl) = (/ 0.d0, 0.d0 /)
+# endif
+# if defined CORAL_BORON_ISOTOPE
       real(8) d11Barg
-      real(8), save :: S_d11BargxGn_dt = 0.d0
+      real(8), save :: S_d11BargxGn_dt(Ncl) = (/ 0.d0, 0.d0 /)
+# endif
 #endif
 
 !----------- Temperature (K)  --------------------------------
@@ -1240,102 +1244,101 @@
       d11Barg = d11B_BOH4_frompHd11BT(pHcal, 39.5d0, TKamb, Samb)
 # endif
 
-      time = time +dt  ! sec
+      time(n) = time(n) +dt  ! sec
       
-      if(time.ge.dsec) then
+      if(time(n).ge.dsec(n)) then
         
-        Pn=Pg-R
-
-        write(52,*) time/86400.d0,PFD                                           &
-     &   ,Pg,R,Pn,Gn,E_ca,CORAL(ng)%TAcal(n,i,j),CORAL(ng)%TAcoe(n,i,j),TAamb   &
-     &   ,CORAL(ng)%DICcal(n,i,j),CORAL(ng)%DICcoe(n,i,j),DICamb                &
-     &   ,CORAL(ng)%QC(n,i,j),CORAL(ng)%DOcoe(n,i,j),DOamb                      &
-     &   ,pHcal,pHcoe,pHamb,Wargcal,Wargamb,fCO2cal,fCO2coe,fCO2amb             &
-     &   ,CORAL(ng)%cCO2aqcal(n,i,j),cHCO3cal,cCO3cal &
-     &   ,CORAL(ng)%cCO2aqcoe(n,i,j),cHCO3coe,cCO3coe &
-#if defined CORAL_CARBON_ISOTOPE
-     &   ,d13C_DICamb,d13C_DICcoe,d13C_QC,d13C_DICcal,d13C_arg,d13C_arg*Gn    &
-     &   ,d13C_fromR13C(CORAL(ng)%c13CO2aqcal(n,i,j)/CORAL(ng)%cCO2aqcal(n,i,j))        &
-     &   ,d13C_fromR13C(cH13CO3cal/cHCO3cal),d13C_fromR13C(c13CO3cal/cCO3cal) &
-     &   ,d13C_fromR13C(CORAL(ng)%c13CO2aqcoe(n,i,j)/CORAL(ng)%cCO2aqcoe(n,i,j))                  &
-     &   ,d13C_fromR13C(cH13CO3coe/cHCO3coe),d13C_fromR13C(c13CO3coe/cCO3coe) &
-     &   ,CORAL(ng)%c13CO2aqcal(n,i,j),cH13CO3cal,c13CO3cal &
-     &   ,CORAL(ng)%c13CO2aqcoe(n,i,j),cH13CO3coe,c13CO3coe &
-#else
-     &   ,'NaN ', 'NaN ', 'NaN ', 'NaN ', 'NaN ', 'NaN ' & 
-     &   ,'NaN '        &
-     &   ,'NaN ', 'NaN ' &
-     &   ,'NaN '        &
-     &   ,'NaN ', 'NaN ' &
-     &   ,'NaN ', 'NaN ', 'NaN ' &
-     &   ,'NaN ', 'NaN ', 'NaN ' &
-#endif
+        write(10+n,*) time(n)/86400.d0,',',PFD,','                      &
+     &   ,CORAL(ng)%Pg(n,i,j),',', CORAL(ng)%R (n,i,j),','              &
+     &   ,CORAL(ng)%Pg(n,i,j)-CORAL(ng)%R (n,i,j),','                   &
+     &   ,CORAL(ng)%G (n,i,j),',',CORAL(ng)%QC(n,i,j),','               &
+     &   ,CORAL(ng)%TAcal(n,i,j),',',CORAL(ng)%TAcoe(n,i,j),',',TAamb,','     &
+     &   ,CORAL(ng)%DICcal(n,i,j),',',CORAL(ng)%DICcoe(n,i,j),',',DICamb,','  &
+     &   ,CORAL(ng)%DOcoe(n,i,j),',',DOamb,','                          &
+     &   ,pHcal,',',pHcoe,',',pHamb,',',Wargcal,',',Wargamb,','         &
+     &   ,fCO2cal,',',fCO2coe,',',fCO2amb,','                           &
+     &   ,CORAL(ng)%cCO2aqcal(n,i,j),',',cHCO3cal,',',cCO3cal,','       &
+     &   ,CORAL(ng)%cCO2aqcoe(n,i,j),',',cHCO3coe,',',cCO3coe,','       &
+# if defined CORAL_CARBON_ISOTOPE
+     &   ,d13C_DICamb,',',d13C_DICcoe,',',d13C_QC,d13C_DICcal,','       &
+     &   ,d13C_arg,',',d13C_arg*Gn,','                                  &
+     &   ,d13C_fromR13C(CORAL(ng)%c13CO2aqcal(n,i,j)/CORAL(ng)%cCO2aqcal(n,i,j)),','   &
+     &   ,d13C_fromR13C(cH13CO3cal/cHCO3cal),','                        &
+     &   ,d13C_fromR13C(c13CO3cal/cCO3cal),','                          &
+     &   ,d13C_fromR13C(CORAL(ng)%c13CO2aqcoe(n,i,j)/CORAL(ng)%cCO2aqcoe(n,i,j)),','   &
+     &   ,d13C_fromR13C(cH13CO3coe/cHCO3coe),','                        &
+     &   ,d13C_fromR13C(c13CO3coe/cCO3coe),','                          &
+     &   ,CORAL(ng)%c13CO2aqcal(n,i,j),',',cH13CO3cal,',',c13CO3cal,',' &
+     &   ,CORAL(ng)%c13CO2aqcoe(n,i,j),',',cH13CO3coe,',',c13CO3coe,',' &
+# endif
 # if defined CORAL_BORON_ISOTOPE
-     &   ,d11Barg      &
-#else
-     &   ,'NaN '        &
-#endif
-#if defined CORAL_MUCUS
-     &   ,DOCuptake  & 
-#else
-     &   ,'NaN '      &
-#endif
-#if defined CORAL_INGESTION
-     &   ,ZOOuptake  & 
-#else
-     &   ,'NaN '      &
-#endif
+     &   ,d11Barg,','                                                   &
+# endif
+# if defined CORAL_MUCUS
+     &   ,DOCuptake,','                                                 &
+# endif
+# if defined CORAL_INGESTION
+     &   ,ZOOuptake,','                                                 &
+# endif
 # if defined CORAL_SIZE_DYNAMICS
-     &   ,F_Cgrowth,CORAL(ng)%growth(n,i,j), CORAL(ng)%mort(n,i,j), Damage &
-     &   ,F_damage,F_detox
-#else
-     &   ,'NaN ', 'NaN ', 'NaN ', 'NaN ' &
-     &   ,'NaN ', 'NaN '
-#endif
+     &   ,CORAL(ng)%growth(n,i,j),',', CORAL(ng)%mort(n,i,j),','        &
+     &   , Damage,',',F_Cgrowth,','                                     &
+     &   ,F_damage,',',F_detox,','                                      &
+# endif
+     &   ,E_ca
      
-      dsec=dsec+10.*60.  !!!!!!!!!!!!!!! print 10 min interval 
+      dsec(n)=dsec(n)+10.*60.  !!!!!!!!!!!!!!! print 10 min interval 
 !      dsec=dsec+60.*60.  !!!!!!!!!!!!!!! print 1 hour interval 
 
       endif
 
 ! Coral record calculation section
 
-      S_PFD_dt       =S_PFD_dt+PFD*dt
-      S_Gn_dt         =S_Gn_dt+Gn*dt
-      S_d13CargxGn_dt=S_d13CargxGn_dt+d13C_arg*Gn*dt
-      S_d13C_QC_dt  =S_d13C_QC_dt+d13C_QC*dt
-      S_Pg_dt        =S_Pg_dt+Pg*dt
-      S_R_dt         =S_R_dt +R *dt
-      S_QC_dt      =S_QC_dt+CORAL(ng)%QC(n,i,j)*dt
-      S_d11BargxGn_dt=S_d11BargxGn_dt+d11Barg*Gn*dt
+      S_PFD_dt(n)       =S_PFD_dt(n)+PFD*dt
+      S_Gn_dt(n)         =S_Gn_dt(n)+CORAL(ng)%G (n,i,j)*dt
+      S_Pg_dt(n)        =S_Pg_dt(n)+CORAL(ng)%Pg(n,i,j)*dt
+      S_R_dt(n)         =S_R_dt(n) +CORAL(ng)%R(n,i,j) *dt
+      S_QC_dt(n)      =S_QC_dt(n)+CORAL(ng)%QC(n,i,j)*dt
+# if defined CORAL_CARBON_ISOTOPE
+      S_d13CargxGn_dt(n)=S_d13CargxGn_dt(n)+d13C_arg*CORAL(ng)%G (n,i,j)*dt
+      S_d13C_QC_dt(n)  =S_d13C_QC_dt(n)+d13C_QC*dt
+# endif
+# if defined CORAL_BORON_ISOTOPE
+      S_d11BargxGn_dt(n)=S_d11BargxGn_dt(n)+d11Barg*CORAL(ng)%G (n,i,j)*dt
+# endif
 
-      if((time/86400.).ge.dday) then
+      if((time(n)/86400.).ge.dday(n)) then
 
-        write(53,*) dday             &
-     &   ,S_PFD_dt*1.d-6             &   !Photon flux density (mol m-2 d-1)
-     &   ,S_Gn_dt*1.d-3              &   !Calcification rate (umol cm-2 d-1)
-     &   ,S_Pg_dt*1.d-3              &   !Gross photosynthesis rate (umol cm-2 d-1)
-     &   ,S_R_dt*1.d-3               &   !Respiration rate (umol cm-2 d-1)
-     &   ,S_QC_dt/24./60./60.      &   ! 1 day avaraged value of QC
-     &   ,(S_Pg_dt-S_R_dt)*1.d-3     &   !Net photosynthesis rate (umol cm-2 d-1)
-     &   ,S_d13CargxGn_dt            &
-     &   ,S_d13CargxGn_dt/S_Gn_dt    &  !d13C
-     &   ,S_d13C_QC_dt/24./60./60.  & ! 1 day avaraged value of d13C_QC
-     &   ,Wargamb,TAamb,DICamb,pHamb   &
-     &   ,S_d11BargxGn_dt/S_Gn_dt    
+        write(20+n,*) dday(n),','             &
+     &   ,S_PFD_dt(n)*1.d-6,','               &   !Photon flux density (mol m-2 d-1)
+     &   ,S_Gn_dt(n)*1.d-3,','                &   !Calcification rate (umol cm-2 d-1)
+# if defined CORAL_CARBON_ISOTOPE
+     &   ,S_d13CargxGn_dt(n),','              &
+     &   ,S_d13CargxGn_dt(n)/S_Gn_dt(n),','   &   !d13C
+     &   ,S_d13C_QC_dt(n)/24./60./60.,','     &   ! 1 day avaraged value of d13C_QC
+# endif
+# if defined CORAL_BORON_ISOTOPE
+     &   ,S_d11BargxGn_dt(n)/S_Gn_dt(n),','   & 
+# endif
+     &   ,S_Pg_dt(n)*1.d-3,','                &   !Gross photosynthesis rate (umol cm-2 d-1)
+     &   ,S_R_dt(n)*1.d-3,','                 &   !Respiration rate (umol cm-2 d-1)
+     &   ,S_QC_dt(n)/24./60./60.,','          &   ! 1 day avaraged value of QC
+     &   ,(S_Pg_dt(n)-S_R_dt(n))*1.d-3            !Net photosynthesis rate (umol cm-2 d-1)
 
-        dday=dday+1.d0 !!!!!!!!!!!!!!!! print 1 day interval
+        dday(n)=dday(n)+1.d0 !!!!!!!!!!!!!!!! print 1 day interval
         
-        S_PFD_dt=0.d0
-        S_Gn_dt=0.d0
-        S_d13CargxGn_dt=0.d0
-        S_d13C_QC_dt=0.d0
-        S_Pg_dt=0.d0
-        S_R_dt=0.d0
-        S_QC_dt=0.d0
-        
-        S_d11BargxGn_dt=0.d0
-
+        S_PFD_dt(n)=0.d0
+        S_Gn_dt(n)=0.d0
+        S_Pg_dt(n)=0.d0
+        S_R_dt(n)=0.d0
+        S_QC_dt(n)=0.d0
+# if defined CORAL_CARBON_ISOTOPE
+        S_d13CargxGn_dt(n)=0.d0
+        S_d13C_QC_dt(n)=0.d0
+# endif
+# if defined CORAL_BORON_ISOTOPE
+        S_d11BargxGn_dt(n)=0.d0
+# endif
       endif
 #endif
 
@@ -1792,14 +1795,6 @@
      &   ,NO3_reduc,NO2_reduc &
      &   ,N_assim,N_dissim &
      &   ,ZOOX(ng)%PO4(n,i,j),PO4_trans,P_assim 
-#else
-     &   ,'NaN ', 'NaN ' & 
-     &   ,'NaN ', 'NaN ' &
-     &   ,'NaN ', 'NaN ', 'NaN ', 'NaN ' &
-     &   ,'NaN ', 'NaN ', 'NaN ' &
-     &   ,'NaN ', 'NaN ' &
-     &   ,'NaN ', 'NaN ' &
-     &   ,'NaN ', 'NaN ', 'NaN '
 #  endif
 
       dsec=dsec+10.*60.  !!!!!!!!!!!!!!! print 10 min interval 

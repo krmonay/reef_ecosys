@@ -17,19 +17,8 @@
       USE mod_heat
 #endif
       USE mod_input
+      USE mod_output
       USE mod_geochem
-#ifdef CORAL_POLYP
-      USE mod_coral
-#endif
-#ifdef SEAGRASS
-      USE mod_seagrass
-#endif
-#ifdef MACROALGAE
-      USE mod_macroalgae
-#endif
-#ifdef SEDIMENT_ECOSYS
-      USE mod_sedecosys
-#endif
 
       implicit none
       
@@ -46,70 +35,43 @@
       integer :: i,j,k,id, Nid
       integer :: istep, iprint
       integer :: nSetting, nheat
-      real(8) :: time    !(day)
-      real(8) :: R13C
-
-      real(8) :: PFDsurf    
-      real(8) :: tau        
-      real(8) :: pCO2air    
-      real(8) :: U10        
-      
-      real(8) :: sspH      
-      real(8) :: ssfCO2    
-      real(8) :: ssWarg    
-      real(8) :: ssCO2flux 
-      real(8) :: ssO2flux  
-      real(8) :: PFDbott   
-      real(8) :: coral_Pg  
-      real(8) :: coral_R   
-      real(8) :: coral_Gn  
-      real(8) :: sgrass_Pg 
-      real(8) :: sgrass_R  
-      
-      real(8) :: d13C_DIC
-      
-      real(8) :: fvol_cre      ! volume flux through the reef crest (m3 m-2 s-1)
-      real(8) :: fvol_cha      ! volume flux through the channel(m3 m-2 s-1)
-      real(8) :: fvol_pre      ! Precipitation volume flux (m s-1)
-!      real(8) :: dw_lwradi     ! Downward longwave radiation (W m-2)
-      real(8), save :: ereef = 0.0d0   ! sea surface elevation on the reef flat (m)
-      real(8), parameter :: z_crest = -0.15d0 ! reef crest position (m)
-      real(8), parameter :: kvol_cre   = 5.0d-2 ! reef crest conductivity
-      real(8), parameter :: kvol_cha = 1.0d-1 ! Channel conductivety
-      real(8) :: wave_setup   ! wave setup (m)
-      
 !  For Output      
       real(8), save :: dsec = 0.d0 !sec
 
 
-      open(52,file='./output/eco4-crl_his.txt')
-      open(53,file='./output/eco4-crl_ave.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(54,file='./output/eco4-zoo_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(55,file='./output/eco4-box_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-
-      open(56,file='./output/eco4-sedDIC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(57,file='./output/eco4-sedTA_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(58,file='./output/eco4-sedDO_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(59,file='./output/eco4-sedpH_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(60,file='./output/eco4-sedWarg_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(61,file='./output/eco4-sedNH4_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(62,file='./output/eco4-sedNO2_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(63,file='./output/eco4-sedNO3_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(64,file='./output/eco4-sedPO4_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(65,file='./output/eco4-sedDOC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(66,file='./output/eco4-sedPOC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(67,file='./output/eco4-sedDON_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(68,file='./output/eco4-sedPON_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(69,file='./output/eco4-sedDOP_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(70,file='./output/eco4-sedPOP_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(71,file='./output/eco4-sedPg_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(72,file='./output/eco4-sedRdoc_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(73,file='./output/eco4-sedRpoc_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(74,file='./output/eco4-sedGn_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(75,file='./output/eco4-sedNit1_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(76,file='./output/eco4-sedNit2_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(78,file='./output/eco4-sedDNd_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(79,file='./output/eco4-sedDNp_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(10,file='./output/eco5-box_his.csv')
+#if defined CORAL_TESTMODE
+      open(11,file='./output/eco5-crl1_his.csv')
+      open(12,file='./output/eco5-crl2_his.csv')
+      open(21,file='./output/eco5-crl1_ave.csv')
+      open(22,file='./output/eco5-crl2_ave.csv')
+      open(31,file='./output/eco5-zoo1_his.csv')
+#endif
+#if defined SEDIMENT_TESTMODE
+      open(56,file='./output/eco5-sedDIC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(57,file='./output/eco5-sedTA_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(58,file='./output/eco5-sedDO_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(59,file='./output/eco5-sedpH_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(60,file='./output/eco5-sedWarg_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(61,file='./output/eco5-sedNH4_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(62,file='./output/eco5-sedNO2_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(63,file='./output/eco5-sedNO3_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(64,file='./output/eco5-sedPO4_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(65,file='./output/eco5-sedDOC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(66,file='./output/eco5-sedPOC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(67,file='./output/eco5-sedDON_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(68,file='./output/eco5-sedPON_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(69,file='./output/eco5-sedDOP_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(70,file='./output/eco5-sedPOP_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(71,file='./output/eco5-sedPg_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(72,file='./output/eco5-sedRdoc_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(73,file='./output/eco5-sedRpoc_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(74,file='./output/eco5-sedGn_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(75,file='./output/eco5-sedNit1_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(76,file='./output/eco5-sedNit2_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(78,file='./output/eco5-sedDNd_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(79,file='./output/eco5-sedDNp_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+#endif
 
 
       istep=0
@@ -150,6 +112,16 @@
 !      call Coral_Size2Cover
 
       time=0.
+      
+!----- Write data labels -------------------------
+       CALL write_env_lavel(10)        
+#if defined CORAL_TESTMODE
+       CALL write_crl_his_lavel(11)
+       CALL write_crl_his_lavel(12)
+       CALL write_crl_ave_lavel(21)
+       CALL write_crl_ave_lavel(22)
+#endif
+
 
 !----- Main loop -------------------------------------------
 
@@ -161,7 +133,8 @@
 
 !------ Set environmental parameters ----------------------------
 
-        CALL setdata(time)
+!        CALL setdata(time)
+        CALL setdata
 
 !      if(time > 5.0d0) then
 
@@ -423,67 +396,16 @@
 !        time=dt*istep/86400.
         time=time+dt/86400.
 
-#if defined TESTMODE
+!------- Print section --------------------------------------
 
         if(time .ge. dsec/86400.) then
+          dsec=dsec+10.*60.  !!!!!!!!!!!!!!! print 10 min interval 
+!          dsec=dsec+60.*60.  !!!!!!!!!!!!!!! print 1 hour interval 
         
           write(*,*) 'Time (day): ', time  ! Output for standard out
-          
-# if defined CARBON_ISOTOPE
-          d13C_DIC=d13C_fromR13C(C(1,1,1,1,iT13C)/C(1,1,1,1,iTIC_))
-# endif
-        
-          write(55,*) time, PFDsurf                              &
-     &       ,CORAL(1)%Pg(1,1,1), CORAL(1)%R (1,1,1)             &
-     &       ,CORAL(1)%Pg(1,1,1)-CORAL(1)%R (1,1,1)              &
-     &       ,CORAL(1)%G (1,1,1)                                 &
-     &       ,CORAL(1)%Pg(2,1,1), CORAL(1)%R (2,1,1)             &
-     &       ,CORAL(1)%Pg(2,1,1)-CORAL(1)%R (2,1,1)              &
-     &       ,CORAL(1)%G (2,1,1)                                 &
-     &       ,SGRASS(1)%Pg(1,1,1), SGRASS(1)%R (1,1,1)           &
-     &       ,SGRASS(1)%Pg(1,1,1)-SGRASS(1)%R (1,1,1)            &
-     &       ,ALGAE(1)%Pg(1,1,1), ALGAE(1)%R (1,1,1)             &
-     &       ,ALGAE(1)%Pg(1,1,1)-ALGAE(1)%R (1,1,1)              &
-     &       ,SEDECO(1)%Pg(1,1), SEDECO(1)%R (1,1)               &
-     &       ,SEDECO(1)%Pg(1,1)-SEDECO(1)%R (1,1)                &
-     &       ,SEDECO(1)%G (1,1)                                  &
-     &       ,dz(1,1,1),C(1,1,1,1,iTemp),C(1,1,1,1,iSalt)        &
-     &       ,sspH, ssfCO2, ssWarg, U10, ssCO2flux, ssO2flux     &
-     &       ,etide, ereef, dz(1,1,1)                            &
-     &       ,C(1,1,1,1,iTAlk),C(1,1,1,1,iTIC_),C(1,1,1,1,iOxyg) &
-#if defined ORGANIC_MATTER
-     &       ,C(1,1,1,1,iDOC_),C(1,1,1,1,iPOC_),C(1,1,1,1,iPhyt1) &
-     &       ,C(1,1,1,1,iPhyt2),C(1,1,1,1,iZoop)                  &
-#else
-     &       ,0.0d0, 0.0d0, 0.0d0 &
-     &       ,0.0d0        &
-#endif
-#if defined NUTRIENTS            
-     &       ,C(1,1,1,1,iNO3_),C(1,1,1,1,iNO2_),C(1,1,1,1,iNH4_) &
-     &       ,C(1,1,1,1,iPO4_)                                   &
-# if defined ORGANIC_MATTER
-     &       ,C(1,1,1,1,iDON_),C(1,1,1,1,iPON_),C(1,1,1,1,iDOP_) &
-     &       ,C(1,1,1,1,iPOP_)                                   &
-# else
-     &       ,0.0d0, 0.0d0, 0.0d0 &
-     &       ,0.0d0        &
-# endif
-#else
-     &       ,0.0d0, 0.0d0, 0.0d0 &
-     &       ,0.0d0        &
-#endif
-#if defined COT_STARFISH
-     &       ,C(1,1,1,1,iCOTe),C(1,1,1,1,iCOTl)
-#else
-     &       ,0.0d0, 0.0d0
-# endif
-     
-     
-!          dsec=dsec+10.*60.  !!!!!!!!!!!!!!! print 10 min interval 
-        dsec=dsec+60.*60.  !!!!!!!!!!!!!!! print 1 hour interval 
+          CALL write_env_data(10)
 
         endif
-#endif
 
       enddo
       

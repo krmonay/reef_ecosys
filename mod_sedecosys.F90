@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/02/01   Copyright (c) 2013-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/07   Copyright (c) 2013-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -1199,7 +1199,7 @@
 #  endif
 # endif
 
-# if defined TESTMODE
+# if defined SEDIMENT_TESTMODE
 !------------------------------------------------------------------------
 ! Print section
       time = time +dt  ! sec
