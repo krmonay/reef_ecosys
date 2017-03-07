@@ -87,7 +87,7 @@
 !                4: Reef simulation condition
 !                5: Incubation chamber condition
       
-      nSetting = 1  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      nSetting = 5  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
 !----- Set initial conditions -------------------------
 
@@ -133,41 +133,7 @@
 
 !------ Set environmental parameters ----------------------------
 
-!        CALL setdata(time)
-        CALL setdata
-
-!      if(time > 5.0d0) then
-
-        do j=1,Jm
-          do i=1,Im
-            do k=1,N
-!              C(i,j,k,1,iTemp) = 27.0d0   !27.0d0 32.0d0
-            enddo
-          enddo
-        enddo
-      
-!      end if
-      
-!----- Flux calculation -----------------------------------------
-
-        
-!       Fraction of shortwave radiation that is photosynthetically active
-!       (nondimensional), {0.43d0}.          
-!       convert radiation (W m-2) to photon flux density (umol m-2 s-1)  1 W m-2 = 4.24 umol m-2 s-1
-!       Thus convert solar radiation (W m-2) to photosynthetic photon flux density: 0.43*4.24 = 1.82
-
-        PFDsurf = 1.82d0 * ssradi
-        
-        
-        tau = 1024*0.01*0.0**2. *0.5 !densSW*Cd*Ub**2    (0 cm s-1)
-!        tau = 1024*0.01*0.02**2. *0.5  !densSW*Cd*Ub**2  (2 cm s-1)
-!        tau = 1024*0.01*0.2**2. *0.5 !densSW*Cd*Ub**2   (20 cm s-1)
-        
-        pCO2air = 370.0d0 !(uatm)
-        
-        U10 = SQRT( Uwind*Uwind + Vwind*Vwind )
-        
-        fvol_pre =0.0d0 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        CALL setdata(nSetting)
 
 #if defined USE_HEAT
 

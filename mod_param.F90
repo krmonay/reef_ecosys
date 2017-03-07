@@ -46,6 +46,15 @@
     real(8) :: dw_lwradi
     real(8) :: dt_dlwrad
     integer :: nm_dlwrad
+    real(8), allocatable :: PFD_time(:)
+    real(8), allocatable :: PFD_data(:)
+    integer :: N_PFD
+    integer :: i_PFD = 1
+    real(8), allocatable :: WQ_time(:)
+    real(8), allocatable :: TA_data(:)
+    real(8), allocatable :: DIC_data(:)
+    integer :: N_WQ
+    integer :: i_WQ = 1
     
     real(8), allocatable :: Hsin(:)
     real(8), allocatable :: Tpin(:)
@@ -237,9 +246,10 @@
         do i=LBi,UBi
           do k=1,N
           
-            dz(i,j,k)=1.5d0 !(m)
+            dz(i,j,k)=0.3d0 !(m)
           
-            C(i,j,k,1,iTemp) = 27.0d0   !27.0d0 32.0d0
+!            C(i,j,k,1,iTemp) = 27.0d0   !27.0d0 32.0d0
+            C(i,j,k,1,iTemp) = 29.0d0   !27.0d0 32.0d0
             C(i,j,k,1,iSalt) = 34.0d0
 
             C(i,j,k,1,iSedi) = 0.0d0    !Sediment concentration (g m-3) 0.e0, 1.e0
@@ -285,9 +295,9 @@
 #endif
           enddo
           
-          p_coral(1,i,j) = 1.0d0
-          p_coral(2,i,j) = 1.0d0
-          p_sgrass(i,j)= 1.0d0
+          p_coral(1,i,j) = 0.208d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
+          p_coral(2,i,j) = 0.0d0    ! Site9: 0.412d0, Site10: 0.486d0
+          p_sgrass(i,j)= 0.0d0
           p_sand(i,j)  = 1.0d0
           p_algae(i,j) = 0.0d0
           

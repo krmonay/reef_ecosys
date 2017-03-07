@@ -209,18 +209,18 @@
       
         write(fid,*) 'day,'         &
      &   ,'S_PFD_dt,'               &   !Photon flux density (mol m-2 d-1)
-     &   ,'S_Gn_dt(n),'             &   !Calcification rate (umol cm-2 d-1)
+     &   ,'S_Gn_dt,'                &   !Calcification rate (umol cm-2 d-1)
 # if defined CORAL_CARBON_ISOTOPE
      &   ,'S_d13CargxGn_dt,'        &
      &   ,'d13Carg,'                &   !d13C
-     &   ,'S_d13C_QC_dt(n),'        &   ! 1 day avaraged value of d13C_QC
+     &   ,'S_d13C_QC_dt,'           &   ! 1 day avaraged value of d13C_QC
 # endif
 # if defined CORAL_BORON_ISOTOPE
      &   ,'d11Barg,'   & 
 # endif
      &   ,'S_Pg_dt,'                &   !Gross photosynthesis rate (umol cm-2 d-1)
      &   ,'S_R_dt,'                 &   !Respiration rate (umol cm-2 d-1)
-     &   ,'S_QC_dt(n),'             &   ! 1 day avaraged value of QC
+     &   ,'S_QC_dt,'                &   ! 1 day avaraged value of QC
      &   ,'S_Pn_dt'                     !Net photosynthesis rate (umol cm-2 d-1)
 
       RETURN
