@@ -151,6 +151,7 @@
       
       implicit none
       
+      integer, parameter :: N_rep = 5    ! Repeat number of same light condition
       integer :: N_data
       integer :: ios
       
@@ -168,13 +169,24 @@
         if(ios==-1) exit
         N_PFD = N_PFD + 1
       end do
-      allocate( PFD_time(N_PFD), PFD_data(N_PFD) )
+      allocate( PFD_time(N_PFD*N_rep), PFD_data(N_PFD*N_rep) )   ! Repeat same light condition for 5 times
       rewind(77) 
 ! ----- Read data -----
-      do i=1, N_PFD
-        read(77,*) PFD_time(i), PFD_data(i)
+      do j=1, N_rep
+        do i=1, N_PFD
+          read(77,*) PFD_time(i+N_PFD*(j-1)), PFD_data(i+N_PFD*(j-1))
+          if(j >= 2) then
+            PFD_time(i+N_PFD*(j-1)) = PFD_time(i+N_PFD*(j-1)) + PFD_time(N_PFD)*dble(j-1)
+          end if
+        end do
+        rewind(77) 
       end do
+      N_PFD = N_PFD*N_rep
       close(77)
+      
+      do i=1, N_PFD   !!!!!! for DEBUG
+        write(99,*) PFD_time(i)
+      end do
 
 
 ! ===== READ TA and DIC data =================================================
@@ -193,6 +205,7 @@
 ! ----- Read data -----
       do i=1, N_WQ
         read(77,*) WQ_time(i), TA_data(i), DIC_data(i)
+        WQ_time(i) = WQ_time(i) + 4.0d0*24.0d0
       end do
       close(77)
 
@@ -384,17 +397,19 @@
       integer, intent(inout) :: i_dat
 
       real(8) :: dt
-      integer ::  i
+      integer ::  i,j
 
 
-      do i=i_dat, N_dat
-        if(t_dat(i).ge.time) exit
+      do i=i_dat, N_dat-1
+        if( t_dat(i+1)>=time .and. t_dat(i+1)>t_dat(i) ) exit
       end do
-      if(i+1.gt.N_dat) stop
+      if(i+1.gt.N_dat) then
+        out_dat = d_dat(i)
+      else
+        dt = t_dat(i+1)-t_dat(i)
+        out_dat = d_dat(i)+(d_dat(i+1)-d_dat(i)) * (time-t_dat(i))/dt
+      end if
       i_dat = i
-      dt = t_dat(i+1)-t_dat(i)
-      
-      out_dat = d_dat(i)+(d_dat(i+1)-d_dat(i)) * (time-t_dat(i))/dt
 
       return
 

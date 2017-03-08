@@ -35,6 +35,8 @@
       integer :: i,j,k,id, Nid
       integer :: istep, iprint
       integer :: nSetting, nheat
+      
+      integer :: ipcl =1    ! Step of the protocol for setting 5 (Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments)
 !  For Output      
       real(8), save :: dsec = 0.d0 !sec
 
@@ -85,7 +87,7 @@
 !                2: Closed chamber condition
 !                3: Constant flow condition
 !                4: Reef simulation condition
-!                5: Incubation chamber condition
+!                5: Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments
       
       nSetting = 5  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
@@ -333,16 +335,30 @@
 !---------- Incubation chamber condition ------------------------------------
 
           else if (nSetting .eq. 5) then
+            if( ipcl == 1) then
+              C(1,1,k,1,iTIC_) = TA_data(1) 
+              C(1,1,k,1,iTAlk) = DIC_data(1)
+              C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+              ipcl = 2
+            end if
+          
+            if (time >= 4.0d0 ) then
 
-            C(1,1,k,1,iTemp)=C(1,1,k,1,iTemp)+0.
-            C(1,1,k,1,iSalt)=C(1,1,k,1,iSalt)+0.
-            C(1,1,k,1,iSedi)=C(1,1,k,1,iSedi)+0.
-            
-            do id=4,Nid
-              C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
-            end do
+              do id=4,Nid
+                C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
+              end do
+              if (WQ_time(ipcl)-15.0d0/60.0d0 < time/24.0d0 .and. time/24.0d0 < WQ_time(ipcl)  ) then
+                C(1,1,k,1,iTIC_) = TA_data(ipcl) 
+                C(1,1,k,1,iTAlk) = DIC_data(ipcl)
+                C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+              else if (time/24.0d0 >= WQ_time(ipcl)  ) then
+                ipcl = ipcl +1
+              end if
+            end if
 
           end if
+          
+!------------------------------------------------------------------------------
 
 !              depsed(i,j)=0.
 !              radi(i,j,k)=-ssradi
