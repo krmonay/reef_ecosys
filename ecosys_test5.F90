@@ -38,7 +38,7 @@
       
       integer :: ipcl =1    ! Step of the protocol for setting 5 (Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments)
 !  For Output      
-      real(8), parameter :: OUTPUT_INTERVAL = 10.0d0     ! Output interval (min)
+      real(8), parameter :: OUTPUT_INTERVAL = 1.0d0     ! Output interval (min)
       real(8), save :: dsec = 0.d0 !sec
 
 !----- Open output files -------------------------

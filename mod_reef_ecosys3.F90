@@ -365,7 +365,7 @@
 #endif
 #if defined ECOSYS_TESTMODE
 !  Output
-      real(8), parameter :: OUTPUT_INTERVAL = 10.0d0     ! Output interval (min)
+      real(8), parameter :: OUTPUT_INTERVAL = 1.0d0     ! Output interval (min)
       real(8), save :: time = 0.0d0 !sec
       real(8), save :: dsec = 0.0d0 !sec
 #endif

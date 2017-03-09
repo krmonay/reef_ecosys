@@ -544,7 +544,7 @@
 
 #if defined CORAL_TESTMODE
 !  Output
-      real(8), parameter :: OUTPUT_INTERVAL = 10.0d0     ! Output interval (min)
+      real(8), parameter :: OUTPUT_INTERVAL  = 1.0d0    ! Output interval (min)
       real(8), parameter :: AVERAGE_INTERVAL = 1.0d0    ! Average interval (day)
       real(8), save :: time(Ncl)         = (/ 0.d0, 0.d0 /)  !sec
       real(8), save :: S_PFD_dt(Ncl)     = (/ 0.d0, 0.d0 /)

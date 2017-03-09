@@ -22,6 +22,7 @@ for i=1:8
     Pn(i) = mean(tot_Pn(t_min<eco.time & eco.time<t_max));
     G (i) = mean(tot_G (t_min<eco.time & eco.time<t_max));
 end
+%% 
 
 eco_file = '.././output/site05-ecosys_his.csv';
 eco = readtable(eco_file,'Delimiter',',', 'ReadVariableNames', true);

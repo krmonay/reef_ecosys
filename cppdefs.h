@@ -60,7 +60,7 @@
 #endif
 
 /*** Chamber experiments option ***/
-#define CHAMBER_SITE7
+/*#define CHAMBER_SITE4*/
 
 /*----------------------------------------------------*/
 
