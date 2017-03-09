@@ -184,9 +184,9 @@
       N_PFD = N_PFD*N_rep
       close(77)
       
-      do i=1, N_PFD   !!!!!! for DEBUG
-        write(99,*) PFD_time(i)
-      end do
+!      do i=1, N_PFD   !!!!!! for DEBUG
+!        write(99,*) PFD_time(i)
+!      end do
 
 
 ! ===== READ TA and DIC data =================================================
@@ -208,6 +208,10 @@
         WQ_time(i) = WQ_time(i) + 4.0d0*24.0d0
       end do
       close(77)
+      
+!      do i=1, N_WQ   !!!!!! for DEBUG
+!        write(99,*) WQ_time(i)
+!      end do
 
 
       return

@@ -336,23 +336,23 @@
 
           else if (nSetting .eq. 5) then
             if( ipcl == 1) then
-              C(1,1,k,1,iTIC_) = TA_data(1) 
-              C(1,1,k,1,iTAlk) = DIC_data(1)
+              C(1,1,k,1,iTIC_) = DIC_data(1)
+              C(1,1,k,1,iTAlk) = TA_data(1)
               C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
               ipcl = 2
             end if
           
             if (time >= 4.0d0 ) then
-
               do id=4,Nid
                 C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
               end do
-              if (WQ_time(ipcl)-15.0d0/60.0d0 < time/24.0d0 .and. time/24.0d0 < WQ_time(ipcl)  ) then
-                C(1,1,k,1,iTIC_) = TA_data(ipcl) 
-                C(1,1,k,1,iTAlk) = DIC_data(ipcl)
+              if (WQ_time(ipcl)-15.0d0/60.0d0 < time*24.0d0 .and. time*24.0d0 < WQ_time(ipcl)  ) then
+                C(1,1,k,1,iTIC_) = DIC_data(ipcl)
+                C(1,1,k,1,iTAlk) = TA_data(ipcl) 
                 C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
-              else if (time/24.0d0 >= WQ_time(ipcl)  ) then
+              else if (time*24.0d0 >= WQ_time(ipcl)  ) then
                 ipcl = ipcl +1
+                if(ipcl>N_WQ) ipcl = N_WQ
               end if
             end if
 
@@ -364,7 +364,7 @@
 !              radi(i,j,k)=-ssradi
 
               
-         enddo
+        enddo
 
 
 !        p_coral(1,i,j)=p_coral(1,i,j)
