@@ -59,5 +59,8 @@
 /*# define SEDIMENT_TESTMODE*/
 #endif
 
+/*** Chamber experiments option ***/
+#define CHAMBER_SITE7
+
 /*----------------------------------------------------*/
 

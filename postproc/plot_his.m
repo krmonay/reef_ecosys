@@ -1,7 +1,7 @@
 % === ver 2017/03/09   Copyright (c) 2017 Takashi NAKAMURA  =====
 
-evn_file = '.././output/eco5-env_his.csv';
-eco_file = '.././output/eco5-ecosys_his.csv';
+evn_file = '.././output/site06-env_his.csv';
+eco_file = '.././output/site06-ecosys_his.csv';
 
 xmin=4; ymin=5;
 PFDmax =2000;

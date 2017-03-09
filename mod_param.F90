@@ -295,11 +295,38 @@
 #endif
           enddo
           
+#if defined CHAMBER_SITE4
           p_coral(1,i,j) = 0.208d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
           p_coral(2,i,j) = 0.0d0    ! Site9: 0.412d0, Site10: 0.486d0
-          p_sgrass(i,j)= 0.0d0
+          p_sand(i,j)  = 1.0d0-p_coral(1,i,j)
+#elif defined CHAMBER_SITE5
+          p_coral(1,i,j) = 0.265d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
+          p_coral(2,i,j) = 0.0d0    ! Site9: 0.412d0, Site10: 0.486d0
+          p_sand(i,j)  = 1.0d0-p_coral(1,i,j)
+#elif defined CHAMBER_SITE6
+          p_coral(1,i,j) = 0.37d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
+          p_coral(2,i,j) = 0.0d0    ! Site9: 0.412d0, Site10: 0.486d0
+          p_sand(i,j)  = 1.0d0-p_coral(1,i,j)
+#elif defined CHAMBER_SITE7
+          p_coral(1,i,j) = 0.231d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
+          p_coral(2,i,j) = 0.0d0    ! Site9: 0.412d0, Site10: 0.486d0
+          p_sand(i,j)  = 1.0d0-p_coral(1,i,j)
+#elif defined CHAMBER_SITE9
+          p_coral(1,i,j) = 0.0d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
+          p_coral(2,i,j) = 0.412d0    ! Site9: 0.412d0, Site10: 0.486d0
+          p_sand(i,j)  = 0.0d0
+#elif defined CHAMBER_SITE10
+          p_coral(1,i,j) = 0.0d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
+          p_coral(2,i,j) = 0.486d0    ! Site9: 0.412d0, Site10: 0.486d0
+          p_sand(i,j)  = 0.0d0
+
+#else
+          p_coral(1,i,j) = 1.0d0
+          p_coral(2,i,j) = 0.0d0
           p_sand(i,j)  = 1.0d0
+#endif
           p_algae(i,j) = 0.0d0
+          p_sgrass(i,j)= 0.0d0
           
           
         enddo

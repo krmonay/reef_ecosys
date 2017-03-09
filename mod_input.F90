@@ -160,8 +160,19 @@
       
 ! ===== READ PPFD data ======================================================
 !         time (hour), PPFD (umol m-2 s-1)
-
+#if defined CHAMBER_SITE4
       open(77,file='./input/pfd_04.txt')
+#elif defined CHAMBER_SITE5
+      open(77,file='./input/pfd_05.txt')
+#elif defined CHAMBER_SITE6
+      open(77,file='./input/pfd_06.txt')
+#elif defined CHAMBER_SITE7
+      open(77,file='./input/pfd_07.txt')
+#elif defined CHAMBER_SITE9
+      open(77,file='./input/pfd_09.txt')
+#elif defined CHAMBER_SITE10
+      open(77,file='./input/pfd_10.txt')
+#endif
 ! ----- Count data -----
       N_PFD = 0
       do
@@ -191,8 +202,19 @@
 
 ! ===== READ TA and DIC data =================================================
 !         time (hour), TA & DIC (umol kg-1)
-
+#if defined CHAMBER_SITE4
       open(77,file='./input/site04.txt')
+#elif defined CHAMBER_SITE5
+      open(77,file='./input/site05.txt')
+#elif defined CHAMBER_SITE6
+      open(77,file='./input/site06.txt')
+#elif defined CHAMBER_SITE7
+      open(77,file='./input/site07.txt')
+#elif defined CHAMBER_SITE9
+      open(77,file='./input/site09.txt')
+#elif defined CHAMBER_SITE10
+      open(77,file='./input/site10.txt')
+#endif
 ! ----- Count data -----
       N_WQ = 0
       do

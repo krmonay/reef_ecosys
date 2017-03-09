@@ -41,49 +41,10 @@
       real(8), parameter :: OUTPUT_INTERVAL = 10.0d0     ! Output interval (min)
       real(8), save :: dsec = 0.d0 !sec
 
+!----- Open output files -------------------------
 
-      open(10,file='./output/eco5-env_his.csv')
-#if defined CORAL_TESTMODE
-      open(11,file='./output/eco5-crl1_his.csv')
-      open(12,file='./output/eco5-crl2_his.csv')
-      open(21,file='./output/eco5-crl1_ave.csv')
-      open(22,file='./output/eco5-crl2_ave.csv')
-      open(31,file='./output/eco5-zoo1_his.csv')
-#endif
-#if defined ECOSYS_TESTMODE
-      open(40,file='./output/eco5-ecosys_his.csv')
-#endif
-#if defined SEDIMENT_TESTMODE
-      open(56,file='./output/eco5-sedDIC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(57,file='./output/eco5-sedTA_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(58,file='./output/eco5-sedDO_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(59,file='./output/eco5-sedpH_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(60,file='./output/eco5-sedWarg_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(61,file='./output/eco5-sedNH4_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(62,file='./output/eco5-sedNO2_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(63,file='./output/eco5-sedNO3_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(64,file='./output/eco5-sedPO4_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(65,file='./output/eco5-sedDOC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(66,file='./output/eco5-sedPOC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(67,file='./output/eco5-sedDON_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(68,file='./output/eco5-sedPON_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(69,file='./output/eco5-sedDOP_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(70,file='./output/eco5-sedPOP_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(71,file='./output/eco5-sedPg_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(72,file='./output/eco5-sedRdoc_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(73,file='./output/eco5-sedRpoc_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(74,file='./output/eco5-sedGn_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(75,file='./output/eco5-sedNit1_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(76,file='./output/eco5-sedNit2_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(78,file='./output/eco5-sedDNd_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(79,file='./output/eco5-sedDNp_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-#endif
+      CALL files_open
 
-
-      istep=0
-      iprint=0
-      
-      
       
 ! Setting of condition (nsetting)
 !
@@ -118,6 +79,9 @@
 !      call Coral_Size2Cover
 
       time=0.
+      
+      istep=0
+      iprint=0
       
 !----- Write data labels -------------------------
        CALL write_env_lavel(10)        
@@ -398,6 +362,11 @@
       enddo
       
 !----- End loop --------------------------------------
+
+
+!----- Close output files --------------------------------------
+
+      CALL files_close
 
       end
 !----------------------------------------------------------------------!

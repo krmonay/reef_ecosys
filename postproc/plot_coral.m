@@ -1,19 +1,19 @@
 % === ver 2017/03/09   Copyright (c) 2017 Takashi NAKAMURA  =====
 
-evn_file = '.././output/eco5-env_his.csv';
-ch1_file = '.././output/eco5-crl1_his.csv';
-ch2_file = '.././output/eco5-crl2_his.csv';
-ca1_file = '.././output/eco5-crl1_ave.csv';
-ca2_file = '.././output/eco5-crl2_ave.csv';
+evn_file = '.././output/site06-env_his.csv';
+ch1_file = '.././output/site06-crl1_his.csv';
+% ch2_file = '.././output/site06-crl2_his.csv';
+% ca1_file = '.././output/eco5-crl1_ave.csv';
+% ca2_file = '.././output/eco5-crl2_ave.csv';
 
 xmin=4; ymin=5;
 PFDmax =2000;
 
 env = readtable(evn_file,'Delimiter',',', 'ReadVariableNames', true);
 ch1 = readtable(ch1_file,'Delimiter',',', 'ReadVariableNames', true);
-ch2 = readtable(ch2_file,'Delimiter',',', 'ReadVariableNames', true);
-ca1 = readtable(ca1_file,'Delimiter',',', 'ReadVariableNames', true);
-ca2 = readtable(ca2_file,'Delimiter',',', 'ReadVariableNames', true);
+% ch2 = readtable(ch2_file,'Delimiter',',', 'ReadVariableNames', true);
+% ca1 = readtable(ca1_file,'Delimiter',',', 'ReadVariableNames', true);
+% ca2 = readtable(ca2_file,'Delimiter',',', 'ReadVariableNames', true);
 
 
 figure('PaperSize',[20 30],...

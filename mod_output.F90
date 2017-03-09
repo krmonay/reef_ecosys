@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/07   Copyright (c) 2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/09   Copyright (c) 2017 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -12,6 +12,182 @@
   MODULE mod_output
   
   contains
+  
+! **********************************************************************
+!  Open files
+! **********************************************************************
+
+    SUBROUTINE files_open
+    
+      implicit none
+
+#if defined CHAMBER_SITE4
+      open(10,file='./output/site04-env_his.csv')
+# if defined CORAL_TESTMODE
+      open(11,file='./output/site04-crl1_his.csv')
+      open(12,file='./output/site04-crl2_his.csv')
+      open(21,file='./output/site04-crl1_ave.csv')
+      open(22,file='./output/site04-crl2_ave.csv')
+      open(31,file='./output/site04-zoo1_his.csv')
+# endif
+# if defined ECOSYS_TESTMODE
+      open(40,file='./output/site04-ecosys_his.csv')
+# endif
+#elif defined CHAMBER_SITE5
+      open(10,file='./output/site05-env_his.csv')
+# if defined CORAL_TESTMODE
+      open(11,file='./output/site05-crl1_his.csv')
+      open(12,file='./output/site05-crl2_his.csv')
+      open(21,file='./output/site05-crl1_ave.csv')
+      open(22,file='./output/site05-crl2_ave.csv')
+      open(31,file='./output/site05-zoo1_his.csv')
+# endif
+# if defined ECOSYS_TESTMODE
+      open(40,file='./output/site05-ecosys_his.csv')
+# endif
+#elif defined CHAMBER_SITE6
+      open(10,file='./output/site06-env_his.csv')
+# if defined CORAL_TESTMODE
+      open(11,file='./output/site06-crl1_his.csv')
+      open(12,file='./output/site06-crl2_his.csv')
+      open(21,file='./output/site06-crl1_ave.csv')
+      open(22,file='./output/site06-crl2_ave.csv')
+      open(31,file='./output/site06-zoo1_his.csv')
+# endif
+# if defined ECOSYS_TESTMODE
+      open(40,file='./output/site06-ecosys_his.csv')
+# endif
+#elif defined CHAMBER_SITE7
+      open(10,file='./output/site07-env_his.csv')
+# if defined CORAL_TESTMODE
+      open(11,file='./output/site07-crl1_his.csv')
+      open(12,file='./output/site07-crl2_his.csv')
+      open(21,file='./output/site07-crl1_ave.csv')
+      open(22,file='./output/site07-crl2_ave.csv')
+      open(31,file='./output/site07-zoo1_his.csv')
+# endif
+# if defined ECOSYS_TESTMODE
+      open(40,file='./output/site07-ecosys_his.csv')
+# endif
+#elif defined CHAMBER_SITE9
+      open(10,file='./output/site09-env_his.csv')
+# if defined CORAL_TESTMODE
+      open(11,file='./output/site09-crl1_his.csv')
+      open(12,file='./output/site09-crl2_his.csv')
+      open(21,file='./output/site09-crl1_ave.csv')
+      open(22,file='./output/site09-crl2_ave.csv')
+      open(31,file='./output/site09-zoo1_his.csv')
+# endif
+# if defined ECOSYS_TESTMODE
+      open(40,file='./output/site09-ecosys_his.csv')
+# endif
+#elif defined CHAMBER_SITE10
+      open(10,file='./output/site10-env_his.csv')
+# if defined CORAL_TESTMODE
+      open(11,file='./output/site10-crl1_his.csv')
+      open(12,file='./output/site10-crl2_his.csv')
+      open(21,file='./output/site10-crl1_ave.csv')
+      open(22,file='./output/site10-crl2_ave.csv')
+      open(31,file='./output/site10-zoo1_his.csv')
+# endif
+# if defined ECOSYS_TESTMODE
+      open(40,file='./output/site10-ecosys_his.csv')
+# endif
+
+
+#else
+      open(10,file='./output/eco5-env_his.csv')
+# if defined CORAL_TESTMODE
+      open(11,file='./output/eco5-crl1_his.csv')
+      open(12,file='./output/eco5-crl2_his.csv')
+      open(21,file='./output/eco5-crl1_ave.csv')
+      open(22,file='./output/eco5-crl2_ave.csv')
+      open(31,file='./output/eco5-zoo1_his.csv')
+# endif
+# if defined ECOSYS_TESTMODE
+      open(40,file='./output/eco5-ecosys_his.csv')
+# endif
+
+#endif
+      
+#if defined SEDIMENT_TESTMODE
+      open(56,file='./output/eco5-sedDIC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(57,file='./output/eco5-sedTA_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(58,file='./output/eco5-sedDO_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(59,file='./output/eco5-sedpH_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(60,file='./output/eco5-sedWarg_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(61,file='./output/eco5-sedNH4_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(62,file='./output/eco5-sedNO2_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(63,file='./output/eco5-sedNO3_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(64,file='./output/eco5-sedPO4_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(65,file='./output/eco5-sedDOC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(66,file='./output/eco5-sedPOC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(67,file='./output/eco5-sedDON_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(68,file='./output/eco5-sedPON_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(69,file='./output/eco5-sedDOP_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(70,file='./output/eco5-sedPOP_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(71,file='./output/eco5-sedPg_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(72,file='./output/eco5-sedRdoc_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(73,file='./output/eco5-sedRpoc_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(74,file='./output/eco5-sedGn_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(75,file='./output/eco5-sedNit1_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(76,file='./output/eco5-sedNit2_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(78,file='./output/eco5-sedDNd_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      open(79,file='./output/eco5-sedDNp_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+#endif
+
+      RETURN
+
+    END SUBROUTINE files_open
+
+! **********************************************************************
+!  Close files
+! **********************************************************************
+
+    SUBROUTINE files_close
+    
+      implicit none
+      
+      close(10)
+#if defined CORAL_TESTMODE
+      close(11)
+      close(12)
+      close(21)
+      close(22)
+      close(31)
+#endif
+#if defined ECOSYS_TESTMODE
+      close(40)
+#endif
+#if defined SEDIMENT_TESTMODE
+      close(56)
+      close(57)
+      close(58)
+      close(59)
+      close(60)
+      close(61)
+      close(62)
+      close(63)
+      close(64)
+      close(65)
+      close(66)
+      close(67)
+      close(68)
+      close(69)
+      close(70)
+      close(71)
+      close(72)
+      close(73)
+      close(74)
+      close(75)
+      close(76)
+      close(78)
+      close(79)
+#endif
+
+      RETURN
+
+    END SUBROUTINE files_close
 
 ! **********************************************************************
 !  Write lavel of environmental data
