@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/07   Copyright (c) 2013-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/09   Copyright (c) 2013-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -666,6 +666,7 @@
 
 # if defined TESTMODE
 !  Output
+      real(8), parameter :: OUTPUT_INTERVAL = 10.0d0     ! Output interval (min)
       real(8), save :: time = 0.d0 !sec
       real(8), save :: dsec = 0.d0 !sec
       real(8) :: TKamb 
@@ -1243,8 +1244,7 @@
         write(79,*) time/86400.d0, 0.0d0, DNp
 #  endif
 
-        dsec=dsec+10.*60.  !!!!!!!!!!!!!!! print 10 min interval 
-!        dsec=dsec+60.*60.  !!!!!!!!!!!!!!! print 1 hour interval 
+        dsec=dsec+OUTPUT_INTERVAL*60.
 
       endif
 # endif

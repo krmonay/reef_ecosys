@@ -49,7 +49,7 @@
 
 /*** Box model option ***/
 
-#define TESTMODE
+#define ECOSYS_TESTMODE
 
 #if defined CORAL_POLYP
 # define CORAL_TESTMODE

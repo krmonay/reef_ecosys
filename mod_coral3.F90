@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/07   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/09   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -544,6 +544,8 @@
 
 #if defined CORAL_TESTMODE
 !  Output
+      real(8), parameter :: OUTPUT_INTERVAL = 10.0d0     ! Output interval (min)
+      real(8), parameter :: AVERAGE_INTERVAL = 1.0d0    ! Average interval (day)
       real(8), save :: time(Ncl)         = (/ 0.d0, 0.d0 /)  !sec
       real(8), save :: S_PFD_dt(Ncl)     = (/ 0.d0, 0.d0 /)
       real(8), save :: S_Gn_dt(Ncl)      = (/ 0.d0, 0.d0 /)
@@ -1248,7 +1250,7 @@
       
       if(time(n).ge.dsec(n)) then
         
-        write(10+n,*) time(n)/86400.d0,',',PFD,','                      &
+        write(10+n,*) time(n)/86400.0d0,',',PFD,','                     &
      &   ,CORAL(ng)%Pg(n,i,j),',', CORAL(ng)%R (n,i,j),','              &
      &   ,CORAL(ng)%Pg(n,i,j)-CORAL(ng)%R (n,i,j),','                   &
      &   ,CORAL(ng)%G (n,i,j),',',CORAL(ng)%QC(n,i,j),','               &
@@ -1287,8 +1289,7 @@
 # endif
      &   ,E_ca
      
-      dsec(n)=dsec(n)+10.*60.  !!!!!!!!!!!!!!! print 10 min interval 
-!      dsec=dsec+60.*60.  !!!!!!!!!!!!!!! print 1 hour interval 
+      dsec(n)=dsec(n)+OUTPUT_INTERVAL*60.
 
       endif
 
@@ -1325,7 +1326,7 @@
      &   ,S_QC_dt(n)/24./60./60.,','          &   ! 1 day avaraged value of QC
      &   ,(S_Pg_dt(n)-S_R_dt(n))*1.d-3            !Net photosynthesis rate (umol cm-2 d-1)
 
-        dday(n)=dday(n)+1.d0 !!!!!!!!!!!!!!!! print 1 day interval
+        dday(n)=dday(n)+AVERAGE_INTERVAL
         
         S_PFD_dt(n)=0.d0
         S_Gn_dt(n)=0.d0
@@ -1530,8 +1531,10 @@
 
 # if defined CORAL_TESTMODE
 !  Output
-      real(8), save :: time        = 0.d0  !sec
-      real(8), save :: dsec         = 0.d0 !sec
+      real(8), parameter :: OUTPUT_INTERVAL = 10.0d     ! Output interval (min)
+      real(8), save :: time(Ncl)         = (/ 0.d0, 0.d0 /) !sec
+      real(8), save :: dsec(Ncl)         = (/ 0.d0, 0.d0 /) !sec
+      real(8), save :: dday(Ncl)         = (/ 1.d0, 1.d0 /) !day
 # endif
 
 !----- Zooxanthellae metabolism  ----------------------------------
@@ -1777,12 +1780,12 @@
 
 # if defined CORAL_TESTMODE
 
-      time = time +dt  ! sec
+      time(n) = time(n) +dt  ! sec
       
-      if(time.ge.dsec) then
+      if(time(n).ge.dsec(n)) then
         
         write(54,*) &
-     &    time/86400.d0,PFDsurf,Pg,Rz  &
+     &    time(n)/86400.0d0,PFDsurf,Pg,Rz  &
      &   ,ZOOX(ng)%dens(n,i,j),ZOOX(ng)%QC(n,i,j)   &
      &   ,CORAL(ng)%ROS(n,i,j) &
      &   ,C_repro,Repro,Morta, F_ROS           &
@@ -1797,9 +1800,8 @@
      &   ,ZOOX(ng)%PO4(n,i,j),PO4_trans,P_assim 
 #  endif
 
-      dsec=dsec+10.*60.  !!!!!!!!!!!!!!! print 10 min interval 
-!      dsec=dsec+60.*60.  !!!!!!!!!!!!!!! print 1 hour interval 
-
+      dsec(n)=dsec(n)+OUTPUT_INTERVAL*60.
+      
       endif
 # endif
 

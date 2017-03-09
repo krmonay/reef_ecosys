@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/07   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/09   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -38,16 +38,20 @@
       
       integer :: ipcl =1    ! Step of the protocol for setting 5 (Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments)
 !  For Output      
+      real(8), parameter :: OUTPUT_INTERVAL = 10.0d0     ! Output interval (min)
       real(8), save :: dsec = 0.d0 !sec
 
 
-      open(10,file='./output/eco5-box_his.csv')
+      open(10,file='./output/eco5-env_his.csv')
 #if defined CORAL_TESTMODE
       open(11,file='./output/eco5-crl1_his.csv')
       open(12,file='./output/eco5-crl2_his.csv')
       open(21,file='./output/eco5-crl1_ave.csv')
       open(22,file='./output/eco5-crl2_ave.csv')
       open(31,file='./output/eco5-zoo1_his.csv')
+#endif
+#if defined ECOSYS_TESTMODE
+      open(40,file='./output/eco5-ecosys_his.csv')
 #endif
 #if defined SEDIMENT_TESTMODE
       open(56,file='./output/eco5-sedDIC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
@@ -122,6 +126,9 @@
        CALL write_crl_his_lavel(12)
        CALL write_crl_ave_lavel(21)
        CALL write_crl_ave_lavel(22)
+#endif
+#if defined ECOSYS_TESTMODE
+       CALL write_ecosys_his_lavel(40)
 #endif
 
 
@@ -381,8 +388,7 @@
 !------- Print section --------------------------------------
 
         if(time .ge. dsec/86400.) then
-          dsec=dsec+10.*60.  !!!!!!!!!!!!!!! print 10 min interval 
-!          dsec=dsec+60.*60.  !!!!!!!!!!!!!!! print 1 hour interval 
+          dsec=dsec+OUTPUT_INTERVAL*60.
         
           write(*,*) 'Time (day): ', time  ! Output for standard out
           CALL write_env_data(10)

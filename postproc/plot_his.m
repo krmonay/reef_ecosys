@@ -1,99 +1,125 @@
-% === ver 2017/03/07   Copyright (c) 2017 Takashi NAKAMURA  =====
+% === ver 2017/03/09   Copyright (c) 2017 Takashi NAKAMURA  =====
 
-box_file = '.././output/eco5-box_his.csv';
-ch1_file = '.././output/eco5-crl1_his.csv';
-ch2_file = '.././output/eco5-crl2_his.csv';
-ca1_file = '.././output/eco5-crl1_ave.csv';
-ca2_file = '.././output/eco5-crl2_ave.csv';
+evn_file = '.././output/eco5-env_his.csv';
+eco_file = '.././output/eco5-ecosys_his.csv';
 
 xmin=4; ymin=5;
 PFDmax =2000;
 
-d   = readtable(box_file,'Delimiter',',', 'ReadVariableNames', true);
-ch1 = readtable(ch1_file,'Delimiter',',', 'ReadVariableNames', true);
-ch2 = readtable(ch2_file,'Delimiter',',', 'ReadVariableNames', true);
-ca1 = readtable(ca1_file,'Delimiter',',', 'ReadVariableNames', true);
-ca2 = readtable(ca2_file,'Delimiter',',', 'ReadVariableNames', true);
+env = readtable(evn_file,'Delimiter',',', 'ReadVariableNames', true);
+eco = readtable(eco_file,'Delimiter',',', 'ReadVariableNames', true);
 
+tot_Pn = eco.coral1_Pn + eco.sedeco_Pn;
+tot_G  = eco.coral1_G  + eco.sedeco_G ;
 
-figure;
+figure('PaperSize',[20 30],...
+    'OuterPosition',[0 0 1000 1050]);
+%     'GraphicsSmoothing','off',...
+%     'Color',[1 1 1],...
+
 subplot(4,2,1); 
-plot(ch1.time, ch1.Pn,'b');
+plot(eco.time, eco.coral1_Pn,'b');
+axis([xmin ymin  -15.0 20.0])
 hold on
-plot(ch1.time, ch1.G, 'r');
-axis([xmin ymin  -0.3 0.3])
+plot(eco.time, eco.coral1_G, 'r');
+ylabel('Coral G, Pn (mmol m^-^2 h^-^1)')
 yyaxis right
-plot(d.time, d.PFDsurf, 'Color', [1 0.6 0]);
+plot(eco.time, eco.PFDbott, 'Color', [1 0.6 0]);
+ax = gca; ax.YColor = 'k';
+ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin ymin  0 PFDmax])
+legend('Pn','G','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,2);
-plot(ch1.time, ch1.pHcal,'r');
-axis([xmin ymin  7.5 9.5])
+plot(eco.time, env.TA,'b');
+axis([xmin ymin  1900 2300])
+ylabel('TA (umol kg^-^1)')
 hold on
-plot(ch1.time, ch1.pHcoe, 'g');
-plot(ch1.time, ch1.pHamb, 'b');
 yyaxis right
-plot(d.time, d.PFDsurf, 'Color', [1 0.6 0]);
+plot(eco.time, eco.PFDbott, 'Color', [1 0.6 0]);
+ax = gca; ax.YColor = 'k';
+ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin ymin  0 PFDmax])
+legend('TA','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,3);
-plot(ch1.time, ch1.R,'b');
-axis([xmin ymin  0 0.6])
+plot(eco.time, eco.sedeco_Pn,'b');
+axis([xmin ymin  -15.0 20.0])
 hold on
-plot(ch1.time, ch1.Pg, 'r');
+plot(eco.time, eco.sedeco_G, 'r');
+ylabel('Sand G, Pn (mmol m^-^2 h^-^1)')
 yyaxis right
-plot(d.time, d.PFDsurf, 'Color', [1 0.6 0]);
+plot(eco.time, eco.PFDbott, 'Color', [1 0.6 0]);
+ax = gca; ax.YColor = 'k';
+ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin ymin  0 PFDmax])
+legend('Pn','G','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,4);
-plot(ch1.time, ch1.DOcoe, 'g');
-axis([xmin ymin  0 600])
+plot(eco.time, env.DIC,'b');
+axis([xmin ymin  1500 2000])
+ylabel('DIC (umol kg^-^1)')
 hold on
-plot(ch1.time, ch1.DOamb, 'b');
 yyaxis right
-plot(d.time, d.PFDsurf, 'Color', [1 0.6 0]);
+plot(eco.time, eco.PFDbott, 'Color', [1 0.6 0]);
+ax = gca; ax.YColor = 'k';
+ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin ymin  0 PFDmax])
+legend('DIC','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,5);
-plot(ch1.time, ch1.TAcal,'r');
-axis([xmin ymin  1600 3200])
+plot(eco.time, tot_Pn,'b');
+axis([xmin ymin  -15.0 20.0])
 hold on
-plot(ch1.time, ch1.TAcoe, 'g');
-plot(ch1.time, ch1.TAamb, 'b');
+plot(eco.time, tot_G, 'r');
+ylabel('Total G, Pn (mmol m^-^2 h^-^1)')
 yyaxis right
-plot(d.time, d.PFDsurf, 'Color', [1 0.6 0]);
+plot(eco.time, eco.PFDbott, 'Color', [1 0.6 0]);
+ax = gca; ax.YColor = 'k';
+ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin ymin  0 PFDmax])
+legend('Pn','G','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,6);
-plot(ch1.time, ch1.Wacal,'r');
-axis([xmin ymin  0 20])
+plot(eco.time, env.DO,'b');
+axis([xmin ymin  100 300])
+ylabel('DO (umol kg^-^1)')
 hold on
-plot(ch1.time, ch1.Waamb, 'b');
 yyaxis right
-plot(d.time, d.PFDsurf, 'Color', [1 0.6 0]);
+plot(eco.time, eco.PFDbott, 'Color', [1 0.6 0]);
+ax = gca; ax.YColor = 'k';
+ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin ymin  0 PFDmax])
+legend('DO','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,7);
-plot(ch1.time, ch1.DICcal,'r');
-axis([xmin ymin  1200 2200])
+plot(eco.time, eco.pH,'b');
+axis([xmin ymin  7.5 8.5])
+ylabel('pH')
 hold on
-plot(ch1.time, ch1.DICcoe, 'g');
-plot(ch1.time, ch1.DICamb, 'b');
 yyaxis right
-plot(d.time, d.PFDsurf, 'Color', [1 0.6 0]);
+plot(eco.time, eco.PFDbott, 'Color', [1 0.6 0]);
+ax = gca; ax.YColor = 'k';
+ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin ymin  0 PFDmax])
+legend('pH','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,8);
-plot(ch1.time, ch1.QC,'g');
-axis([xmin ymin  0 25])
+plot(eco.time, eco.Warg,'b');
+axis([xmin ymin  2 5])
+ylabel('Omega arg')
 hold on
 yyaxis right
-plot(d.time, d.PFDsurf, 'Color', [1 0.6 0]);
+plot(eco.time, eco.PFDbott, 'Color', [1 0.6 0]);
+ax = gca; ax.YColor = 'k';
+ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin ymin  0 PFDmax])
+legend('Warg','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
+

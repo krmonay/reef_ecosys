@@ -26,21 +26,6 @@
       integer, intent(in) :: fid
       
       write(fid,*) 'time, ', 'PFDsurf, '                               &
-#ifdef CORAL_POLYP
-     &    ,'coral1_Pg, ', 'coral1_R, ', 'coral1_Pn, ', 'coral1_G, '    &
-     &    ,'coral1_QC, '                                               &
-     &    ,'coral2_Pg, ', 'coral2_R, ', 'coral2_Pn, ', 'coral2_G, '    &
-     &    ,'coral2_QC, '                                               &
-#endif
-#ifdef SEAGRASS
-     &    ,'sgrass_Pg, ', 'sgrass_R, ', 'sgrass_Pn, '                  &
-#endif
-#ifdef MACROALGAE
-     &    ,'algae_Pg, ' , 'algae_R, ' , 'algae_Pn, '                   &
-#endif
-#ifdef SEDIMENT_ECOSYS
-     &    ,'sedeco_Pg, ', 'sedeco_R, ', 'sedeco_Pn, ', 'sedeco_G, '    &
-#endif
      &    ,'Temp, ','Salt, ','TA, ','DIC, ','DO, '                     &
 #if defined ORGANIC_MATTER
      &    ,'DOC, ','POC, '     &
@@ -55,8 +40,6 @@
 #if defined COT_STARFISH
      &    ,'COT, ','COTl '                                             &
 # endif
-     &    ,'pH, ', 'fCO2, ', 'Warg, '                                  &
-     &    ,'U10, ', 'CO2flux, ' , 'O2flux, '                           &
      &    ,'dz, ', 'etide, ', 'ereef'
       
 
@@ -97,27 +80,6 @@
 #endif
         
       write(fid,*) time,',', PFDsurf,','                              &
-#ifdef CORAL_POLYP
-     &       ,CORAL(1)%Pg(1,1,1),',', CORAL(1)%R (1,1,1),','         &
-     &       ,CORAL(1)%Pg(1,1,1)-CORAL(1)%R (1,1,1),','              &
-     &       ,CORAL(1)%G (1,1,1),',',CORAL(1)%QC(1,1,1),','          &
-     &       ,CORAL(1)%Pg(2,1,1),',', CORAL(1)%R (2,1,1),','         &
-     &       ,CORAL(1)%Pg(2,1,1)-CORAL(1)%R (2,1,1),','              &
-     &       ,CORAL(1)%G (2,1,1),',',CORAL(1)%QC(2,1,1),','          &
-#endif
-#ifdef SEAGRASS
-     &       ,SGRASS(1)%Pg(1,1,1),',', SGRASS(1)%R (1,1,1),','       &
-     &       ,SGRASS(1)%Pg(1,1,1)-SGRASS(1)%R (1,1,1),','            &
-#endif
-#ifdef MACROALGAE
-     &       ,ALGAE(1)%Pg(1,1,1),',', ALGAE(1)%R (1,1,1),','         &
-     &       ,ALGAE(1)%Pg(1,1,1)-ALGAE(1)%R (1,1,1),','              &
-#endif
-#ifdef SEDIMENT_ECOSYS
-     &       ,SEDECO(1)%Pg(1,1),',', SEDECO(1)%R (1,1),','           &
-     &       ,SEDECO(1)%Pg(1,1)-SEDECO(1)%R (1,1),','                &
-     &       ,SEDECO(1)%G (1,1),','                                  &
-#endif
      &       ,C(1,1,1,1,iTemp),',',C(1,1,1,1,iSalt),','              &
      &       ,C(1,1,1,1,iTAlk),',',C(1,1,1,1,iTIC_),','              &
      &       ,C(1,1,1,1,iOxyg),','                                   &
@@ -140,8 +102,6 @@
 #if defined COT_STARFISH
      &       ,C(1,1,1,1,iCOTe),',',C(1,1,1,1,iCOTl),','              &
 # endif
-     &       ,sspH,',', ssfCO2,',', ssWarg,','                       &
-     &       ,U10,',',ssCO2flux,',', ssO2flux,','                    &
      &       ,dz(1,1,1),',',etide,',', ereef
 
 
@@ -226,6 +186,54 @@
       RETURN
 
     END SUBROUTINE write_crl_ave_lavel
+#endif
+#if defined ECOSYS_TESTMODE
+! **********************************************************************
+!  Write lavel of coral internal conditions
+! **********************************************************************
+
+    SUBROUTINE write_ecosys_his_lavel(fid)
+    
+      USE mod_param
+      
+      implicit none
+      
+      integer, intent(in) :: fid
+      
+      write(fid,*) 'time,', 'PFDbott,'                                 &
+#ifdef CORAL_POLYP
+     &    ,'coral1_Pg, ', 'coral1_R, ', 'coral1_Pn, ', 'coral1_G, '    &
+     &    ,'coral2_Pg, ', 'coral2_R, ', 'coral2_Pn, ', 'coral2_G, '    &
+#endif
+#ifdef SEAGRASS
+     &    ,'sgrass_Pg, ', 'sgrass_R, ', 'sgrass_Pn, '                  &
+#endif
+#ifdef MACROALGAE
+     &    ,'algae_Pg, ' , 'algae_R, ' , 'algae_Pn, '                   &
+#endif
+#ifdef SEDIMENT_ECOSYS
+     &    ,'sedeco_Pg, ', 'sedeco_R, ', 'sedeco_Pn, ', 'sedeco_G, '    &
+#endif
+     &    ,'dDIC_dt,','dTA_dt,','dDOx_dt,'                             &
+# if defined ORGANIC_MATTER
+     &    ,'dDOC_dt,','dPOC_dt(1),'                                    &
+# endif
+# if defined CARBON_ISOTOPE
+     &    ,'dDI13C_dt(1),'                                             &
+# endif
+# if defined NUTRIENTS
+     &    ,'dNO3_dt,','dNO2_dt,','dNH4_dt,'                            &
+     &    ,dPO4_dt(1),','                                              &
+#  if defined ORGANIC_MATTER
+     &    ,'dDON_dt,','dPON_dt,','dDOP_dt,','dPOP_dt,'                 &
+#  endif
+# endif
+     &    ,'pH, ', 'fCO2, ', 'Warg, '                                  &
+     &    ,'U10, ', 'CO2flux, ' , 'O2flux'
+
+      RETURN
+
+    END SUBROUTINE write_ecosys_his_lavel
 #endif
       
   END MODULE mod_output
