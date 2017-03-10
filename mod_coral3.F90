@@ -433,13 +433,13 @@
 !      real(8), parameter :: k_Gn(Ncl) /1.d-2/!(ñ¢égópÅj
 
       real(8), parameter :: eeff(Ncl)  = (/ 0.4d0, 0.4d0 /)   !!! 0.01d0** !0.3d0*!Energy efficency of calcification (<12%, 4~7%?; Lervik et al., 2012)
-      real(8), parameter :: E_other(Ncl)=(/ 1.5d4, 1.5d4 /)   !!! 1.0d4** ! 5.0d3* Energy flux of other metabolisms (nJ cm-2 s-1)
+      real(8), parameter :: E_other(Ncl)=(/ 1.5d4, 2.5d4 /)   !!! 1.0d4** ! 5.0d3* Energy flux of other metabolisms (nJ cm-2 s-1)
 
       real(8), parameter :: k_CO2i(Ncl) =(/ 1.5d-3, 1.5d-3 /)  ! 1.5d-3* !permeability coefficient (cm s-1): Sueltemeyer and Rinast (1996): (1.49d-3 cm s-1)
       real(8), parameter :: k_TA(Ncl)   =(/ 5.0d-4, 5.0d-4 /)  !!! 3.0d-5**  5.0d-5 !3.0d-3* !conductivity of TA through the leak pass (cm s-1) *Tuned
       real(8), parameter :: k_DIC(Ncl)  =(/ 5.0d-4, 5.0d-4 /)  !!! 3.0d-5**  5.0d-5 !3.0d-3* !conductivity of DIC through the leak pass (cm s-1) *Tuned
 #if defined CORAL_MUCUS
-      real(8), parameter :: ForgC(Ncl)  =(/ 0.232d0/8.0d0, -0.073d0/1.0d0 /)  !!! Organic carbon release rate(+) or uptake rate(-) (nmol cm-2 s-1) *Tuned
+      real(8), parameter :: ForgC(Ncl)  =(/ 0.232d0/8.0d0, -0.073d0/2.0d0 /)  !!! Organic carbon release rate(+) or uptake rate(-) (nmol cm-2 s-1) *Tuned
           ! 200 mmol m-2 d-1 for 100% covered inner reef corals
           ! -63 mmol m-2 d-1 for 100% covered reef slope corals 
           ! For converting reef scale (mmol m-2 d-1) to polyp scale (nmol cm-2 s-1)
