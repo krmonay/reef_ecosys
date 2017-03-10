@@ -1,7 +1,7 @@
 % === ver 2017/03/09   Copyright (c) 2017 Takashi NAKAMURA  =====
 
-evn_file = '.././output/site04-env_his.csv';
-ch1_file = '.././output/site04-crl1_his.csv';
+evn_file = '.././output/site06-env_his.csv';
+ch1_file = '.././output/site06-crl1_his.csv';
 % ch2_file = '.././output/site06-crl2_his.csv';
 % ca1_file = '.././output/eco5-crl1_ave.csv';
 % ca2_file = '.././output/eco5-crl2_ave.csv';

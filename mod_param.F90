@@ -53,6 +53,7 @@
     real(8), allocatable :: WQ_time(:)
     real(8), allocatable :: TA_data(:)
     real(8), allocatable :: DIC_data(:)
+    real(8), allocatable :: DO_data(:)
     integer :: N_WQ
     integer :: i_WQ = 1
     

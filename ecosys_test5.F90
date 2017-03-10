@@ -38,7 +38,7 @@
       
       integer :: ipcl =1    ! Step of the protocol for setting 5 (Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments)
 !  For Output      
-      real(8), parameter :: OUTPUT_INTERVAL = 1.0d0     ! Output interval (min)
+      real(8), parameter :: OUTPUT_INTERVAL = 5.0d0     ! Output interval (min)
       real(8), save :: dsec = 0.d0 !sec
 
 !----- Open output files -------------------------
@@ -309,7 +309,8 @@
             if( ipcl == 1) then
               C(1,1,k,1,iTIC_) = DIC_data(1)
               C(1,1,k,1,iTAlk) = TA_data(1)
-              C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+              C(1,1,k,1,iOxyg) = DO_data(1)
+!              C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
               ipcl = 2
             end if
           
@@ -320,7 +321,8 @@
               if (WQ_time(ipcl)-15.0d0/60.0d0 < time*24.0d0 .and. time*24.0d0 < WQ_time(ipcl)  ) then
                 C(1,1,k,1,iTIC_) = DIC_data(ipcl)
                 C(1,1,k,1,iTAlk) = TA_data(ipcl) 
-                C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+                C(1,1,k,1,iOxyg) = DO_data(ipcl)
+!                C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
               else if (time*24.0d0 >= WQ_time(ipcl)  ) then
                 ipcl = ipcl +1
                 if(ipcl>N_WQ) ipcl = N_WQ

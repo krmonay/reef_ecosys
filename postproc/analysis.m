@@ -59,6 +59,16 @@ for i=1:8
     Pn(24+i) = mean(tot_Pn(t_min<eco.time & eco.time<t_max));
     G (24+i) = mean(tot_G (t_min<eco.time & eco.time<t_max));
 end
+%% Model skill
+Xm = Pn(:);     % Model output
+Xo = dat.Pn(:); % Observed data
+tmp = abs(Xm-mean(Xo)) + abs(Xo-mean(Xo));
+Pn_Skill = 1-(Xm-Xo).'*(Xm-Xo)/(tmp.'*tmp)
+
+Xm =G(:);     % Model output
+Xo = dat.G(:); % Observed data
+tmp = abs(Xm-mean(Xo)) + abs(Xo-mean(Xo));
+G_Skill = 1-(Xm-Xo).'*(Xm-Xo)/(tmp.'*tmp)
 %%
 
 
@@ -72,7 +82,7 @@ scatter(Pn(9:16), dat.Pn(9:16),'filled','s');
 scatter(Pn(17:24), dat.Pn(17:24),'filled','d');
 scatter(Pn(25:32), dat.Pn(25:32),'filled','o');
 fplot(@(x) x)
-axis([-12,24,-12,24])
+axis([-14,24,-14,24])
 ylabel('Measured (mmol m^-^2 h^-^1)')
 xlabel('Estimated (mmol m^-^2 h^-^1)')
 legend('Site 4','Site 5','Site 6', 'Site 7','Location','southeast')

@@ -666,7 +666,7 @@
 
 # if defined TESTMODE
 !  Output
-      real(8), parameter :: OUTPUT_INTERVAL = 10.0d0     ! Output interval (min)
+      real(8), parameter :: OUTPUT_INTERVAL = 5.0d0     ! Output interval (min)
       real(8), save :: time = 0.d0 !sec
       real(8), save :: dsec = 0.d0 !sec
       real(8) :: TKamb 

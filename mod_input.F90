@@ -155,7 +155,10 @@
       integer :: N_data
       integer :: ios
       
-      integer i,j
+      real(8), parameter :: c1 = -2.9339d-3
+      real(8), parameter :: c2 = 10.326d0
+      real(8), parameter :: c3 = -8787.5d0
+      integer :: i,j
 !
       
 ! ===== READ PPFD data ======================================================
@@ -222,12 +225,18 @@
         if(ios==-1) exit
         N_WQ = N_WQ + 1
       end do
-      allocate( WQ_time(N_WQ), TA_data(N_WQ), DIC_data(N_WQ) )
+      allocate( WQ_time(N_WQ), TA_data(N_WQ), DIC_data(N_WQ), DO_data(N_WQ) )
       rewind(77) 
 ! ----- Read data -----
       do i=1, N_WQ
         read(77,*) WQ_time(i), TA_data(i), DIC_data(i)
         WQ_time(i) = WQ_time(i) + 4.0d0*24.0d0
+        
+        if( DIC_data(i) > -0.25d0*c2/c1) then
+          DO_data(i) = c1*DIC_data(i)*DIC_data(i) + c2*DIC_data(i) + c3
+        else
+          DO_data(i) = -(c2*c2-4.0d0*c1*c3)*0.25/c1
+        end if
       end do
       close(77)
       

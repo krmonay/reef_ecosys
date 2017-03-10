@@ -283,7 +283,7 @@
      &            ,DICuptake      &   ! DIC uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
      &            ,TAuptake       &   ! TA  uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
      &            ,DOuptake       &   ! DO  uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
-#if defined CORAL_MUCUS
+#if defined ORGANIC_MATTER
      &            ,DOCuptake      &   ! DOC uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
      &            ,POCuptake      &   ! POC uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
 #endif
@@ -299,7 +299,7 @@
      &            ,NO2uptake      &   ! NO2 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
      &            ,NH4uptake      &   ! NH4 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
      &            ,PO4uptake      &   ! PO4 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
-# if defined CORAL_MUCUS
+# if defined ORGANIC_MATTER
      &            ,DONuptake      &   ! DON uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
      &            ,PONuptake      &   ! PON uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
      &            ,DOPuptake      &   ! DOP uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
@@ -343,7 +343,7 @@
       real(8), intent(out) :: DICuptake
       real(8), intent(out) :: TAuptake 
       real(8), intent(out) :: DOuptake 
-#if defined CORAL_MUCUS
+#if defined ORGANIC_MATTER
       real(8), intent(out) :: DOCuptake
       real(8), intent(out) :: POCuptake
 #endif
@@ -359,7 +359,7 @@
       real(8), intent(out) :: NO2uptake
       real(8), intent(out) :: NH4uptake
       real(8), intent(out) :: PO4uptake
-# if defined CORAL_MUCUS
+# if defined ORGANIC_MATTER
       real(8), intent(out) :: DONuptake
       real(8), intent(out) :: PONuptake
       real(8), intent(out) :: DOPuptake
@@ -418,7 +418,7 @@
                                                !!! * Nakamura et al. 2013 setting; ** New setting
 
       real(8), parameter :: Rmax(Ncl) = (/ 0.53d0, 0.53d0 /) !!!0.53d0*  0.37d0** !Maximum respiration rate (nmol O2 cm-2 s-1) *Tuned using Kuhl et al (1995), Al-Horani et al. (2003) data
-      real(8), parameter :: K_QC(Ncl) = (/ 5.d0, 5.d0 /)     !umol cm-2!!!*適当
+      real(8), parameter :: K_QC(Ncl) = (/ 10.d0, 10.d0 /)     !!!5.0d0* umol cm-2!!!*適当
       real(8), parameter :: K_DO(Ncl) = (/ 46.d0, 46.d0 /)   ! ca. 46 (umol kg-1) Newton & Atkinson (1991)
 
       real(8), parameter :: ratio(Ncl) = (/ 1.0d0, 1.0d0 /) !!!0.9d0** 0.8d0  !1.0d0* !!!*適当
@@ -432,12 +432,21 @@
 
 !      real(8), parameter :: k_Gn(Ncl) /1.d-2/!(未使用）
 
-      real(8), parameter :: eeff(Ncl)  = (/ 0.3d0, 0.3d0 /)   !!! 0.01d0** 0.02d0 !0.3d0*!Energy efficency of calcification
-      real(8), parameter :: E_other(Ncl)=(/ 5.0d3, 5.0d3 /)   !!! 1.0d4** ! 5.0d3* Energy flux of other metabolisms (nJ cm-2 s-1)
+      real(8), parameter :: eeff(Ncl)  = (/ 0.1d0, 0.1d0 /)   !!! 0.01d0** 0.02d0 !0.3d0*!Energy efficency of calcification
+      real(8), parameter :: E_other(Ncl)=(/ 1.0d4, 1.0d4 /)   !!! 1.0d4** ! 5.0d3* Energy flux of other metabolisms (nJ cm-2 s-1)
 
       real(8), parameter :: k_CO2i(Ncl) =(/ 1.5d-3, 1.5d-3 /)  ! 1.5d-3* !permeability coefficient (cm s-1): Sueltemeyer and Rinast (1996): (1.49d-3 cm s-1)
-      real(8), parameter :: k_TA(Ncl)   =(/ 3.0d-3, 3.0d-3 /)  !!! 3.0d-5**  5.0d-5 !3.0d-3* !conductivity of TA through the leak pass (cm s-1) *Tuned
-      real(8), parameter :: k_DIC(Ncl)  =(/ 3.0d-3, 3.0d-3 /)  !!! 3.0d-5**  5.0d-5 !3.0d-3* !conductivity of DIC through the leak pass (cm s-1) *Tuned
+      real(8), parameter :: k_TA(Ncl)   =(/ 1.0d-3, 1.0d-3 /)  !!! 3.0d-5**  5.0d-5 !3.0d-3* !conductivity of TA through the leak pass (cm s-1) *Tuned
+      real(8), parameter :: k_DIC(Ncl)  =(/ 1.0d-3, 1.0d-3 /)  !!! 3.0d-5**  5.0d-5 !3.0d-3* !conductivity of DIC through the leak pass (cm s-1) *Tuned
+#if defined CORAL_MUCUS
+      real(8), parameter :: ForgC(Ncl)  =(/ 2.6d-2, -7.3d-2 /)  !!! Organic carbon release rate(+) or uptake rate(-) (nmol cm-2 s-1) *Tuned
+          ! 200 mmol m-2 d-1 for 100% covered inner reef corals
+          ! -63 mmol m-2 d-1 for 100% covered reef slope corals 
+          ! For converting reef scale (mmol m-2 d-1) to polyp scale (nmol cm-2 s-1)
+          !   1 mmol m-2 d-1 = 100/24/60/60/P2R(n) nmol cm-2 s-1 ~ 1.16d-3/P2R(n),
+          !   Thus: 200*1.16d-3/P2R(=9) =  2.6d-2 nmol cm-2 s-1 for inner reef corals
+          !!!        63*1.16d-3/P2R(=1) = -7.3d-2 nmol cm-2 s-1 for reef slope corals  ******要検討（P2Rの値に合わせ要修正）
+#endif
 
 #if defined CORAL_CARBON_ISOTOPE
 !----- for carbon isotope ------------------------
@@ -446,7 +455,7 @@
       real(8), parameter :: a_calc =   2.7d-3 + 1.0d0 
       real(8), parameter :: a_co2  =  -7.0d-3 + 1.0d0!!!!!!!!!!!!!!!!!!適当-8-4.4
 #endif
-#if ( defined CORAL_ZOOXANTHELLAE || defined CORAL_MUCUS || defined CORAL_SIZE_DYNAMICS )
+#if ( defined CORAL_ZOOXANTHELLAE || defined CORAL_SIZE_DYNAMICS )
 !----- Coral minimum quota ------------------------
 !      real(8), parameter :: QC0(Ncl) = (/ 2.0d0, 2.0d0 /)     ! Minimum quota (umol cm-2)  !!!!!!!!!!!!!!!!!!適当
       real(8), parameter :: QC0(Ncl) = (/ 200.0d0, 200.0d0 /) ! Minimum quota (umol cm-2)  !!!!!!!!!!!!!!!!!!適当
@@ -544,7 +553,7 @@
 
 #if defined CORAL_TESTMODE
 !  Output
-      real(8), parameter :: OUTPUT_INTERVAL  = 1.0d0    ! Output interval (min)
+      real(8), parameter :: OUTPUT_INTERVAL  = 5.0d0    ! Output interval (min)
       real(8), parameter :: AVERAGE_INTERVAL = 1.0d0    ! Average interval (day)
       real(8), save :: time(Ncl)         = (/ 0.d0, 0.d0 /)  !sec
       real(8), save :: S_PFD_dt(Ncl)     = (/ 0.d0, 0.d0 /)
@@ -826,29 +835,31 @@
 !
 !----- Coral mucus release rate (nmol cm-2 s-1)--------------------------
 !
-      F_Cmucus = 0.0d0  !!!!てきとう
+      F_Cmucus = ForgC(n)  !!!! constant value is assumed
       
-# if defined CORAL_ZOOXANTHELLAE
+# if defined ORGANIC_MATTER
+#  if defined CORAL_ZOOXANTHELLAE
       DOCuptake = -F_Cmucus - F_Cwaste
       POCuptake = 0.0d0
-# else
+#  else
       DOCuptake = -F_Cmucus
       POCuptake = 0.0d0
-# endif
+#  endif
 
-# if defined CORAL_NUTRIENTS
+#  if defined CORAL_NUTRIENTS
       F_Nmucus = ???
       F_Pmucus = ???
-#  if defined CORAL_ZOOXANTHELLAE
+#   if defined CORAL_ZOOXANTHELLAE
       DONuptake = -F_Nmucus - F_Nwaste
       PONuptake = 0.0d0
       DOPuptake = -F_Pmucus - F_Pwaste
       POPuptake = 0.0d0
-#  else
+#   else
       DONuptake = -F_Nmucus
       PONuptake = 0.0d0
       DOPuptake = -F_Pmucus
       POPuptake = 0.0d0
+#   endif
 #  endif
 # endif
 !----- END CORAL_MUCUS --------------------------
@@ -1276,7 +1287,7 @@
 # if defined CORAL_BORON_ISOTOPE
      &   ,d11Barg,','                                                   &
 # endif
-# if defined CORAL_MUCUS
+# if defined ORGANIC_MATTER
      &   ,DOCuptake,','                                                 &
 # endif
 # if defined CORAL_INGESTION

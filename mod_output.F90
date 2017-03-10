@@ -318,7 +318,7 @@
 # if defined CORAL_BORON_ISOTOPE
      &   ,'d11Barg,'                                              &
 # endif
-# if defined CORAL_MUCUS
+# if defined ORGANIC_MATTER
      &   ,'DOCuptake,'                                            &
 # endif
 # if defined CORAL_INGESTION

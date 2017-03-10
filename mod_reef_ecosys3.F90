@@ -285,7 +285,7 @@
       real(8), parameter :: AttSW  = 0.12d0     ! Light attenuation due to seawater [1/m], {0.04d0}.
       real(8), parameter :: AttChl = 0.02486d0  ! Light attenuation by chlorophyll [1/(mg_Chl m2)], {0.02486d0}.
 #ifdef CORAL_POLYP
-      real(8), parameter :: P2R(Ncl) = (/ 9.0d0, 0.6d0 /)  !!! Conversion factor from polyp scale to reef scale
+      real(8), parameter :: P2R(Ncl) = (/ 9.0d0, 1.0d0 /)  !!! Conversion factor from polyp scale to reef scale
                                       !*~9.0d0 convert projected area to coral surface area for branching Acropora (Naumann et al. 2009)
 #endif
 !---- POM deposition flux parameters
@@ -365,7 +365,7 @@
 #endif
 #if defined ECOSYS_TESTMODE
 !  Output
-      real(8), parameter :: OUTPUT_INTERVAL = 1.0d0     ! Output interval (min)
+      real(8), parameter :: OUTPUT_INTERVAL = 5.0d0     ! Output interval (min)
       real(8), save :: time = 0.0d0 !sec
       real(8), save :: dsec = 0.0d0 !sec
 #endif
@@ -725,7 +725,7 @@
      &              ,Flux_DIC       &   ! DIC uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
      &              ,Flux_TA        &   ! TA  uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
      &              ,Flux_DO        &   ! DO  uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
-# if defined CORAL_MUCUS
+# if defined ORGANIC_MATTER
      &              ,Flux_DOC       &   ! DOC uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
      &              ,Flux_POC       &   ! POC uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
 # endif
@@ -741,7 +741,7 @@
      &              ,Flux_NO2       &   ! NO2 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
      &              ,Flux_NH4       &   ! NH4 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
      &              ,Flux_PO4       &   ! PO4 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
-#  if defined CORAL_MUCUS
+#  if defined ORGANIC_MATTER
      &              ,Flux_DON       &   ! DON uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
      &              ,Flux_PON       &   ! PON uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
      &              ,Flux_DOP       &   ! DOP uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
@@ -760,7 +760,7 @@
           dDIC_dt(1) = dDIC_dt(1) - Flux_DIC * cff/rho_sw
           dTA_dt (1) = dTA_dt (1) - Flux_TA  * cff/rho_sw
           dDOx_dt(1) = dDOx_dt(1) - Flux_DO  * cff
-# if defined CORAL_MUCUS
+# if defined ORGANIC_MATTER
           dDOC_dt(1) = dDOC_dt(1) - Flux_DOC * cff
           dPOC_dt(1) = dPOC_dt(1) - Flux_POC * cff
 # endif
@@ -776,7 +776,7 @@
           dNO2_dt(1) = dNO2_dt(1) - Flux_NO2 * cff
           dNH4_dt(1) = dNH4_dt(1) - Flux_NH4 * cff
           dPO4_dt(1) = dPO4_dt(1) - Flux_PO4 * cff
-#  if defined CORAL_MUCUS
+#  if defined ORGANIC_MATTER
           dDON_dt(1) = dDON_dt(1) - Flux_DON * cff
           dPON_dt(1) = dPON_dt(1) - Flux_PON * cff
           dDOP_dt(1) = dDOP_dt(1) - Flux_DOP * cff
