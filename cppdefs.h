@@ -53,7 +53,6 @@
 
 #if defined CORAL_POLYP
 # define CORAL_TESTMODE
-/*# define CORAL_DEBUG*/
 #endif
 #if defined SEDIMENT_ECOSYS
 /*# define SEDIMENT_TESTMODE*/

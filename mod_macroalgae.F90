@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/02/01   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -149,8 +149,8 @@
 !      real(8), parameter :: pmax =  51.3d0  ! Nakamura & Nakamori 2009
 !      real(8), parameter :: pIk  = 589.65d0
 !      real(8), parameter :: p0   =  15.05d0 !
-      real(8), parameter :: p1   =  0.0213d0 ! Nakamura & Nakamori 2009
-      real(8), parameter :: p0   = 12.885d0  !
+      real(8), parameter :: p1 =  0.02166d0 ! Nakamura & Nakamori 2009
+      real(8), parameter :: p0 = 13.13d0    !  Model skill = 0.991
 #if defined NUTRIENTS         
       real(8) npref
       real(8) ldocn,ldocd

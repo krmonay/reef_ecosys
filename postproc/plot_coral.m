@@ -6,7 +6,7 @@ ch1_file = '.././output/site06-crl1_his.csv';
 % ca1_file = '.././output/eco5-crl1_ave.csv';
 % ca2_file = '.././output/eco5-crl2_ave.csv';
 
-xmin=4; ymin=5;
+xmin=0; ymin=5;
 PFDmax =2000;
 
 env = readtable(evn_file,'Delimiter',',', 'ReadVariableNames', true);
@@ -37,7 +37,7 @@ legend('Pn','G','E', 'Location','southoutside','Location','southoutside','Orient
 hold off
 subplot(4,2,2);
 plot(ch1.time, ch1.pHcal,'r');
-axis([xmin ymin  7.5 9.5])
+axis([xmin ymin  7 10])
 hold on
 plot(ch1.time, ch1.pHcoe, 'g');
 plot(ch1.time, ch1.pHamb, 'b');
@@ -66,7 +66,7 @@ legend('R','Pg','E', 'Location','southoutside','Orientation','horizontal')
 hold off
 subplot(4,2,4);
 plot(ch1.time, ch1.DOcoe, 'g');
-axis([xmin ymin  0 600])
+axis([xmin ymin  0 800])
 hold on
 plot(ch1.time, ch1.DOamb, 'b');
 ylabel('DO (umol kg^-^1)')
@@ -109,7 +109,7 @@ legend('Wcal','Wcoe','E', 'Location','southoutside','Orientation','horizontal')
 hold off
 subplot(4,2,7);
 plot(ch1.time, ch1.DICcal,'r');
-axis([xmin ymin  1200 2200])
+axis([xmin ymin  1000 2500])
 hold on
 plot(ch1.time, ch1.DICcoe, 'g');
 plot(ch1.time, ch1.DICamb, 'b');

@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/09   Copyright (c) 2013-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/10   Copyright (c) 2013-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -152,12 +152,16 @@
       real(8), parameter :: nc=27./599.d0 !M.J.Atkinson and SV Smith(1983)
       real(8), parameter :: pc=1./599.d0
 ! --- Photosynthesis and Calcification Parameters ---
-      real(8), parameter :: pmax =  5.02d0 ! Nakamura & Nakamori 2009
-      real(8), parameter :: pIk  = 1040.5d0
-      real(8), parameter :: p0   =  2.46d0
-      real(8), parameter :: gmax =  4.28d0 ! Nakamura & Nakamori 2009
-      real(8), parameter :: gIk  = 3507.87d0
-      real(8), parameter :: g0   =  0.61d0
+!      real(8), parameter :: pmax =  5.02d0 ! Nakamura & Nakamori 2009
+!      real(8), parameter :: pIk  = 1040.5d0
+!      real(8), parameter :: p0   =  2.46d0
+!      real(8), parameter :: gmax =  4.28d0 ! Nakamura & Nakamori 2009
+!      real(8), parameter :: gIk  = 3507.87d0
+!      real(8), parameter :: g0   =  0.61d0
+      real(8), parameter :: p1 = 3.188d-3 ! Nakamura & Nakamori 2009
+      real(8), parameter :: p0 = 2.369d0  !  Model skill = 0.968
+      real(8), parameter :: g1 = 1.193d-3 ! Nakamura & Nakamori 2009
+      real(8), parameter :: g0 = 0.6267d0 !  Model skill = 0.981
 # if defined NUTRIENTS         
       real(8) npref
       real(8) ldocn,ldocd
@@ -170,9 +174,12 @@
 
 ! --- Organic and Inorganic Production Rate -----------------
 
-      SEDECO(ng)%Pg(i,j)= pmax*tanh(PFD/pIk)/3600.d0   !Light response curve [mmolC/m2/s]
+!      SEDECO(ng)%Pg(i,j)= pmax*tanh(PFD/pIk)/3600.d0   !Light response curve [mmolC/m2/s]
+!      SEDECO(ng)%R (i,j)= p0/3600.d0   !Constant [mmolC/m2/s]
+!      SEDECO(ng)%G (i,j)= (gmax*tanh(PFD/gIk)-g0)/3600.d0   !Light response curve [mmolC/m2/s]
+      SEDECO(ng)%Pg(i,j)= p1*PFD/3600.d0   !Light response curve [mmolC/m2/s]
       SEDECO(ng)%R (i,j)= p0/3600.d0   !Constant [mmolC/m2/s]
-      SEDECO(ng)%G (i,j)= (gmax*tanh(PFD/gIk)-g0)/3600.d0   !Light response curve [mmolC/m2/s]
+      SEDECO(ng)%G (i,j)= (g1*PFD-g0)/3600.d0   !Light response curve [mmolC/m2/s]
       
       IF(DICamb<=0.d0) THEN !-----For Error handling
         SEDECO(ng)%Pg(i,j) = 0.d0
@@ -468,7 +475,7 @@
 !                                                                       
 !   A vertical section of the sediment grid showing sediment column.    
 !-----------------------------------------------------------------------
-
+!!! Krumins et al., (2013)‚ðŽQl‚É‚µ‚Äì‚é‚Ì‚ª—Ç‚³‚»‚¤!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       USE mod_geochem
       

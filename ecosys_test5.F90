@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/09   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 

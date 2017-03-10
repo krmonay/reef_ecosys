@@ -82,7 +82,8 @@ scatter(Pn(9:16), dat.Pn(9:16),'filled','s');
 scatter(Pn(17:24), dat.Pn(17:24),'filled','d');
 scatter(Pn(25:32), dat.Pn(25:32),'filled','o');
 fplot(@(x) x)
-axis([-14,24,-14,24])
+axis([-20,30,-20,30])
+axis square
 ylabel('Measured (mmol m^-^2 h^-^1)')
 xlabel('Estimated (mmol m^-^2 h^-^1)')
 legend('Site 4','Site 5','Site 6', 'Site 7','Location','southeast')
@@ -95,6 +96,7 @@ scatter(G(17:24), dat.G(17:24),'filled','d');
 scatter(G(25:32), dat.G(25:32),'filled','o');
 fplot(@(x) x)
 axis([-2,18,-2,18])
+axis square
 ylabel('Measured (mmol m^-^2 h^-^1)')
 xlabel('Estimated (mmol m^-^2 h^-^1)')
 legend('Site 4','Site 5','Site 6', 'Site 7','Location','southeast')
