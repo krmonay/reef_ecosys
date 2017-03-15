@@ -82,7 +82,7 @@ scatter(Pn(9:16), dat.Pn(9:16),'filled','s');
 scatter(Pn(17:24), dat.Pn(17:24),'filled','d');
 scatter(Pn(25:32), dat.Pn(25:32),'filled','o');
 fplot(@(x) x)
-axis([-20,30,-20,30])
+axis([-15,25,-15,25])
 axis square
 ylabel('Measured (mmol m^-^2 h^-^1)')
 xlabel('Estimated (mmol m^-^2 h^-^1)')

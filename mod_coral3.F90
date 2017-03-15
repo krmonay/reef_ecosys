@@ -417,11 +417,11 @@
 
                                                !!! * Nakamura et al. 2013 setting; ** New setting
 
-      real(8), parameter :: Rmax(Ncl) = (/ 0.5d0, 0.5d0 /) !!!0.53d0*  0.37d0** !Maximum respiration rate (nmol O2 cm-2 s-1) *Tuned using Kuhl et al (1995), Al-Horani et al. (2003) data
+      real(8), parameter :: Rmax(Ncl) = (/ 1.0d0, 1.0d0 /) !!!0.53d0*  0.37d0** !Maximum respiration rate (nmol O2 cm-2 s-1) *Tuned using Kuhl et al (1995), Al-Horani et al. (2003) data
       real(8), parameter :: K_QC(Ncl) = (/ 20.d0, 20.d0 /)     !!!5.0d0* umol cm-2!!!*適当
-      real(8), parameter :: K_DO(Ncl) = (/ 100.d0, 100.d0 /)   ! ca. 46 (umol kg-1) Newton & Atkinson (1991)
+      real(8), parameter :: K_DO(Ncl) = (/ 400.d0, 400.d0 /)   ! ca. 46 (umol kg-1) Newton & Atkinson (1991)
 
-      real(8), parameter :: ratio(Ncl) = (/ 0.8d0, 1.0d0 /) !!!0.9d0** 0.8d0  !1.0d0* !!!*適当
+      real(8), parameter :: ratio(Ncl) = (/ 0.6d0, 1.0d0 /) !!!0.9d0** 0.8d0  !1.0d0* !!!*適当
 
 !     Temperature dependency parameters (Hikosaka et al. 2006) 
 !        - Parameters estimated from data by Fujimura et al. (2008)
@@ -432,14 +432,14 @@
 
 !      real(8), parameter :: k_Gn(Ncl) /1.d-2/!(未使用）
 
-      real(8), parameter :: eeff(Ncl)  = (/ 0.4d0, 0.4d0 /)   !!! 0.01d0** !0.3d0*!Energy efficency of calcification (<12%, 4~7%?; Lervik et al., 2012)
-      real(8), parameter :: E_other(Ncl)=(/ 1.5d4, 2.5d4 /)   !!! 1.0d4** ! 5.0d3* Energy flux of other metabolisms (nJ cm-2 s-1)
+      real(8), parameter :: eeff(Ncl)  = (/ 0.1d0, 0.4d0 /)   !!! 0.01d0** !0.3d0*!Energy efficency of calcification (<12%, 4~7%?; Lervik et al., 2012)
+      real(8), parameter :: E_other(Ncl)=(/ 5.0d3, 2.5d4 /)   !!! 1.0d4** ! 5.0d3* Energy flux of other metabolisms (nJ cm-2 s-1)
 
-      real(8), parameter :: k_CO2i(Ncl) =(/ 1.5d-3, 1.5d-3 /)  ! 1.5d-3* !permeability coefficient (cm s-1): Sueltemeyer and Rinast (1996): (1.49d-3 cm s-1)
-      real(8), parameter :: k_TA(Ncl)   =(/ 5.0d-4, 5.0d-4 /)  !!! 3.0d-5**  5.0d-5 !3.0d-3* !conductivity of TA through the leak pass (cm s-1) *Tuned
-      real(8), parameter :: k_DIC(Ncl)  =(/ 5.0d-4, 5.0d-4 /)  !!! 3.0d-5**  5.0d-5 !3.0d-3* !conductivity of DIC through the leak pass (cm s-1) *Tuned
+      real(8), parameter :: k_CO2i(Ncl) =(/ 1.0d-2, 1.5d-3 /)  ! 1.5d-3* !permeability coefficient (cm s-1): Sueltemeyer and Rinast (1996): (1.49d-3 cm s-1)
+      real(8), parameter :: k_TA(Ncl)   =(/ 3.0d-4, 3.0d-4 /)  !!! 3.0d-5**  5.0d-5 !3.0d-3* !conductivity of TA through the leak pass (cm s-1) *Tuned
+      real(8), parameter :: k_DIC(Ncl)  =(/ 3.0d-4, 3.0d-4 /)  !!! 3.0d-5**  5.0d-5 !3.0d-3* !conductivity of DIC through the leak pass (cm s-1) *Tuned
 #if defined CORAL_MUCUS
-      real(8), parameter :: ForgC(Ncl)  =(/ 0.232d0/8.0d0, -0.073d0/2.0d0 /)  !!! Organic carbon release rate(+) or uptake rate(-) (nmol cm-2 s-1) *Tuned
+      real(8), parameter :: ForgC(Ncl)  =(/ 0.232d0/10.0d0, -0.073d0/2.0d0 /)  !!! Organic carbon release rate(+) or uptake rate(-) (nmol cm-2 s-1) *Tuned
           ! 200 mmol m-2 d-1 for 100% covered inner reef corals
           ! -63 mmol m-2 d-1 for 100% covered reef slope corals 
           ! For converting reef scale (mmol m-2 d-1) to polyp scale (nmol cm-2 s-1)
@@ -606,9 +606,12 @@
 
 !      Si = (65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
       
-      Si_DIC=(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
-      Si_TA =(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
-      Si_DO =(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
+!      Si_DIC=(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
+!      Si_TA =(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
+!      Si_DO =(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
+      Si_DIC=S_i(tau_amb,dif_HCO3,340.0d0,1.05d0)*1.0d2
+      Si_TA =S_i(tau_amb,dif_HCO3,340.0d0,1.05d0)*1.0d2
+      Si_DO =S_i(tau_amb,dif_O2  ,340.0d0,1.05d0)*1.0d2
 #if defined ORGANIC_MATTER
       Si_DOC=(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
       Si_POC=(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
@@ -629,12 +632,15 @@
 # endif
 #endif
 #if defined CORAL_NONE_CO2_EQ
-      Si_CO2=(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
+!      Si_CO2=(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
+      Si_CO2=S_i(tau_amb,dif_CO2 ,340.0d0,1.05d0)*1.0d2
 #endif
 #if defined CORAL_CARBON_ISOTOPE  
-      Si_DI13C=(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
+!      Si_DI13C=(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
+      Si_DI13C=S_i(tau_amb,dif_HCO3,340.0d0,1.05d0)*1.0d2
 # if defined CORAL_NONE_CO2_EQ
-      Si_13CO2=(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
+!      Si_13CO2=(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
+      Si_13CO2=S_i(tau_amb,dif_CO2 ,340.0d0,1.05d0)*1.0d2
 # endif
 #endif
 #if defined CORAL_ZOOXANTHELLAE
@@ -693,7 +699,6 @@
       cCO3cal   = cCO3_noneq(CORAL(ng)%DICcal(n,i,j),CORAL(ng)%cCO2aqcal(n,i,j),pHcal,TKamb, Samb)
       fCO2cal   = fCO2_fromcCO2aq(CORAL(ng)%cCO2aqcal(n,i,j),TKamb, Samb)  !! for output
       Wargcal   = Warg_fromcCO3cCa(cCO3cal,10.4d0,TKamb, Samb)  !Calcifying fluid {Ca2+]=10.4 mmol kg-1   Assumed
-
 !----------- CO2 system in coelenteron -------------------
       pHcoe     = pH_fromATCTcCO2aq(CORAL(ng)%TAcoe(n,i,j),CORAL(ng)%DICcoe(n,i,j),CORAL(ng)%cCO2aqcoe(n,i,j),TKamb, Samb)
       cHCO3coe  = cHCO3_noneq(CORAL(ng)%DICcoe(n,i,j),CORAL(ng)%cCO2aqcoe(n,i,j),pHcoe,TKamb, Samb)
@@ -1159,6 +1164,10 @@
      &              -(kp1+kp4*cOHcoe)*CORAL(ng)%cCO2aqcoe(n,i,j)  & ! umol kg-1 s-1
      &             ) *dt   ! umol kg-1
 
+      if(CORAL(ng)%cCO2aqcoe(n,i,j)<0.0d0) then
+        write(*,*) 'DEBUG1',CORAL(ng)%cCO2aqcoe(n,i,j)
+        Stop
+      endif
 !      CORAL(ng)%cCO2aqcoe(n,i,j)=max(CORAL(ng)%cCO2aqcoe(n,i,j),0.d0) !Error handring
 !      CORAL(ng)%cCO2aqcoe(n,i,j)=min(CORAL(ng)%cCO2aqcoe(n,i,j),1000.d0) !Error handring
 
@@ -1172,11 +1181,11 @@
      &            +( (km1*cHcal+km4)*cHCO3cal           &! umol kg-1 s-1
      &              -(kp1+kp4*cOHcal)*CORAL(ng)%cCO2aqcal(n,i,j)  &! umol kg-1 s-1
      &             ) *dt   ! umol kg-1
-!      CORAL(ng)%cCO2aqcal(n,i,j)=max(CORAL(ng)%cCO2aqcal(n,i,j),0.d0) !Error handring
-!      CORAL(ng)%cCO2aqcal(n,i,j)=min(CORAL(ng)%cCO2aqcal(n,i,j),1000.d0) !Error handring
-
-!      write(60,*) CORAL(ng)%cCO2aqcal(n,i,j),F_CO2,Fpp_CO2aq,(km1*cHcal+km4)*cHCO3cal,(kp1+kp4*cOHcal)*CORAL(ng)%cCO2aqcal(n,i,j) !!!!!!!!!for Debug
-
+     
+      if(CORAL(ng)%cCO2aqcal(n,i,j)<0.0d0) then
+        write(*,*) 'DEBUG2',CORAL(ng)%cCO2aqcal(n,i,j)
+        Stop
+      endif
 #endif
 
 #if defined CORAL_ZOOXANTHELLAE
@@ -1203,12 +1212,15 @@
 !      a_calc=exp((3.-0.140*Gn/0.011098)/1000.)    ! kinetic effect calcualtion: 1 mm y-1 
                    ! -> (10cm*1.4g/cm) /(365*24*60*60s*40g/mol)* 10**6 = 0.011098 umol cm-2 s-1
 
-      CORAL(ng)%Q13C (n,i,j)=CORAL(ng)%Q13C (n,i,j)                   &
+      CORAL(ng)%Q13C (n,i,j)=CORAL(ng)%Q13C (n,i,j)+(                 &
 !     &         +(Pg*R13Ccoe*a_phot/(1.+R13Ccoe*a_phot)  &
 !     &           -R*RQ13C*a_resp/(1.+RQ13C*a_resp)  &
-     &         +(CORAL(ng)%Pg(n,i,j)*R13Ccoe*a_phot                   &
+     &            CORAL(ng)%Pg(n,i,j)*R13Ccoe*a_phot                  &
      &           -CORAL(ng)%R (n,i,j)*RQ13C*a_resp                    &
 !     &          )/hcoe/rho_sw *dt    !nmol cm-3 s-1 = 1./1.023 umol kg-1 s-1
+#if defined CORAL_MUCUS
+     &           -F_Cmucus*RQ13C                                      &
+#endif
      &          )*1.e-3 *dt    !nmol cm-2 =1.e-3 umol cm-2
 
       CORAL(ng)%DI13Ccoe (n,i,j)=CORAL(ng)%DI13Ccoe (n,i,j)                     &
@@ -1315,8 +1327,8 @@
      &   ,CORAL(ng)%cCO2aqcal(n,i,j),',',cHCO3cal,',',cCO3cal,','       &
      &   ,CORAL(ng)%cCO2aqcoe(n,i,j),',',cHCO3coe,',',cCO3coe,','       &
 # if defined CORAL_CARBON_ISOTOPE
-     &   ,d13C_DICamb,',',d13C_DICcoe,',',d13C_QC,d13C_DICcal,','       &
-     &   ,d13C_arg,',',d13C_arg*Gn,','                                  &
+     &   ,d13C_DICamb,',',d13C_DICcoe,',',d13C_QC,',',d13C_DICcal,','   &
+     &   ,d13C_arg,',',d13C_arg*CORAL(ng)%G (n,i,j),','                                  &
      &   ,d13C_fromR13C(CORAL(ng)%c13CO2aqcal(n,i,j)/CORAL(ng)%cCO2aqcal(n,i,j)),','   &
      &   ,d13C_fromR13C(cH13CO3cal/cHCO3cal),','                        &
      &   ,d13C_fromR13C(c13CO3cal/cCO3cal),','                          &
@@ -1349,13 +1361,13 @@
 ! Coral record calculation section
 
       S_PFD_dt(n)       =S_PFD_dt(n)+PFD*dt
-      S_Gn_dt(n)         =S_Gn_dt(n)+CORAL(ng)%G (n,i,j)*dt
+      S_Gn_dt(n)        =S_Gn_dt(n)+CORAL(ng)%G (n,i,j)*dt
       S_Pg_dt(n)        =S_Pg_dt(n)+CORAL(ng)%Pg(n,i,j)*dt
       S_R_dt(n)         =S_R_dt(n) +CORAL(ng)%R(n,i,j) *dt
-      S_QC_dt(n)      =S_QC_dt(n)+CORAL(ng)%QC(n,i,j)*dt
+      S_QC_dt(n)        =S_QC_dt(n)+CORAL(ng)%QC(n,i,j)*dt
 # if defined CORAL_CARBON_ISOTOPE
       S_d13CargxGn_dt(n)=S_d13CargxGn_dt(n)+d13C_arg*CORAL(ng)%G (n,i,j)*dt
-      S_d13C_QC_dt(n)  =S_d13C_QC_dt(n)+d13C_QC*dt
+      S_d13C_QC_dt(n)   =S_d13C_QC_dt(n)+d13C_QC*dt
 # endif
 # if defined CORAL_BORON_ISOTOPE
       S_d11BargxGn_dt(n)=S_d11BargxGn_dt(n)+d11Barg*CORAL(ng)%G (n,i,j)*dt
@@ -1365,15 +1377,15 @@
 
         write(20+n,*) dday(n),','             &
      &   ,S_PFD_dt(n)*1.d-6,','               &   !Photon flux density (mol m-2 d-1)
-     &   ,S_Gn_dt(n)*1.d-3,','                &   !Calcification rate (umol cm-2 d-1)
 # if defined CORAL_CARBON_ISOTOPE
-     &   ,S_d13CargxGn_dt(n),','              &
+!     &   ,S_d13CargxGn_dt(n),','              &
      &   ,S_d13CargxGn_dt(n)/S_Gn_dt(n),','   &   !d13C
      &   ,S_d13C_QC_dt(n)/24./60./60.,','     &   ! 1 day avaraged value of d13C_QC
 # endif
 # if defined CORAL_BORON_ISOTOPE
      &   ,S_d11BargxGn_dt(n)/S_Gn_dt(n),','   & 
 # endif
+     &   ,S_Gn_dt(n)*1.d-3,','                &   !Calcification rate (umol cm-2 d-1)
      &   ,S_Pg_dt(n)*1.d-3,','                &   !Gross photosynthesis rate (umol cm-2 d-1)
      &   ,S_R_dt(n)*1.d-3,','                 &   !Respiration rate (umol cm-2 d-1)
      &   ,S_QC_dt(n)/24./60./60.,','          &   ! 1 day avaraged value of QC
@@ -1399,6 +1411,40 @@
       RETURN
 
     END SUBROUTINE coral_polyp
+    
+!!! **********************************************************************
+!!!  Mass transfer function
+!!! **********************************************************************
+! Falter et al., (2016) Geophys. Res. Lett. 43: 9764-9772
+! Chan et al., (2016) Frontiers in Marine Science 3:
+! Shapiro et al., (2014) PNAS 111: 13391-13396
+
+    real(8) function S_i(tau,D,ak,Eosc) ! (m s-1)
+      implicit none
+      real(8), intent(in) :: tau  ! Bottom shear stress (N m-2)
+      real(8), intent(in) :: D    ! Molecular diffusion coefficient (m2 s-1)
+      real(8), intent(in) :: ak   ! Scaling coefficient (Falter et al., 2016)
+                                  ! 240-280: most experimental reef communities
+                                  ! 300-400 (median~340): natural reef communities
+      real(8), intent(in) :: Eosc ! Ratio ofmasstransfer ratesunderoscillatory 
+                                  ! to unidirectional flow (Falter et al., 2016);
+                                  ! 1.1: pure wave-driven oscillatory flow
+                                  ! 1.0: pure unidirectional flow
+      
+      real(8), parameter :: vis_sw = 0.94d-6  ! kinematic viscosity   (m2 s-1)
+      real(8), parameter :: d_DBL = 0.3d-3    ! Maximum boundary layer depth (m)
+                                              ! ~1 mm: due to vortical ciliary flows (Shapiro et al., 2014)
+      real(8) :: Sc               ! Schmidt number
+      real(8) :: S_high,S_low
+      
+      Sc = vis_sw/D
+      S_high = ak*Eosc*tau**0.4d0*Sc**(-0.6d0)
+      S_low  = D/d_DBL
+      
+      S_i=max(S_high, S_low)
+      
+      return
+    end function S_i
 
 
 #if defined CORAL_ZOOXANTHELLAE

@@ -72,7 +72,7 @@
 # if defined CARBON_ISOTOPE
           R13C = R13C_fromd13C(-15.0d0)
 !          c13CH2O (n,i,j)=R13C/(1.+R13C)*CH2O(n,i,j)
-          SEDECO(ng)%Q13C(i,j) = R13C * SEDECO(ng)%QC(n,i,j)
+          SEDECO(ng)%Q13C(i,j) = R13C * SEDECO(ng)%QC(i,j)
 # endif
 # if defined NUTRIENTS         
           SEDECO(ng)%QN(i,j) = 1.5d0  !!!‚Ä‚«‚Æ‚¤

@@ -213,6 +213,9 @@
      &    ,'DON, ','PON, ','DOP, ','POP, '                             &
 # endif
 #endif
+#if defined CARBON_ISOTOPE
+     &    ,'d13C_DIC, '                                                &
+#endif
 #if defined COT_STARFISH
      &    ,'COT, ','COTl '                                             &
 # endif
@@ -308,12 +311,12 @@
      &   ,'CO2aqcal,','HCO3cal,','CO3cal,'                        &
      &   ,'CO2aqcoe,','HCO3coe,','CO3coe,'                        &
 # if defined CORAL_CARBON_ISOTOPE
-     &   ,'d13C_DICamb,','d13C_DICcoe,','d13C_QC,d13C_DICcal,'    &
-     &   ,'d13C_arg','d13C_arg*Gn,'                               &
+     &   ,'d13C_DICamb,','d13C_DICcoe,','d13C_QC,','d13C_DICcal,' &
+     &   ,'d13C_arg,','d13C_argxGn,'                              &
      &   ,'d13C_CO2aqcal,','d13C_HCO3cal,','d13C_CO3cal,'         &
      &   ,'d13C_CO2aqcoe,','d13C_HCO3coe,','d13C_CO3coe,'         &
-     &   ,'13CO2aqcal,','H13CO3cal,','13CO3cal,'                  &
-     &   ,'13CO2aqcoe,','H13CO3coe,','13CO3coe,'                  &
+     &   ,'c13CO2aqcal,','cH13CO3cal,','c13CO3cal,'               &
+     &   ,'c13CO2aqcoe,','cH13CO3coe,','c13CO3coe,'               &
 # endif
 # if defined CORAL_BORON_ISOTOPE
      &   ,'d11Barg,'                                              &
@@ -345,15 +348,15 @@
       
         write(fid,*) 'day,'         &
      &   ,'S_PFD_dt,'               &   !Photon flux density (mol m-2 d-1)
-     &   ,'S_Gn_dt,'                &   !Calcification rate (umol cm-2 d-1)
 # if defined CORAL_CARBON_ISOTOPE
-     &   ,'S_d13CargxGn_dt,'        &
+!     &   ,'S_d13CargxGn_dt,'        &
      &   ,'d13Carg,'                &   !d13C
      &   ,'S_d13C_QC_dt,'           &   ! 1 day avaraged value of d13C_QC
 # endif
 # if defined CORAL_BORON_ISOTOPE
      &   ,'d11Barg,'   & 
 # endif
+     &   ,'S_Gn_dt,'                &   !Calcification rate (umol cm-2 d-1)
      &   ,'S_Pg_dt,'                &   !Gross photosynthesis rate (umol cm-2 d-1)
      &   ,'S_R_dt,'                 &   !Respiration rate (umol cm-2 d-1)
      &   ,'S_QC_dt,'                &   ! 1 day avaraged value of QC
@@ -390,12 +393,12 @@
 #ifdef SEDIMENT_ECOSYS
      &    ,'sedeco_Pg, ', 'sedeco_R, ', 'sedeco_Pn, ', 'sedeco_G, '    &
 #endif
-     &    ,'dDIC_dt,','dTA_dt,','dDOx_dt,'                             &
+     &    ,'dDIC_dt,','dTA_dt,','dDO_dt,'                              &
 # if defined ORGANIC_MATTER
-     &    ,'dDOC_dt,','dPOC_dt(1),'                                    &
+     &    ,'dDOC_dt,','dPOC_dt,'                                       &
 # endif
 # if defined CARBON_ISOTOPE
-     &    ,'dDI13C_dt(1),'                                             &
+     &    ,'dDI13C_dt,'                                                &
 # endif
 # if defined NUTRIENTS
      &    ,'dNO3_dt,','dNO2_dt,','dNH4_dt,'                            &

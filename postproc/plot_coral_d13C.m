@@ -23,79 +23,78 @@ figure('PaperSize',[20 30],...
 %     'GraphicsSmoothing','off',...
 %     'Color',[1 1 1],...
 
-subplot(4,2,1); 
-plot(ch1.time, ch1.Pn,'b');
+subplot(4,2,3); 
+plot(ch1.time, ch1.d13C_DICcal,'r');
+axis([xmin ymin  -15 10])
 hold on
-plot(ch1.time, ch1.G, 'r');
-axis([xmin ymin  -0.3 0.3])
-ylabel('G, Pn (nmol cm^-^2 s^-^1)')
+plot(ch1.time, ch1.d13C_DICcoe, 'g');
+plot(ch1.time, ch1.d13C_DICamb, 'b');
+ylabel('d13C-DIC (per mill)')
 yyaxis right
 plot(env.time, env.PFDsurf, 'Color', [1 0.6 0]);
 ax = gca; ax.YColor = 'k';
 ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin ymin  0 PFDmax])
-legend('Pn','G','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
-
-hold off
-subplot(4,2,2);
-plot(ch1.time, ch1.pHcal,'r');
-axis([xmin ymin  7 10])
-hold on
-plot(ch1.time, ch1.pHcoe, 'g');
-plot(ch1.time, ch1.pHamb, 'b');
-ylabel('pH')
-yyaxis right
-plot(env.time, env.PFDsurf, 'Color', [1 0.6 0]);
-ax = gca; ax.YColor = 'k';
-ylabel('E (umol m^-^2 s^-^1)')
-axis([xmin ymin  0 PFDmax])
-legend('pHcal','pHcoe','pHamb','E', 'Location','southoutside','Orientation','horizontal')
-
-hold off
-subplot(4,2,3);
-plot(ch1.time, ch1.R,'b');
-axis([xmin ymin  0 0.6])
-hold on
-plot(ch1.time, ch1.Pg, 'r');
-ylabel('Pg, R (nmol cm^-^2 s^-^1)')
-yyaxis right
-plot(env.time, env.PFDsurf, 'Color', [1 0.6 0]);
-ax = gca; ax.YColor = 'k';
-ylabel('E (umol m^-^2 s^-^1)')
-axis([xmin ymin  0 PFDmax])
-legend('R','Pg','E', 'Location','southoutside','Orientation','horizontal')
+legend('d13C-DICcal','d13C-DICcoe','d13C-DICamb','E', 'Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,4);
-plot(ch1.time, ch1.DOcoe, 'g');
-axis([xmin ymin  0 800])
+plot(ch1.time, ch1.d13C_QC,'g');
+axis([xmin ymin  -19 -10])
 hold on
-plot(ch1.time, ch1.DOamb, 'b');
-ylabel('DO (umol kg^-^1)')
+ylabel('d13C-CH2O (per mill)')
 yyaxis right
 plot(env.time, env.PFDsurf, 'Color', [1 0.6 0]);
 ax = gca; ax.YColor = 'k';
 ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin ymin  0 PFDmax])
-legend('DOcoe','DOamb','E', 'Location','southoutside','Orientation','horizontal')
+legend('d13C-CH2O','E', 'Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,5);
-plot(ch1.time, ch1.TAcal,'r');
-axis([xmin ymin  1000 5000])
+plot(ch1.time, ch1.d13C_CO2aqcal,'r');
+axis([xmin ymin  -15 10])
 hold on
-plot(ch1.time, ch1.TAcoe, 'g');
-plot(ch1.time, ch1.TAamb, 'b');
-ylabel('TA (umol kg^-^1)')
+plot(ch1.time, ch1.d13C_HCO3cal, 'g');
+plot(ch1.time, ch1.d13C_CO3cal, 'b');
+ylabel('d13Ccal (per mill)')
 yyaxis right
 plot(env.time, env.PFDsurf, 'Color', [1 0.6 0]);
 ax = gca; ax.YColor = 'k';
 ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin ymin  0 PFDmax])
-legend('TAcal','TAcoe','TAamb','E', 'Location','southoutside','Orientation','horizontal')
+legend('d13C-CO2aq','d13C-HCO3','d13C-CO3','E', 'Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,6);
+plot(ch1.time, ch1.d13C_arg,'r');
+axis([xmin ymin  -7 7])
+hold on
+ylabel('d13C-Arg (per mill)')
+yyaxis right
+plot(env.time, env.PFDsurf, 'Color', [1 0.6 0]);
+ax = gca; ax.YColor = 'k';
+ylabel('E (umol m^-^2 s^-^1)')
+axis([xmin ymin  0 PFDmax])
+legend('d13C-Arg', 'Location','southoutside','Orientation','horizontal')
+
+hold off
+subplot(4,2,7);
+plot(ch1.time, ch1.d13C_CO2aqcoe,'r');
+axis([xmin ymin  -15 10])
+hold on
+plot(ch1.time, ch1.d13C_HCO3coe, 'g');
+plot(ch1.time, ch1.d13C_CO3coe, 'b');
+ylabel('d13Ccoe (per mill)')
+yyaxis right
+plot(env.time, env.PFDsurf, 'Color', [1 0.6 0]);
+ax = gca; ax.YColor = 'k';
+ylabel('E (umol m^-^2 s^-^1)')
+axis([xmin ymin  0 PFDmax])
+legend('d13C-CO2aq','d13C-HCO3','d13C-CO3','E', 'Location','southoutside','Orientation','horizontal')
+
+hold off
+subplot(4,2,8);
 plot(ch1.time, ch1.Wacal,'r');
 axis([xmin ymin  0 20])
 hold on
@@ -109,7 +108,7 @@ axis([xmin ymin  0 PFDmax])
 legend('Wcal','Wcoe','E', 'Location','southoutside','Orientation','horizontal')
 
 hold off
-subplot(4,2,7);
+subplot(4,2,1);
 plot(ch1.time, ch1.DICcal,'r');
 axis([xmin ymin  500 4000])
 hold on
@@ -124,7 +123,7 @@ axis([xmin ymin  0 PFDmax])
 legend('DICcal','DICcoe','DICamb','E', 'Location','southoutside','Orientation','horizontal')
 
 hold off
-subplot(4,2,8);
+subplot(4,2,2);
 plot(ch1.time, ch1.QC,'g');
 axis([xmin ymin  0 25])
 hold on

@@ -10,7 +10,7 @@
 
 /* compartments */
 /*# define ORGANIC_MATTER*/
-/*# define CARBON_ISOTOPE*/
+# define CARBON_ISOTOPE
 /*# define NUTRIENTS*/
 
 # define CORAL_POLYP  /* USE coral module */

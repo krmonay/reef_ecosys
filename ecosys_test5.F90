@@ -31,12 +31,15 @@
       integer, parameter :: isplitsed  = 1
       integer, parameter :: Ngrids = 1
 
-
       integer :: i,j,k,id, Nid
       integer :: istep, iprint
       integer :: nSetting, nheat
       
       integer :: ipcl =1    ! Step of the protocol for setting 5 (Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments)
+
+#if defined CARBON_ISOTOPE
+      real(8) :: R13C
+#endif
 !  For Output      
       real(8), parameter :: OUTPUT_INTERVAL = 5.0d0     ! Output interval (min)
       real(8), save :: dsec = 0.d0 !sec
@@ -311,6 +314,10 @@
               C(1,1,k,1,iTAlk) = TA_data(1)
               C(1,1,k,1,iOxyg) = DO_data(1)
 !              C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+#if defined CARBON_ISOTOPE
+              R13C=R13C_fromd13C(0.7d0)
+              C(1,1,k,1,iT13C) =R13C*C(1,1,k,1,iTIC_) !DI13C (umol kg-1) 
+#endif
               ipcl = 2
             end if
           
@@ -323,6 +330,10 @@
                 C(1,1,k,1,iTAlk) = TA_data(ipcl) 
                 C(1,1,k,1,iOxyg) = DO_data(ipcl)
 !                C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+#if defined CARBON_ISOTOPE
+                R13C=R13C_fromd13C(0.7d0)
+                C(1,1,k,1,iT13C) =R13C*C(1,1,k,1,iTIC_) !DI13C (umol kg-1) 
+#endif
               else if (time*24.0d0 >= WQ_time(ipcl)  ) then
                 ipcl = ipcl +1
                 if(ipcl>N_WQ) ipcl = N_WQ
