@@ -9,9 +9,9 @@
 # define ANA_BIOLOGY
 
 /* compartments */
-/*# define ORGANIC_MATTER*/  /*Original CPP flag */
-/*# define CARBON_ISOTOPE*/  /*Original CPP flag */
-/*# define NUTRIENTS*/   /*Original CPP flag */
+/*# define ORGANIC_MATTER*/
+# define CARBON_ISOTOPE
+/*# define NUTRIENTS*/
 
 # define CORAL_POLYP  /* USE coral module */
 # define SEAGRASS     /* USE seagrass module */
@@ -24,24 +24,24 @@
 # if defined ORGANIC_MATTER
 #  define FOODWEB      /* USE foodweb module */
 # endif
-# define AIR_SEA_GAS_EXCHANGE /*Original CPP flag */
+# define AIR_SEA_GAS_EXCHANGE
 
 /*** Coral Polyp model options. ***/
 # if defined CORAL_POLYP
-/*#  define CORAL_ZOOXANTHELLAE*/   /*Original CPP flag */
+/*#  define CORAL_ZOOXANTHELLAE*/
+#  define CORAL_MUCUS           /*Mucus release from coral */
 #  if defined ORGANIC_MATTER
-#   define CORAL_MUCUS           /*Original CPP flag */
-#   define CORAL_INGESTION       /*Original CPP flag */
+#   define CORAL_INGESTION
 #  endif
-/*#  define CORAL_SIZE_DYNAMICS*/   /*Original CPP flag */
+/*#  define CORAL_SIZE_DYNAMICS*/
 #  if defined CARBON_ISOTOPE
-#   define CORAL_CARBON_ISOTOPE  /*Original CPP flag */
+#   define CORAL_CARBON_ISOTOPE
 /*#   define CORAL_NONE_CO2_EQ*/
 #  endif
 #  if defined NUTRIENTS
-/*#   define CORAL_NUTRIENTS*/  /*Original CPP flag */
+/*#   define CORAL_NUTRIENTS*/
 #  endif
-/*#  define CORAL_BORON_ISOTOPE*/  /*Original CPP flag */
+/*#  define CORAL_BORON_ISOTOPE*/
 # endif
 
 #endif
@@ -49,12 +49,17 @@
 
 /*** Box model option ***/
 
-#define TESTMODE
+#define ECOSYS_TESTMODE
 
 #if defined CORAL_POLYP
-/*# define CORAL_TESTMODE*/
-/*# define CORAL_DEBUG*/
+# define CORAL_TESTMODE
 #endif
+#if defined SEDIMENT_ECOSYS
+/*# define SEDIMENT_TESTMODE*/
+#endif
+
+/*** Chamber experiments option ***/
+/*#define CHAMBER_SITE4*/
 
 /*----------------------------------------------------*/
 

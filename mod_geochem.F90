@@ -1,11 +1,27 @@
 
-!!!=== ver 2017/02/01   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
   module mod_geochem
 
     implicit none
+! ------ Isotope related parameter -----
     real(8), parameter :: R13C_VPDB = 0.011056d0/0.988944d0
     real(8), parameter :: R11B_SRM951 = 80.173d0/19.827d0  !NIST SRM 951 boric acid standard
+
+! ------ Molecular diffusion coefficients in seawater @ 25 degC, 35 psu -----
+!!!*** Checke and update by following Wolf-Gladrow and Riebesell (1996) ****
+    real(8), parameter :: dif_O2   = 2.2d-9    ! Oxygen                (m2 s-1)
+    real(8), parameter :: dif_CO2  = 1.0d-9    ! Carbon dioxide CO2aq  (m2 s-1)
+    real(8), parameter :: dif_HCO3 = 1.18d-9   ! Bicarbonate ion HCO3- (m2 s-1)
+    real(8), parameter :: dif_CO3  = 0.955d-9  ! Carbonate ion CO32-   (m2 s-1)
+    real(8), parameter :: dif_NH4  = 2.0d-9    ! Ammonium ion NH4+     (m2 s-1)
+    real(8), parameter :: dif_NO2  = 1.9d-9    ! Nitrite ion NO2-      (m2 s-1)
+    real(8), parameter :: dif_NO3  = 1.9d-9    ! Nitrate ion NO3-      (m2 s-1)
+    real(8), parameter :: dif_PO4  = 0.85d-9   ! H2PO4-                (m2 s-1)
+    real(8), parameter :: dif_H    = 9.31d-9   ! Proton H+             (m2 s-1)
+    real(8), parameter :: dif_OH   = 5.27d-9   ! OH-                   (m2 s-1)
+! ------ kinematic viscosity of seawater @ 25 degC, 35 psu -----
+    real(8), parameter :: vis_sw   = 0.94d-6   ! kinematic viscosity   (m2 s-1)
     
     contains
 !!!***********************************************************************

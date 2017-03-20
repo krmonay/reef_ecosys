@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/06   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -17,11 +17,12 @@
       USE mod_heat
 #endif
       USE mod_input
+      USE mod_output
       USE mod_geochem
 
       implicit none
       
-      integer, parameter :: Im = 2
+      integer, parameter :: Im = 1
       integer, parameter :: Jm = 1
       integer, parameter :: N  = 1
 
@@ -30,80 +31,23 @@
       integer, parameter :: isplitsed  = 1
       integer, parameter :: Ngrids = 1
 
-
       integer :: i,j,k,id, Nid
       integer :: istep, iprint
       integer :: nSetting, nheat
-      real(8) :: time    !(day)
-      real(8) :: R13C
+      
+      integer :: ipcl =1    ! Step of the protocol for setting 5 (Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments)
 
-      real(8) :: PFDsurf    
-      real(8) :: tau        
-      real(8) :: pCO2air    
-      real(8) :: U10        
-      
-      real(8) :: sspH      
-      real(8) :: ssfCO2    
-      real(8) :: ssWarg    
-      real(8) :: ssCO2flux 
-      real(8) :: ssO2flux  
-      real(8) :: PFDbott   
-      real(8) :: coral_Pg  
-      real(8) :: coral_R   
-      real(8) :: coral_Gn  
-      real(8) :: sgrass_Pg 
-      real(8) :: sgrass_R  
-      
-      real(8) :: d13C_DIC
-      
-      real(8) :: fvol_cre      ! volume flux through the reef crest (m3 m-2 s-1)
-      real(8) :: fvol_cha      ! volume flux through the channel(m3 m-2 s-1)
-      real(8) :: fvol_pre      ! Precipitation volume flux (m s-1)
-!      real(8) :: dw_lwradi     ! Downward longwave radiation (W m-2)
-      real(8), save :: ereef = 0.0d0   ! sea surface elevation on the reef flat (m)
-      real(8), parameter :: z_crest = -0.15d0 ! reef crest position (m)
-      real(8), parameter :: kvol_cre   = 5.0d-2 ! reef crest conductivity
-      real(8), parameter :: kvol_cha = 1.0d-1 ! Channel conductivety
-      real(8) :: wave_setup   ! wave setup (m)
-      
+#if defined CARBON_ISOTOPE
+      real(8) :: R13C
+#endif
 !  For Output      
+      real(8), parameter :: OUTPUT_INTERVAL = 5.0d0     ! Output interval (min)
       real(8), save :: dsec = 0.d0 !sec
 
+!----- Open output files -------------------------
 
-      open(52,file='./output/eco4-crl_his.txt')
-      open(53,file='./output/eco4-crl_ave.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(54,file='./output/eco4-zoo_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(55,file='./output/eco4-box_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+      CALL files_open
 
-      open(56,file='./output/eco4-sedDIC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(57,file='./output/eco4-sedTA_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(58,file='./output/eco4-sedDO_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(59,file='./output/eco4-sedpH_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(60,file='./output/eco4-sedWarg_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(61,file='./output/eco4-sedNH4_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(62,file='./output/eco4-sedNO2_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(63,file='./output/eco4-sedNO3_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(64,file='./output/eco4-sedPO4_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(65,file='./output/eco4-sedDOC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(66,file='./output/eco4-sedPOC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(67,file='./output/eco4-sedDON_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(68,file='./output/eco4-sedPON_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(69,file='./output/eco4-sedDOP_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(70,file='./output/eco4-sedPOP_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(71,file='./output/eco4-sedPg_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(72,file='./output/eco4-sedRdoc_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(73,file='./output/eco4-sedRpoc_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(74,file='./output/eco4-sedGn_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(75,file='./output/eco4-sedNit1_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(76,file='./output/eco4-sedNit2_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(78,file='./output/eco4-sedDNd_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-      open(79,file='./output/eco4-sedDNp_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-
-
-      istep=0
-      iprint=0
-      
-      
       
 ! Setting of condition (nsetting)
 !
@@ -111,7 +55,7 @@
 !                2: Closed chamber condition
 !                3: Constant flow condition
 !                4: Reef simulation condition
-!                5: Incubation chamber condition
+!                5: Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments
       
       nSetting = 5  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
@@ -121,7 +65,11 @@
 
 !----- Import data -----------------------------------
 
-      CALL read_timeseies
+      if (nSetting .eq. 4) then
+        CALL read_timeseies
+      else if (nSetting .eq. 5) then
+        CALL read_chambercondition
+      endif
 
 !----- Set initial conditions -------------------------
 
@@ -134,6 +82,22 @@
 !      call Coral_Size2Cover
 
       time=0.
+      
+      istep=0
+      iprint=0
+      
+!----- Write data labels -------------------------
+       CALL write_env_lavel(10)        
+#if defined CORAL_TESTMODE
+       CALL write_crl_his_lavel(11)
+       CALL write_crl_his_lavel(12)
+       CALL write_crl_ave_lavel(21)
+       CALL write_crl_ave_lavel(22)
+#endif
+#if defined ECOSYS_TESTMODE
+       CALL write_ecosys_his_lavel(40)
+#endif
+
 
 !----- Main loop -------------------------------------------
 
@@ -145,40 +109,7 @@
 
 !------ Set environmental parameters ----------------------------
 
-        CALL setdata(time)
-
-!      if(time > 5.0d0) then
-
-        do j=1,Jm
-          do i=1,Im
-            do k=1,N
-!              C(i,j,k,1,iTemp) = 27.0d0   !27.0d0 32.0d0
-            enddo
-          enddo
-        enddo
-      
-!      end if
-      
-!----- Flux calculation -----------------------------------------
-
-        
-!       Fraction of shortwave radiation that is photosynthetically active
-!       (nondimensional), {0.43d0}.          
-!       convert radiation (W m-2) to photon flux density (umol m-2 s-1)  1 W m-2 = 4.24 umol m-2 s-1
-!       Thus convert solar radiation (W m-2) to photosynthetic photon flux density: 0.43*4.24 = 1.82
-
-        PFDsurf = 1.82d0 * ssradi
-        
-        
-        tau = 1024*0.01*0.0**2. *0.5 !densSW*Cd*Ub**2    (0 cm s-1)
-!        tau = 1024*0.01*0.02**2. *0.5  !densSW*Cd*Ub**2  (2 cm s-1)
-!        tau = 1024*0.01*0.2**2. *0.5 !densSW*Cd*Ub**2   (20 cm s-1)
-        
-        pCO2air = 370.0d0 !(uatm)
-        
-        U10 = SQRT( Uwind*Uwind + Vwind*Vwind )
-        
-        fvol_pre =0.0d0 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        CALL setdata(nSetting)
 
 #if defined USE_HEAT
 
@@ -378,22 +309,46 @@
 !---------- Incubation chamber condition ------------------------------------
 
           else if (nSetting .eq. 5) then
-
-            C(1,1,k,1,iTemp)=C(1,1,k,1,iTemp)+0.
-            C(1,1,k,1,iSalt)=C(1,1,k,1,iSalt)+0.
-            C(1,1,k,1,iSedi)=C(1,1,k,1,iSedi)+0.
-            
-            do id=4,Nid
-              C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
-            end do
+            if( ipcl == 1) then
+              C(1,1,k,1,iTIC_) = DIC_data(1)
+              C(1,1,k,1,iTAlk) = TA_data(1)
+              C(1,1,k,1,iOxyg) = DO_data(1)
+!              C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+#if defined CARBON_ISOTOPE
+              R13C=R13C_fromd13C(0.7d0)
+              C(1,1,k,1,iT13C) =R13C*C(1,1,k,1,iTIC_) !DI13C (umol kg-1) 
+#endif
+              ipcl = 2
+            end if
+          
+            if (time >= 4.0d0 ) then
+              do id=4,Nid
+                C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
+              end do
+              if (WQ_time(ipcl)-15.0d0/60.0d0 < time*24.0d0 .and. time*24.0d0 < WQ_time(ipcl)  ) then
+                C(1,1,k,1,iTIC_) = DIC_data(ipcl)
+                C(1,1,k,1,iTAlk) = TA_data(ipcl) 
+                C(1,1,k,1,iOxyg) = DO_data(ipcl)
+!                C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+#if defined CARBON_ISOTOPE
+                R13C=R13C_fromd13C(0.7d0)
+                C(1,1,k,1,iT13C) =R13C*C(1,1,k,1,iTIC_) !DI13C (umol kg-1) 
+#endif
+              else if (time*24.0d0 >= WQ_time(ipcl)  ) then
+                ipcl = ipcl +1
+                if(ipcl>N_WQ) ipcl = N_WQ
+              end if
+            end if
 
           end if
+          
+!------------------------------------------------------------------------------
 
 !              depsed(i,j)=0.
 !              radi(i,j,k)=-ssradi
 
               
-         enddo
+        enddo
 
 
 !        p_coral(1,i,j)=p_coral(1,i,j)
@@ -407,59 +362,24 @@
 !        time=dt*istep/86400.
         time=time+dt/86400.
 
-#if defined TESTMODE
+!------- Print section --------------------------------------
 
         if(time .ge. dsec/86400.) then
+          dsec=dsec+OUTPUT_INTERVAL*60.
         
           write(*,*) 'Time (day): ', time  ! Output for standard out
-          
-# if defined CARBON_ISOTOPE
-          d13C_DIC=d13C_fromR13C(C(1,1,1,1,iT13C)/C(1,1,1,1,iTIC_))
-# endif
-        
-          write(55,*) time, PFDsurf                              &
-     &       ,coral_Pg, coral_Pg-coral_R, coral_Gn, sgrass_Pg, sgrass_R  &
-     &       ,dz(1,1,1),C(1,1,1,1,iTemp),C(1,1,1,1,iSalt)        &
-     &       ,sspH, ssfCO2, ssWarg, U10, ssCO2flux, ssO2flux     &
-     &       ,etide, ereef, dz(1,1,1)                            &
-     &       ,C(1,1,1,1,iTAlk),C(1,1,1,1,iTIC_),C(1,1,1,1,iOxyg) &
-#if defined ORGANIC_MATTER
-     &       ,C(1,1,1,1,iDOC_),C(1,1,1,1,iPOC_),C(1,1,1,1,iPhyt1) &
-     &       ,C(1,1,1,1,iPhyt2),C(1,1,1,1,iZoop)                  &
-#else
-     &       ,0.0d0, 0.0d0, 0.0d0 &
-     &       ,0.0d0        &
-#endif
-#if defined NUTRIENTS            
-     &       ,C(1,1,1,1,iNO3_),C(1,1,1,1,iNO2_),C(1,1,1,1,iNH4_) &
-     &       ,C(1,1,1,1,iPO4_)                                   &
-# if defined ORGANIC_MATTER
-     &       ,C(1,1,1,1,iDON_),C(1,1,1,1,iPON_),C(1,1,1,1,iDOP_) &
-     &       ,C(1,1,1,1,iPOP_)                                   &
-# else
-     &       ,0.0d0, 0.0d0, 0.0d0 &
-     &       ,0.0d0        &
-# endif
-#else
-     &       ,0.0d0, 0.0d0, 0.0d0 &
-     &       ,0.0d0        &
-#endif
-#if defined COT_STARFISH
-     &       ,C(1,1,1,1,iCOTe),C(1,1,1,1,iCOTl)
-#else
-     &       ,0.0d0, 0.0d0
-# endif
-     
-     
-!          dsec=dsec+10.*60.  !!!!!!!!!!!!!!! print 10 min interval 
-        dsec=dsec+60.*60.  !!!!!!!!!!!!!!! print 1 hour interval 
+          CALL write_env_data(10)
 
         endif
-#endif
 
       enddo
       
 !----- End loop --------------------------------------
+
+
+!----- Close output files --------------------------------------
+
+      CALL files_close
 
       end
 !----------------------------------------------------------------------!

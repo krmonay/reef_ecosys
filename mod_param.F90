@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/06   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -16,9 +16,77 @@
 !-----------------------------------------------------------------------
 !  Grid nesting parameters.
 !-----------------------------------------------------------------------
-!
-!  Number of nested and/or connected grids to solve.
-!
+
+    real(8) :: time    !(day)
+    
+    real(8), allocatable :: tide(:)
+    real(8) :: etide
+    real(8) :: dt_tide
+    integer :: nm_tide
+    
+    real(8), allocatable :: windu(:) 
+    real(8), allocatable :: windv(:)
+    real(8) :: Uwind
+    real(8) :: Vwind
+    real(8) :: dt_wind
+    integer :: nm_wind
+    
+    real(8), allocatable :: sradi(:)
+    real(8), allocatable :: eTair(:)
+    real(8), allocatable :: eEair(:)
+    real(8), allocatable :: ePsea(:)
+    real(8) :: ssradi
+    real(8) :: Tair
+    real(8) :: Eair
+    real(8) :: Psea
+    real(8) :: dt_air
+    integer :: nm_air
+    
+    real(8), allocatable :: dlwrad(:)
+    real(8) :: dw_lwradi
+    real(8) :: dt_dlwrad
+    integer :: nm_dlwrad
+    real(8), allocatable :: PFD_time(:)
+    real(8), allocatable :: PFD_data(:)
+    integer :: N_PFD
+    integer :: i_PFD = 1
+    real(8), allocatable :: WQ_time(:)
+    real(8), allocatable :: TA_data(:)
+    real(8), allocatable :: DIC_data(:)
+    real(8), allocatable :: DO_data(:)
+    integer :: N_WQ
+    integer :: i_WQ = 1
+    
+    real(8), allocatable :: Hsin(:)
+    real(8), allocatable :: Tpin(:)
+    real(8) :: Tp
+    real(8) :: Hs
+    real(8) :: dt_wave
+    integer :: nm_wave
+
+
+    real(8) :: PFDsurf    
+    real(8) :: tau        
+    real(8) :: pCO2air    
+    real(8) :: U10        
+    
+    real(8) :: sspH      
+    real(8) :: ssfCO2    
+    real(8) :: ssWarg    
+    real(8) :: ssCO2flux 
+    real(8) :: ssO2flux  
+    real(8) :: PFDbott   
+
+    real(8) :: fvol_cre      ! volume flux through the reef crest (m3 m-2 s-1)
+    real(8) :: fvol_cha      ! volume flux through the channel(m3 m-2 s-1)
+    real(8) :: fvol_pre      ! Precipitation volume flux (m s-1)
+!    real(8) :: dw_lwradi     ! Downward longwave radiation (W m-2)
+    real(8) :: ereef         ! sea surface elevation on the reef flat (m)
+    real(8), parameter :: z_crest = -0.15d0 ! reef crest position (m)
+    real(8), parameter :: kvol_cre   = 5.0d-2 ! reef crest conductivity
+    real(8), parameter :: kvol_cha = 1.0d-1 ! Channel conductivety
+    real(8) :: wave_setup   ! wave setup (m)
+
 
     integer :: iTemp                  ! Temperature
     integer :: iSalt                  ! Salinity
@@ -59,14 +127,14 @@
     integer :: iCOTl                  ! Larvae of crown-of-thorns starfish
 #endif
 
-    real(8), allocatable, save :: dz(:,:,:)    
-    real(8), allocatable, save :: C(:,:,:,:,:)
-    real(8), allocatable, save :: dC_dt(:,:,:,:)
+    real(8), allocatable :: dz(:,:,:)    
+    real(8), allocatable :: C(:,:,:,:,:)
+    real(8), allocatable :: dC_dt(:,:,:,:)
     
-    real(8), allocatable, save :: p_coral(:,:,:)
-    real(8), allocatable, save :: p_sgrass(:,:)
-    real(8), allocatable, save :: p_algae(:,:)
-    real(8), allocatable, save :: p_sand(:,:)
+    real(8), allocatable :: p_coral(:,:,:)
+    real(8), allocatable :: p_sgrass(:,:)
+    real(8), allocatable :: p_algae(:,:)
+    real(8), allocatable :: p_sand(:,:)
 
   contains
 
@@ -179,9 +247,10 @@
         do i=LBi,UBi
           do k=1,N
           
-            dz(i,j,k)=1.5d0 !(m)
+            dz(i,j,k)=0.3d0 !(m)
           
-            C(i,j,k,1,iTemp) = 27.0d0   !27.0d0 32.0d0
+!            C(i,j,k,1,iTemp) = 27.0d0   !27.0d0 32.0d0
+            C(i,j,k,1,iTemp) = 29.0d0   !27.0d0 32.0d0
             C(i,j,k,1,iSalt) = 34.0d0
 
             C(i,j,k,1,iSedi) = 0.0d0    !Sediment concentration (g m-3) 0.e0, 1.e0
@@ -227,15 +296,44 @@
 #endif
           enddo
           
+#if defined CHAMBER_SITE4
+          p_coral(1,i,j) = 0.208d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
+          p_coral(2,i,j) = 0.0d0    ! Site9: 0.412d0, Site10: 0.486d0
+          p_sand(i,j)  = 1.0d0-p_coral(1,i,j)
+#elif defined CHAMBER_SITE5
+          p_coral(1,i,j) = 0.265d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
+          p_coral(2,i,j) = 0.0d0    ! Site9: 0.412d0, Site10: 0.486d0
+          p_sand(i,j)  = 1.0d0-p_coral(1,i,j)
+#elif defined CHAMBER_SITE6
+          p_coral(1,i,j) = 0.37d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
+          p_coral(2,i,j) = 0.0d0    ! Site9: 0.412d0, Site10: 0.486d0
+          p_sand(i,j)  = 1.0d0-p_coral(1,i,j)
+#elif defined CHAMBER_SITE7
+          p_coral(1,i,j) = 0.231d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
+          p_coral(2,i,j) = 0.0d0    ! Site9: 0.412d0, Site10: 0.486d0
+          p_sand(i,j)  = 1.0d0-p_coral(1,i,j)
+#elif defined CHAMBER_SITE9
+          p_coral(1,i,j) = 0.0d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
+          p_coral(2,i,j) = 0.412d0    ! Site9: 0.412d0, Site10: 0.486d0
+          p_sand(i,j)  = 0.0d0
+#elif defined CHAMBER_SITE10
+          p_coral(1,i,j) = 0.0d0  ! Site4: 0.208d0, Site5: 0.265d0, Site6: 0.37d0, Site7: 0.231d0
+          p_coral(2,i,j) = 0.486d0    ! Site9: 0.412d0, Site10: 0.486d0
+          p_sand(i,j)  = 0.0d0
+
+#else
           p_coral(1,i,j) = 1.0d0
           p_coral(2,i,j) = 0.0d0
-          p_sgrass(i,j)= 1.0d0
           p_sand(i,j)  = 1.0d0
+#endif
           p_algae(i,j) = 0.0d0
+          p_sgrass(i,j)= 0.0d0
           
           
         enddo
       enddo
+      
+      ereef = 0.0d0
 
       return
     end subroutine initialize_params

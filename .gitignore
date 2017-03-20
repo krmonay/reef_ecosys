@@ -30,4 +30,14 @@
 
 # Output Files
 output/*
+!.gitkeep
+
+# Backup Files
+backup/*
+
+# MATLAB temp. files
+*.asv
+
+# Fortran temp. output files
+fort.*
 

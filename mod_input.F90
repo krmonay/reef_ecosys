@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/02   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -11,43 +11,6 @@
 
   module mod_input
   
-    implicit none
-    
-    real(8), allocatable, save :: tide(:)
-    real(8), save :: etide
-    real(8), save :: dt_tide
-    integer, save :: nm_tide
-    
-    real(8), allocatable, save :: windu(:) 
-    real(8), allocatable, save :: windv(:)
-    real(8), save :: Uwind
-    real(8), save :: Vwind
-    real(8), save :: dt_wind
-    integer, save :: nm_wind
-    
-    real(8), allocatable, save :: sradi(:)
-    real(8), allocatable, save :: eTair(:)
-    real(8), allocatable, save :: eEair(:)
-    real(8), allocatable, save :: ePsea(:)
-    real(8), save :: ssradi
-    real(8), save :: Tair
-    real(8), save :: Eair
-    real(8), save :: Psea
-    real(8), save :: dt_air
-    integer, save :: nm_air
-    
-    real(8), allocatable, save :: dlwrad(:)
-    real(8), save :: dw_lwradi
-    real(8), save :: dt_dlwrad
-    integer, save :: nm_dlwrad
-    
-    real(8), allocatable, save :: Hsin(:)
-    real(8), allocatable, save :: Tpin(:)
-    real(8), save :: Tp
-    real(8), save :: Hs
-    real(8), save :: dt_wave
-    integer, save :: nm_wave
-
   contains
 
 
@@ -56,6 +19,8 @@
 ! **********************************************************************
 
     subroutine read_timeseies
+    
+      USE mod_param
       
       implicit none
       
@@ -174,38 +139,110 @@
       return
 
     end subroutine read_timeseies
+
+
 ! **********************************************************************
 !  Read chamber condition data file
 ! **********************************************************************
 
     subroutine read_chambercondition
+    
+      USE mod_param
       
       implicit none
       
-      integer, parameter :: datamax = 1000
-      real(8) :: fdata(4,datamax)
+      integer, parameter :: N_rep = 5    ! Repeat number of same light condition
+      integer :: N_data
+      integer :: ios
       
-      integer i,j
+      real(8), parameter :: c1 = -2.9339d-3
+      real(8), parameter :: c2 = 10.326d0
+      real(8), parameter :: c3 = -8787.5d0
+      integer :: i,j
 !
       
-! ----- READ PPFD (umol m-2 s-1) ---------------------------------------------
-
-      open(77,file='./input/dwlwradi2009summer.dat')
-      dt_dlwrad=1.d0  !1.0 hour interval
+! ===== READ PPFD data ======================================================
+!         time (hour), PPFD (umol m-2 s-1)
+#if defined CHAMBER_SITE4
+      open(77,file='./input/pfd_04.txt')
+#elif defined CHAMBER_SITE5
+      open(77,file='./input/pfd_05.txt')
+#elif defined CHAMBER_SITE6
+      open(77,file='./input/pfd_06.txt')
+#elif defined CHAMBER_SITE7
+      open(77,file='./input/pfd_07.txt')
+#elif defined CHAMBER_SITE9
+      open(77,file='./input/pfd_09.txt')
+#elif defined CHAMBER_SITE10
+      open(77,file='./input/pfd_10.txt')
+#endif
+! ----- Count data -----
+      N_PFD = 0
+      do
+        read(77,*,iostat=ios)
+        if(ios==-1) exit
+        N_PFD = N_PFD + 1
+      end do
+      allocate( PFD_time(N_PFD*N_rep), PFD_data(N_PFD*N_rep) )   ! Repeat same light condition for 5 times
+      rewind(77) 
+! ----- Read data -----
+      do j=1, N_rep
+        do i=1, N_PFD
+          read(77,*) PFD_time(i+N_PFD*(j-1)), PFD_data(i+N_PFD*(j-1))
+          if(j >= 2) then
+            PFD_time(i+N_PFD*(j-1)) = PFD_time(i+N_PFD*(j-1)) + PFD_time(N_PFD)*dble(j-1)
+          end if
+        end do
+        rewind(77) 
+      end do
+      N_PFD = N_PFD*N_rep
+      close(77)
       
-      nm_dlwrad=1      
-      do i=1,datamax
-        read(77,*,end=1000) fdata(1,i) !tide(i)
-        nm_dlwrad=nm_dlwrad+1
-      enddo
- 1000 close(77)
+!      do i=1, N_PFD   !!!!!! for DEBUG
+!        write(99,*) PFD_time(i)
+!      end do
 
-      allocate( dlwrad(nm_dlwrad) )
 
-      do i=1,nm_tide
-        dlwrad(i)=fdata(1,i)
-      enddo
-
+! ===== READ TA and DIC data =================================================
+!         time (hour), TA & DIC (umol kg-1)
+#if defined CHAMBER_SITE4
+      open(77,file='./input/site04.txt')
+#elif defined CHAMBER_SITE5
+      open(77,file='./input/site05.txt')
+#elif defined CHAMBER_SITE6
+      open(77,file='./input/site06.txt')
+#elif defined CHAMBER_SITE7
+      open(77,file='./input/site07.txt')
+#elif defined CHAMBER_SITE9
+      open(77,file='./input/site09.txt')
+#elif defined CHAMBER_SITE10
+      open(77,file='./input/site10.txt')
+#endif
+! ----- Count data -----
+      N_WQ = 0
+      do
+        read(77,*,iostat=ios)
+        if(ios==-1) exit
+        N_WQ = N_WQ + 1
+      end do
+      allocate( WQ_time(N_WQ), TA_data(N_WQ), DIC_data(N_WQ), DO_data(N_WQ) )
+      rewind(77) 
+! ----- Read data -----
+      do i=1, N_WQ
+        read(77,*) WQ_time(i), TA_data(i), DIC_data(i)
+        WQ_time(i) = WQ_time(i) + 4.0d0*24.0d0
+        
+        if( DIC_data(i) > -0.25d0*c2/c1) then
+          DO_data(i) = c1*DIC_data(i)*DIC_data(i) + c2*DIC_data(i) + c3
+        else
+          DO_data(i) = -(c2*c2-4.0d0*c1*c3)*0.25/c1
+        end if
+      end do
+      close(77)
+      
+!      do i=1, N_WQ   !!!!!! for DEBUG
+!        write(99,*) WQ_time(i)
+!      end do
 
 
       return
@@ -260,11 +297,20 @@
 !  Set environmental condition
 ! **********************************************************************
 
-    subroutine setdata(time)
+    subroutine setdata(nSetting)
+!     Setting of condition (nSetting)
 !
+!     nSetting = 1: Stable condition
+!                2: Closed chamber condition
+!                3: Constant flow condition
+!                4: Reef simulation condition
+!                5: Incubation chamber condition
+    
+      USE mod_param
+      
       implicit none
       
-      real(8), intent(in) :: time
+      integer, intent(in) :: nSetting
 
 !  -- Set Tide data ---------------------------------------------
 
@@ -279,23 +325,64 @@
 !      Uwind=lin_interpol(time,windu,dt_wind,nm_wind)
 !      Vwind=lin_interpol(time,windv,dt_wind,nm_wind)
 
+
+      if (nSetting .eq. 5) then
+      
+        CALL lin_interpol2(time*24.0d0,PFD_time,PFD_data,N_PFD, PFDsurf, i_PFD)
+      
+      else
+
 !   -- Set solar radiation data -----------------------------------------------
 
-!      ssradi=lin_interpol(time,sradi,dt_air,nm_air)   !data from file
+!        ssradi=lin_interpol(time,sradi,dt_air,nm_air)   !data from file
 
-!      ssradi=solar_radi(time,1400.d0,0.d0)!9.d0/24.d0)                !Artificial solar radiation
+!        ssradi=solar_radi(time,1400.d0,0.d0)!9.d0/24.d0)                !Artificial solar radiation
 
-!      ssradi=light_and_dark(time, 140.0d0, 10./60./24., 0.5/60./24.)   !light and dark method 10 min interval
-!      ssradi=light_and_dark(time, 350.0d0, 30./60./24., 0.5/60./24.)   !light and dark method 1 hour interval
+!        ssradi=light_and_dark(time, 140.0d0, 10./60./24., 0.5/60./24.)   !light and dark method 10 min interval
+!        ssradi=light_and_dark(time, 350.0d0, 30./60./24., 0.5/60./24.)   !light and dark method 1 hour interval
 
-!      ssradi=short_radi(time, 0.0d0, 1.0d0, 24.0d0, 25.0d0, 50.0d0, 1) !shortwave radiation by Zillman equation
-      ssradi=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 25.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
+!        ssradi=short_radi(time, 0.0d0, 1.0d0, 24.0d0, 25.0d0, 50.0d0, 1) !shortwave radiation by Zillman equation
+        ssradi=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 25.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
+      
+!     Convert solar radiation (W m-2) to photosynthetic photon flux 
+!     density: 2.1 umol m-2 s-1 per W m-2 (Britton and Dodd 1976)
+!     Sea surface albedo: 0.07
 
+        PFDsurf = 2.1d0 * ssradi*(1.0d0-0.07d0)
+      end if
+
+!----- Temperature controle -----------------------------------------
+
+!      if(time > 5.0d0) then
+!
+!        do j=1,Jm
+!          do i=1,Im
+!            do k=1,N
+!              C(i,j,k,1,iTemp) = 27.0d0   !27.0d0 32.0d0
+!            enddo
+!          enddo
+!        enddo
+!      
+!      end if
+      
+!----- Flux calculation -----------------------------------------
+
+      tau = 1024*0.01*0.0**2. *0.5 !densSW*Cd*Ub**2    (0 cm s-1)
+!      tau = 1024*0.01*0.02**2. *0.5  !densSW*Cd*Ub**2  (2 cm s-1)
+!      tau = 1024*0.01*0.2**2. *0.5 !densSW*Cd*Ub**2   (20 cm s-1)
+      
+      pCO2air = 370.0d0 !(uatm)
+      
+      U10 = SQRT( Uwind*Uwind + Vwind*Vwind )
+      
+      fvol_pre =0.0d0 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      
+#if defined USE_HEAT
 !  --- Set heat data ------------------------------------------------
-
       Tair=lin_interpol(time,eTair,dt_air,nm_air)   !data from file
       Eair=lin_interpol(time,eEair,dt_air,nm_air)   !data from file
       Psea=lin_interpol(time,ePsea,dt_air,nm_air)   !data from file
+#endif
 
       return
 
@@ -329,6 +416,39 @@
       return
 
     end function lin_interpol
+    
+! **********************************************************************
+
+    subroutine lin_interpol2(time,t_dat,d_dat,N_dat, out_dat, i_dat)
+!
+      implicit none
+
+!      real lin_interpol
+      real(8), intent(in ) :: time
+      real(8), intent(in ) :: t_dat(N_dat)
+      real(8), intent(in ) :: d_dat(N_dat)
+      integer, intent(in ) :: N_dat
+      real(8), intent(out) :: out_dat
+      integer, intent(inout) :: i_dat
+
+      real(8) :: dt
+      integer ::  i,j
+
+
+      do i=i_dat, N_dat-1
+        if( t_dat(i+1)>=time .and. t_dat(i+1)>t_dat(i) ) exit
+      end do
+      if(i+1.gt.N_dat) then
+        out_dat = d_dat(i)
+      else
+        dt = t_dat(i+1)-t_dat(i)
+        out_dat = d_dat(i)+(d_dat(i+1)-d_dat(i)) * (time-t_dat(i))/dt
+      end if
+      i_dat = i
+
+      return
+
+    end subroutine lin_interpol2
 
     real(8) function solar_radi(time,PFD,start_time)
 ! **********************************************************************

@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/02/01   Copyright (c) 2013-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/10   Copyright (c) 2013-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -72,7 +72,7 @@
 # if defined CARBON_ISOTOPE
           R13C = R13C_fromd13C(-15.0d0)
 !          c13CH2O (n,i,j)=R13C/(1.+R13C)*CH2O(n,i,j)
-          SEDECO(ng)%Q13C(i,j) = R13C * SEDECO(ng)%QC(n,i,j)
+          SEDECO(ng)%Q13C(i,j) = R13C * SEDECO(ng)%QC(i,j)
 # endif
 # if defined NUTRIENTS         
           SEDECO(ng)%QN(i,j) = 1.5d0  !!!‚Ä‚«‚Æ‚¤
@@ -152,12 +152,16 @@
       real(8), parameter :: nc=27./599.d0 !M.J.Atkinson and SV Smith(1983)
       real(8), parameter :: pc=1./599.d0
 ! --- Photosynthesis and Calcification Parameters ---
-      real(8), parameter :: pmax =  5.02d0 ! Nakamura & Nakamori 2009
-      real(8), parameter :: pIk  = 1040.5d0
-      real(8), parameter :: p0   =  2.46d0
-      real(8), parameter :: gmax =  4.28d0 ! Nakamura & Nakamori 2009
-      real(8), parameter :: gIk  = 3507.87d0
-      real(8), parameter :: g0   =  0.61d0
+!      real(8), parameter :: pmax =  5.02d0 ! Nakamura & Nakamori 2009
+!      real(8), parameter :: pIk  = 1040.5d0
+!      real(8), parameter :: p0   =  2.46d0
+!      real(8), parameter :: gmax =  4.28d0 ! Nakamura & Nakamori 2009
+!      real(8), parameter :: gIk  = 3507.87d0
+!      real(8), parameter :: g0   =  0.61d0
+      real(8), parameter :: p1 = 3.188d-3 ! Nakamura & Nakamori 2009
+      real(8), parameter :: p0 = 2.369d0  !  Model skill = 0.968
+      real(8), parameter :: g1 = 1.193d-3 ! Nakamura & Nakamori 2009
+      real(8), parameter :: g0 = 0.6267d0 !  Model skill = 0.981
 # if defined NUTRIENTS         
       real(8) npref
       real(8) ldocn,ldocd
@@ -170,9 +174,12 @@
 
 ! --- Organic and Inorganic Production Rate -----------------
 
-      SEDECO(ng)%Pg(i,j)= pmax*tanh(PFD/pIk)/3600.d0   !Light response curve [mmolC/m2/s]
+!      SEDECO(ng)%Pg(i,j)= pmax*tanh(PFD/pIk)/3600.d0   !Light response curve [mmolC/m2/s]
+!      SEDECO(ng)%R (i,j)= p0/3600.d0   !Constant [mmolC/m2/s]
+!      SEDECO(ng)%G (i,j)= (gmax*tanh(PFD/gIk)-g0)/3600.d0   !Light response curve [mmolC/m2/s]
+      SEDECO(ng)%Pg(i,j)= p1*PFD/3600.d0   !Light response curve [mmolC/m2/s]
       SEDECO(ng)%R (i,j)= p0/3600.d0   !Constant [mmolC/m2/s]
-      SEDECO(ng)%G (i,j)= (gmax*tanh(PFD/gIk)-g0)/3600.d0   !Light response curve [mmolC/m2/s]
+      SEDECO(ng)%G (i,j)= (g1*PFD-g0)/3600.d0   !Light response curve [mmolC/m2/s]
       
       IF(DICamb<=0.d0) THEN !-----For Error handling
         SEDECO(ng)%Pg(i,j) = 0.d0
@@ -468,7 +475,7 @@
 !                                                                       
 !   A vertical section of the sediment grid showing sediment column.    
 !-----------------------------------------------------------------------
-
+!!! Krumins et al., (2013)‚ðŽQl‚É‚µ‚Äì‚é‚Ì‚ª—Ç‚³‚»‚¤!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       USE mod_geochem
       
@@ -666,6 +673,7 @@
 
 # if defined TESTMODE
 !  Output
+      real(8), parameter :: OUTPUT_INTERVAL = 5.0d0     ! Output interval (min)
       real(8), save :: time = 0.d0 !sec
       real(8), save :: dsec = 0.d0 !sec
       real(8) :: TKamb 
@@ -1199,7 +1207,7 @@
 #  endif
 # endif
 
-# if defined TESTMODE
+# if defined SEDIMENT_TESTMODE
 !------------------------------------------------------------------------
 ! Print section
       time = time +dt  ! sec
@@ -1243,8 +1251,7 @@
         write(79,*) time/86400.d0, 0.0d0, DNp
 #  endif
 
-        dsec=dsec+10.*60.  !!!!!!!!!!!!!!! print 10 min interval 
-!        dsec=dsec+60.*60.  !!!!!!!!!!!!!!! print 1 hour interval 
+        dsec=dsec+OUTPUT_INTERVAL*60.
 
       endif
 # endif

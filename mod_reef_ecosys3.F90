@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/02/02   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -285,9 +285,9 @@
       real(8), parameter :: AttSW  = 0.12d0     ! Light attenuation due to seawater [1/m], {0.04d0}.
       real(8), parameter :: AttChl = 0.02486d0  ! Light attenuation by chlorophyll [1/(mg_Chl m2)], {0.02486d0}.
 #ifdef CORAL_POLYP
-      real(8), parameter :: P2R(Ncl) = (/ 9.0d0, 0.6d0 /)  !!! Conversion factor from polyp scale to reef scale
-#endif
+      real(8), parameter :: P2R(Ncl) = (/ 10.0d0, 2.0d0 /)  !!! Conversion factor from polyp scale to reef scale
                                       !*~9.0d0 convert projected area to coral surface area for branching Acropora (Naumann et al. 2009)
+#endif
 !---- POM deposition flux parameters
       real(8), parameter :: rho_POM = 1.1d0     ! POM density [g/cm3] !!!‚Ä‚«‚Æ‚¤
       real(8), parameter :: D_POM   = 0.1d0     ! POM diameter [mm]   !!!‚Ä‚«‚Æ‚¤
@@ -307,7 +307,8 @@
       real(8) :: rho_sw
       real(8) :: DOsatu    
       real(8) :: cCO2aq, cHCO3, cCO3, R13C
-      real(8) :: PFD, Att, AttFac, ExpAtt, Itop, cff
+      real(8) :: PFD, Att, AttFac, ExpAtt, Itop
+      real(8) :: cff, cff1, cff2, cff3, cff4, cff5
 
       real(8) :: Flux_Tmp, Flux_Sal
       real(8) :: Flux_DIC, Flux_TA,  Flux_DO
@@ -361,6 +362,12 @@
 #if defined COT_STARFISH
       real(8) :: Fw_COTe(0:N), Fw_COTl(0:N)
       real(8) :: Fdep_COTe, Fdep_COTl
+#endif
+#if defined ECOSYS_TESTMODE
+!  Output
+      real(8), parameter :: OUTPUT_INTERVAL = 5.0d0     ! Output interval (min)
+      real(8), save :: time = 0.0d0 !sec
+      real(8), save :: dsec = 0.0d0 !sec
 #endif
 
 !-----------------------------------------------------------------------
@@ -718,7 +725,7 @@
      &              ,Flux_DIC       &   ! DIC uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
      &              ,Flux_TA        &   ! TA  uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
      &              ,Flux_DO        &   ! DO  uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
-# if defined CORAL_MUCUS
+# if defined ORGANIC_MATTER
      &              ,Flux_DOC       &   ! DOC uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
      &              ,Flux_POC       &   ! POC uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
 # endif
@@ -734,7 +741,7 @@
      &              ,Flux_NO2       &   ! NO2 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
      &              ,Flux_NH4       &   ! NH4 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
      &              ,Flux_PO4       &   ! PO4 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
-#  if defined CORAL_MUCUS
+#  if defined ORGANIC_MATTER
      &              ,Flux_DON       &   ! DON uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
      &              ,Flux_PON       &   ! PON uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
      &              ,Flux_DOP       &   ! DOP uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
@@ -746,15 +753,14 @@
           END DO
 
         ! 1 nmol cm-2 s-1 = 0.01 mmol m-2 s-1, 1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
-        ! cff: convaert [nmol cm-2 s-1] to [umol L-1 s-1]
+        ! cff: convert [nmol cm-2 s-1] to [umol L-1 s-1]
 
-!          cff=0.01d0 /dz(1) * p_coral*4.0d0  !!!*~4.0d0 convert projected area to coral surface area (Naumann et al. 2009)
-          cff=0.01d0 /dz(1) * p_coral(icl)*P2R(icl)  !!!*~9.0d0 convert projected area to coral surface area for branching Acropora (Naumann et al. 2009)
+          cff=0.01d0 /dz(1) * p_coral(icl)*P2R(icl)
            
           dDIC_dt(1) = dDIC_dt(1) - Flux_DIC * cff/rho_sw
           dTA_dt (1) = dTA_dt (1) - Flux_TA  * cff/rho_sw
           dDOx_dt(1) = dDOx_dt(1) - Flux_DO  * cff
-# if defined CORAL_MUCUS
+# if defined ORGANIC_MATTER
           dDOC_dt(1) = dDOC_dt(1) - Flux_DOC * cff
           dPOC_dt(1) = dPOC_dt(1) - Flux_POC * cff
 # endif
@@ -770,7 +776,7 @@
           dNO2_dt(1) = dNO2_dt(1) - Flux_NO2 * cff
           dNH4_dt(1) = dNH4_dt(1) - Flux_NH4 * cff
           dPO4_dt(1) = dPO4_dt(1) - Flux_PO4 * cff
-#  if defined CORAL_MUCUS
+#  if defined ORGANIC_MATTER
           dDON_dt(1) = dDON_dt(1) - Flux_DON * cff
           dPON_dt(1) = dPON_dt(1) - Flux_PON * cff
           dDOP_dt(1) = dDOP_dt(1) - Flux_DOP * cff
@@ -816,7 +822,7 @@
      &             )
 
         ! 1 mmol m-2 s-1, 1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
-        ! cff: convaert [mmol m-2 s-1] to [umol L-1 s-1]
+        ! cff: convert [mmol m-2 s-1] to [umol L-1 s-1]
 
         cff = 1.0d0/dz(1) * p_sgrass
 
@@ -867,7 +873,7 @@
      &             )
 
         ! 1 mmol m-2 s-1, 1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
-        ! cff: convaert [mmol m-2 s-1] to [umol L-1 s-1]
+        ! cff: convert [mmol m-2 s-1] to [umol L-1 s-1]
 
         cff = 1.0d0/dz(1) * p_algae
 
@@ -921,6 +927,10 @@
 # endif
      &             )
      
+      ! 1 mmol m-2 s-1, 1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
+      ! cff: convaert [mmol cm-2 s-1] to [umol L-1 s-1]
+
+        cff=1.0d0 /dz(1) * p_sand
 #else
 !!!  Sediment ecosystem model
 
@@ -991,12 +1001,14 @@
 #  endif
      &             )
         END DO
-# endif
       ! 1 nmol cm-2 s-1 = 0.01 mmol m-2 s-1, 1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
       ! cff: convaert [nmol cm-2 s-1] to [umol L-1 s-1]
 
         cff=0.01d0 /dz(1) * p_sand
-         
+
+# endif
+
+
         dDIC_dt(1) = dDIC_dt(1) - Flux_DIC * cff/rho_sw
         dTA_dt (1) = dTA_dt (1) - Flux_TA  * cff/rho_sw
         dDOx_dt(1) = dDOx_dt(1) - Flux_DO  * cff
@@ -1021,6 +1033,70 @@
 # endif
 
       END IF            
+#endif
+
+
+#if defined ECOSYS_TESTMODE
+!------------------------------------------------------------------------
+! Print section
+
+      time = time +dt  ! sec
+      
+      IF(time.ge.dsec) THEN
+        cff1=0.01d0*p_coral(1)*P2R(1)*3600.0d0  ! cff1: convert [nmol cm-2 s-1] to [mmol m-2 h-1]
+        cff2=0.01d0*p_coral(2)*P2R(2)*3600.0d0  ! cff1: convert [nmol cm-2 s-1] to [mmol m-2 h-1]
+        cff3 = p_sgrass*3600.0d0        ! cff2: convert [mmol m-2 s-1] to [mmol m-2 h-1]
+        cff4 = p_algae *3600.0d0        ! cff3: convert [mmol m-2 s-1] to [mmol m-2 h-1]
+# if defined  SEDIMENT_EMPIRIXCAL
+        cff5 = p_sand  *3600.0d0        ! cff4: convert [mmol m-2 s-1] to [mmol m-2 h-1]
+# else
+        cff5 = 0.01d0*p_sand*3600.0d0   ! cff4: convert [nmol cm-2 s-1] to [mmol m-2 h-1]
+# endif
+
+        write(40,*) time/86400.0d0,',',PFDbott,','                    &
+# ifdef CORAL_POLYP
+     &    ,CORAL(1)%Pg(1,1,1)*cff1,',', CORAL(1)%R (1,1,1)*cff1,','   &
+     &    ,(CORAL(1)%Pg(1,1,1)-CORAL(1)%R (1,1,1))*cff1,','           &
+     &    ,CORAL(1)%G (1,1,1)*cff1,','                                &
+     &    ,CORAL(1)%Pg(2,1,1)*cff2,',', CORAL(1)%R (2,1,1)*cff2,','   &
+     &    ,(CORAL(1)%Pg(2,1,1)-CORAL(1)%R (2,1,1))*cff2,','          &
+     &    ,CORAL(1)%G (2,1,1)*cff2,','                                &
+# endif
+# ifdef SEAGRASS
+     &    ,SGRASS(1)%Pg(1,1,1)*cff3,',', SGRASS(1)%R (1,1,1)*cff3,',' &
+     &    ,(SGRASS(1)%Pg(1,1,1)-SGRASS(1)%R (1,1,1))*cff3,','         &
+# endif
+# ifdef MACROALGAE
+     &    ,ALGAE(1)%Pg(1,1,1)*cff4,',', ALGAE(1)%R (1,1,1)*cff4,','   &
+     &    ,(ALGAE(1)%Pg(1,1,1)-ALGAE(1)%R (1,1,1))*cff4,','           &
+# endif
+# ifdef SEDIMENT_ECOSYS
+     &    ,SEDECO(1)%Pg(1,1)*cff5,',', SEDECO(1)%R (1,1)*cff5,','     &
+     &    ,(SEDECO(1)%Pg(1,1)-SEDECO(1)%R (1,1))*cff5,','             &
+     &    ,SEDECO(1)%G (1,1)*cff5,','                                 &
+# endif
+     &    ,dDIC_dt(1),',',dTA_dt(1),',',dDOx_dt(1),','                &
+# if defined ORGANIC_MATTER
+     &    ,dDOC_dt(1),',',dPOC_dt(1),','                              &
+# endif
+# if defined CARBON_ISOTOPE
+     &    ,dDI13C_dt(1),','                                           &
+# endif
+# if defined NUTRIENTS
+     &    ,dNO3_dt(1),',',dNO2_dt(1),',',dNH4_dt(1),','               &
+     &    ,dPO4_dt(1),','                                             &
+#  if defined ORGANIC_MATTER
+     &    ,dDON_dt(1),',',dPON_dt(1),','                              &
+     &    ,dDOP_dt(1),',',dPOP_dt(1),','                              &
+#  endif
+# endif
+     &    ,sspH,',', ssfCO2,',', ssWarg,','                           &
+     &    ,U10,',',ssCO2flux,',', ssO2flux
+        
+      dsec=dsec+OUTPUT_INTERVAL*60.
+
+      END IF
+!-----------------------------------------------------------------------
 #endif
 
       RETURN
