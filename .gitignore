@@ -30,6 +30,7 @@
 
 # Output Files
 output/*
+!.gitkeep
 
 # Backup Files
 backup/*
