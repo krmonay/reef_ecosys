@@ -156,8 +156,8 @@
       real(8) ldocn,ldocd
 #endif
 #if defined CARBON_ISOTOPE
-      real(8), parameter :: a_phot  = -7.d-3+1.d0  ! -5 to -10 per mill (Dr. Miyajima, pers. comn.)
-      real(8), parameter :: a_resp  =  0.d-3+1.d0  !
+      real(8), parameter :: a_phot  = -20.0d-3+1.d0  ! -5 to -10 per mill (Dr. Miyajima, pers. comn.)
+      real(8), parameter :: a_resp  =   0.0d-3+1.d0  !
       real(8) R13C_DIC, R13C_QC
 #endif
 

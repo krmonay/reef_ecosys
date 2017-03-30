@@ -1438,7 +1438,7 @@
       real(8) :: S_high,S_low
       
       Sc = vis_sw/D
-      S_high = ak*Eosc*tau**0.4d0*Sc**(-0.6d0)
+      S_high = ak*Eosc*tau**0.4d0*Sc**(-0.6d0)/86400.0d0  !!! day to sec
       S_low  = D/d_DBL
       
       S_i=max(S_high, S_low)

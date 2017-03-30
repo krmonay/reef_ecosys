@@ -897,7 +897,7 @@
 !-----------------------------------------------------------------------
 !
       IF(p_sand .gt. 0.0d0) THEN
-#ifdef SEDIMENT_EMPIRIXCAL
+#ifdef SEDIMENT_EMPIRICAL
 !!!  Empirical sediment model
           CALL sedecosys           &
 !          input parameters
