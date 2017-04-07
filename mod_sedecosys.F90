@@ -5,7 +5,7 @@
 
 
 !!!**** MODULE OF SEDIMENT ECOSYSTEM MODEL ************************************
-#if defined SEDIMENT_EMPIRIXCAL
+#if defined SEDIMENT_EMPIRICAL
 !!! **********************************************************************
 !!!  Empirical sediment model
 !!! **********************************************************************
@@ -70,7 +70,7 @@
           SEDECO(ng)%G (i,j) = 0.0d0
           SEDECO(ng)%QC(i,j) = 15.0d0  !!!‚Ä‚«‚Æ‚¤
 # if defined CARBON_ISOTOPE
-          R13C = R13C_fromd13C(-15.0d0)
+          R13C = R13C_fromd13C(-18.0d0)
 !          c13CH2O (n,i,j)=R13C/(1.+R13C)*CH2O(n,i,j)
           SEDECO(ng)%Q13C(i,j) = R13C * SEDECO(ng)%QC(i,j)
 # endif
@@ -167,9 +167,11 @@
       real(8) ldocn,ldocd
 # endif
 # if defined CARBON_ISOTOPE
-      real(8), parameter :: a_phot  = -7.d-3+1.d0  ! -5 to -10 per mill (Dr. Miyajima, pers. comn.)
-      real(8), parameter :: a_resp  =  0.d-3+1.d0  !
-      real(8) R13C_DIC, R13C_QC
+      real(8), parameter :: a_phot  = -20.0d-3+1.d0  ! -5 to -10 per mill (Dr. Miyajima, pers. comn.)
+      real(8), parameter :: a_resp  =  0.0d-3+1.d0  !
+      real(8), parameter :: a_calc =   2.7d-3 + 1.0d0 
+      real(8), parameter :: a_diss =   0.0d-3 + 1.0d0 
+      real(8) R13C_DIC, R13C_QC, R13C_CaCO3
 # endif
 
 ! --- Organic and Inorganic Production Rate -----------------
@@ -199,12 +201,15 @@
 # if defined CARBON_ISOTOPE
       R13C_DIC  = DI13Camb/DICamb
       R13C_QC = SEDECO(ng)%Q13C(i,j) / SEDECO(ng)%QC(i,j)
+      R13C_CaCO3 = R13C_fromd13C(-3.0d0) 
       
       IF(DI13Camb<=0.d0) THEN !-----For Error handling
         R13C_DIC =0.d0
       ENDIF
 
-      DI13Cuptake=SEDECO(ng)%Pg(i,j)*R13C_DIC*a_phot        &
+      DI13Cuptake=  SEDECO(ng)%Pg(i,j)*R13C_DIC*a_phot                   &
+     &            + max(SEDECO(ng)%G (i,j),0.0d0)*R13C_DIC*a_calc        &
+     &            + min(SEDECO(ng)%G (i,j),0.0d0)*R13C_CaCO3*a_diss      &
      &            - SEDECO(ng)%R (i,j)*R13C_QC*a_resp
 # endif
       

@@ -8,7 +8,7 @@ ch1_file = '.././output/site04-crl1_his.csv';
 % ca1_file = '.././output/eco5-crl1_ave.csv';
 % ca2_file = '.././output/eco5-crl2_ave.csv';
 
-xmin=0; ymin=5;
+xmin=4; ymin=5;
 PFDmax =2000;
 
 env = readtable(evn_file,'Delimiter',',', 'ReadVariableNames', true);

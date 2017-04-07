@@ -1,7 +1,7 @@
 % === ver 2017/03/09   Copyright (c) 2017 Takashi NAKAMURA  =====
 
-evn_file = '.././output/site06-env_his.csv';
-eco_file = '.././output/site06-ecosys_his.csv';
+evn_file = '.././output/site05-env_his.csv';
+eco_file = '.././output/site05-ecosys_his.csv';
 
 xmin=4; ymin=5;
 PFDmax =2000;
@@ -87,7 +87,7 @@ legend('Pn','G','E', 'Location','southoutside','Location','southoutside','Orient
 hold off
 subplot(4,2,6);
 plot(env.time, env.DO,'b');
-axis([xmin ymin  100 300])
+axis([xmin ymin  100 500])
 ylabel('DO (umol kg^-^1)')
 hold on
 yyaxis right

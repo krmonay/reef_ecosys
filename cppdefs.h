@@ -1,8 +1,8 @@
 
 /*----- CPP defines for coral module ----------------*/
-/***  Biological model options. ***/
+/***  Biological model options. (Original CPP flags) ***/
 
-#define REEF_ECOSYS  /*Original CPP flag */
+#define REEF_ECOSYS
 
 #if defined REEF_ECOSYS
 # define BIOLOGY
@@ -18,7 +18,7 @@
 # define MACROALGAE        /* USE algae module  */
 # define SEDIMENT_ECOSYS        /* USE sedecosys module  */
 # if defined SEDIMENT_ECOSYS
-#  define SEDIMENT_EMPIRIXCAL     /* USE empirical sediment module  */
+#  define SEDIMENT_EMPIRICAL     /* USE empirical sediment module  */
 # endif
 
 # if defined ORGANIC_MATTER
