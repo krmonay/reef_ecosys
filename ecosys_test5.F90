@@ -56,8 +56,9 @@
 !                3: Constant flow condition
 !                4: Reef simulation condition
 !                5: Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments
+!                6: Flume condition simulated Comeau et al. (2016) experiments
       
-      nSetting = 5  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      nSetting = 2  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
 !----- Set initial conditions -------------------------
 

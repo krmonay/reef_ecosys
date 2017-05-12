@@ -1,16 +1,22 @@
 % === ver 2017/03/09   Copyright (c) 2017 Takashi NAKAMURA  =====
 
-evn_file = '.././output/site05-env_his.csv';
-eco_file = '.././output/site05-ecosys_his.csv';
+% evn_file = '.././output/site05-env_his.csv';
+% eco_file = '.././output/site05-ecosys_his.csv';
+evn_file = '.././output/eco5-env_his.csv';
+eco_file = '.././output/eco5-ecosys_his.csv';
 
-xmin=4; ymin=5;
+xmin=3; ymin=5;
 PFDmax =2000;
 
 env = readtable(evn_file,'Delimiter',',', 'ReadVariableNames', true);
 eco = readtable(eco_file,'Delimiter',',', 'ReadVariableNames', true);
 
-tot_Pn = eco.coral1_Pn + eco.sedeco_Pn;
-tot_G  = eco.coral1_G  + eco.sedeco_G ;
+mean(eco.coral1_G(1297:1333))
+mean(eco.coral1_G(1153:1225))
+
+
+tot_Pn = eco.coral1_Pn + eco.coral2_Pn + eco.sedeco_Pn;
+tot_G  = eco.coral1_G + eco.coral2_G  + eco.sedeco_G ;
 
 figure('PaperSize',[20 30],...
     'OuterPosition',[0 0 1000 1050]);
@@ -73,7 +79,8 @@ legend('DIC','E', 'Location','southoutside','Location','southoutside','Orientati
 hold off
 subplot(4,2,5);
 plot(eco.time, tot_Pn,'b');
-axis([xmin ymin  -15.0 20.0])
+% axis([xmin ymin  -15.0 20.0])
+axis([xmin ymin  -5.0 5.0])
 hold on
 plot(eco.time, tot_G, 'r');
 ylabel('Total G, Pn (mmol m^-^2 h^-^1)')

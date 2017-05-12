@@ -5,10 +5,11 @@ ch1_file = '.././output/site04-crl1_his.csv';
 % evn_file = '.././output/site10-env_his.csv';
 % ch1_file = '.././output/site10-crl2_his.csv';
 % ch2_file = '.././output/site06-crl2_his.csv';
-% ca1_file = '.././output/eco5-crl1_ave.csv';
-% ca2_file = '.././output/eco5-crl2_ave.csv';
+% evn_file = '.././output/eco5-env_his.csv';
+% ch1_file = '.././output/eco5-crl1_his.csv';
+% ch1_file = '.././output/eco5-crl2_his.csv';
 
-xmin=4; ymin=5;
+xmin=0; ymin=5;
 PFDmax =2000;
 
 env = readtable(evn_file,'Delimiter',',', 'ReadVariableNames', true);
@@ -68,7 +69,7 @@ legend('d13C-CO2aq','d13C-HCO3','d13C-CO3','E', 'Location','southoutside','Orien
 hold off
 subplot(4,2,6);
 plot(ch1.time, ch1.d13C_arg,'r');
-axis([xmin ymin  -7 7])
+axis([xmin ymin  -12 7])
 hold on
 ylabel('d13C-Arg (per mill)')
 yyaxis right
