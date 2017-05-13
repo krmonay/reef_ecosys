@@ -439,7 +439,7 @@
       real(8), parameter :: k_TA(Ncl)   =(/ 1.0d-4, 1.0d-4 /)  !!! 3.0d-4**  5.0d-5 !3.0d-3* !conductivity of TA through the leak pass (cm s-1) *Tuned
       real(8), parameter :: k_DIC(Ncl)  =(/ 1.0d-4, 1.0d-4 /)  !!! 3.0d-4**  5.0d-5 !3.0d-3* !conductivity of DIC through the leak pass (cm s-1) *Tuned
 #if defined CORAL_MUCUS
-      real(8), parameter :: ForgC(Ncl)  =(/ 0.232d0/20.0d0, -0.073d0/3.0d0 /)  !!! Organic carbon release rate(+) or uptake rate(-) (nmol cm-2 s-1) *Tuned
+      real(8), parameter :: ForgC(Ncl)  =(/ 0.232d0/20.0d0, -0.073d0/2.5d0 /)  !!! Organic carbon release rate(+) or uptake rate(-) (nmol cm-2 s-1) *Tuned
           ! 200 mmol m-2 d-1 for 100% covered inner reef corals
           ! -63 mmol m-2 d-1 for 100% covered reef slope corals 
           ! For converting reef scale (mmol m-2 d-1) to polyp scale (nmol cm-2 s-1)

@@ -257,13 +257,8 @@
 
             C(i,j,k,1,iSedi) = 0.0d0    !Sediment concentration (g m-3) 0.e0, 1.e0
 
-!            C(i,j,k,1,iTIC_) = 1915.0d0     !DIC  (umol kg-1) 1915.0d0 1930.0d0, 1700.0d0, 2100.0d0, 2300.0d0, 2500.0d0, 2700.0d0, 3000.0d0 
-!            C(i,j,k,1,iTAlk) = 2232.0d0     !TA  (umol kg-1)  2232.0d0 2275.0d0, 2500.0d0, 2150.0d0, 2000.0d0, 1800.0d0, 1700.0d0, 1600.0d0 
-
-!            C(i,j,k,1,iTIC_) = 2033.0d0     !DIC  (umol kg-1)  2033.0d0, 2090.0d0, 2232.0d0, 2269.0d0
-            C(i,j,k,1,iTIC_) = 2232.0d0     !DIC  (umol kg-1)  2033.0d0, 2232.0d0 
-
-            C(i,j,k,1,iTAlk) = 2243.0d0     !TA  (umol kg-1)
+            C(i,j,k,1,iTIC_) = 1915.0d0     !DIC  (umol kg-1) 1915.0d0 1930.0d0, 1700.0d0, 2100.0d0, 2300.0d0, 2500.0d0, 2700.0d0, 3000.0d0 
+            C(i,j,k,1,iTAlk) = 2232.0d0     !TA  (umol kg-1)  2232.0d0 2275.0d0, 2500.0d0, 2150.0d0, 2000.0d0, 1800.0d0, 1700.0d0, 1600.0d0 
 
 !            C(i,j,k,1,iOxyg) = 200.0d0      !DO  (umol L-1)
             C(i,j,k,1,iOxyg) = O2satu(C(i,j,k,1,iTemp)+273.15d0, C(i,j,k,1,iSalt))

@@ -24,7 +24,8 @@
 # if defined ORGANIC_MATTER
 #  define FOODWEB      /* USE foodweb module */
 # endif
-# define AIR_SEA_GAS_EXCHANGE
+
+/*# define AIR_SEA_GAS_EXCHANGE*/
 
 /*** Coral Polyp model options. ***/
 # if defined CORAL_POLYP

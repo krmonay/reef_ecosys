@@ -35,8 +35,11 @@
       integer :: istep, iprint
       integer :: nSetting, nheat
       
-      integer :: ipcl =1    ! Step of the protocol for setting 5 (Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments)
-
+      integer :: ipcl =1       ! Step of the protocol for setting 5 (Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments)
+      integer :: inight = 1 ! Timer for setting 6
+      integer :: iflag = 1 ! Timer for setting 6
+      integer :: iclose = 0 ! Timer for setting 6
+      
 #if defined CARBON_ISOTOPE
       real(8) :: R13C
 #endif
@@ -55,10 +58,10 @@
 !                2: Closed chamber condition
 !                3: Constant flow condition
 !                4: Reef simulation condition
-!                5: Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments
-!                6: Flume condition simulated Comeau et al. (2016) experiments
+!                5: Incubation chamber simulation of Nakamura & Nakamori (2009) experiments
+!                6: Flume simulation of Comeau et al. (2016) experiments
       
-      nSetting = 2  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      nSetting = 5  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
 !----- Set initial conditions -------------------------
 
@@ -105,6 +108,7 @@
 !      do istep=1, int(60.*60./dt)+1       ! 1 hour
       do istep=1, int(24.*60.*60./dt) * 5 +1      ! 5 days
 !      do istep=1, int(24.*60.*60./dt) * 7 +1      ! 7 days
+!      do istep=1, int(24.*60.*60./dt) * 9 +1      ! 9 days
 !      do istep=1, int(24.*60.*60./dt) * 30 +1      ! 30 days
 !      do istep=1, int(24.*60.*60./dt) *365*3 +1      ! 3 year
 
@@ -339,6 +343,94 @@
                 ipcl = ipcl +1
                 if(ipcl>N_WQ) ipcl = N_WQ
               end if
+            end if
+
+!---------- Flume simulation ------------------------------------
+
+          else if (nSetting .eq. 6) then
+          
+            if (aint(time)+6.0d0/24.0d0 <= time .and.  &
+    &           time <= aint(time)+18.0d0/24.0d0     ) then
+              if (inight == 1 ) then
+                iflag = 1
+                inight = 0
+              end if
+            else
+              if (inight == 0 ) then
+                iflag = 1
+                inight = 1
+              end if
+            end if
+            
+            if (7.0d0+ 6.0d0/24.0d0 < time ) then
+              if (iclose == 0 ) then
+                iflag = 1
+                iclose = 1
+              end if
+            end if
+            if (7.0d0+12.0d0/24.0d0 < time ) then
+              if (iclose == 1 ) then
+                iflag = 1
+                iclose = 2
+              end if
+            end if
+            if (7.0d0+18.0d0/24.0d0 < time ) then
+              if (iclose == 2 ) then
+                iflag = 1
+                iclose = 3
+              end if
+            end if
+            if (8.0d0+ 0.0d0/24.0d0 < time ) then
+              if (iclose == 3 ) then
+                iflag = 1
+                iclose = 4
+              end if
+            end if
+            if (8.0d0+ 6.0d0/24.0d0 < time ) then
+              if (iclose == 4 ) then
+                iflag = 1
+                iclose = 0
+              end if
+            end if
+            
+            if( inight == 1 .and. iflag == 1 ) then  ! Night treatment ~pH -0.1 (18:00-06:00)
+#if defined FLUME_AMBIENT
+              C(1,1,k,1,iTIC_) = 2090.0d0
+#elif defined FLUME_HPCO2
+              C(1,1,k,1,iTIC_) = 2269.0d0
+#endif
+              C(1,1,k,1,iTAlk) = 2340.0d0
+              C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+#if defined CARBON_ISOTOPE
+              R13C=R13C_fromd13C(0.7d0)
+              C(1,1,k,1,iT13C) =R13C*C(1,1,k,1,iTIC_) !DI13C (umol kg-1) 
+#endif
+              iflag = 0
+            end if
+            
+            if( inight == 0 .and. iflag == 1 ) then
+#if defined FLUME_AMBIENT
+              C(1,1,k,1,iTIC_) = 2033.0d0
+#elif defined FLUME_HPCO2
+              C(1,1,k,1,iTIC_) = 2243.0d0
+#endif
+              C(1,1,k,1,iTAlk) = 2340.0d0
+              C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+#if defined CARBON_ISOTOPE
+              R13C=R13C_fromd13C(0.7d0)
+              C(1,1,k,1,iT13C) =R13C*C(1,1,k,1,iTIC_) !DI13C (umol kg-1) 
+#endif
+              iflag = 0
+            end if
+            
+            
+            if( iclose >= 1 ) then  ! Closed
+!              tau = 1024*0.14*0.02**2. *0.5  !densSW*Cd*Ub**2  (2 cm s-1)
+!              tau = 1024*0.14*0.05**2. *0.5  !densSW*Cd*Ub**2  (5 cm s-1)
+              tau = 1024*0.14*0.10**2. *0.5  !densSW*Cd*Ub**2  (10 cm s-1)
+              do id=4,Nid
+                C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
+              end do
             end if
 
           end if

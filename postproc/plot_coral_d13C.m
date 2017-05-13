@@ -1,15 +1,15 @@
 % === ver 2017/03/09   Copyright (c) 2017 Takashi NAKAMURA  =====
 
-evn_file = '.././output/site04-env_his.csv';
-ch1_file = '.././output/site04-crl1_his.csv';
+% evn_file = '.././output/site04-env_his.csv';
+% ch1_file = '.././output/site04-crl1_his.csv';
 % evn_file = '.././output/site10-env_his.csv';
 % ch1_file = '.././output/site10-crl2_his.csv';
 % ch2_file = '.././output/site06-crl2_his.csv';
-% evn_file = '.././output/eco5-env_his.csv';
-% ch1_file = '.././output/eco5-crl1_his.csv';
+evn_file = '.././output/eco5-env_his.csv';
+ch1_file = '.././output/eco5-crl1_his.csv';
 % ch1_file = '.././output/eco5-crl2_his.csv';
 
-xmin=0; ymin=5;
+xmin=6; ymin=9;
 PFDmax =2000;
 
 env = readtable(evn_file,'Delimiter',',', 'ReadVariableNames', true);
