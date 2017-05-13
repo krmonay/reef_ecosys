@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== ver 2017/05/12   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -417,11 +417,11 @@
 
                                                !!! * Nakamura et al. 2013 setting; ** New setting
 
-      real(8), parameter :: Rmax(Ncl) = (/ 1.0d0, 1.0d0 /) !!!0.53d0*  0.37d0** !Maximum respiration rate (nmol O2 cm-2 s-1) *Tuned using Kuhl et al (1995), Al-Horani et al. (2003) data
+      real(8), parameter :: Rmax(Ncl) = (/ 0.8d0, 0.8d0 /) !!!0.53d0*  0.37d0** !Maximum respiration rate (nmol O2 cm-2 s-1) *Tuned using Kuhl et al (1995), Al-Horani et al. (2003) data
       real(8), parameter :: K_QC(Ncl) = (/ 20.d0, 20.d0 /)     !!!5.0d0* umol cm-2!!!*適当
-      real(8), parameter :: K_DO(Ncl) = (/ 400.d0, 400.d0 /)   ! ca. 46 (umol kg-1) Newton & Atkinson (1991)
+      real(8), parameter :: K_DO(Ncl) = (/ 40.d0, 40.d0 /)   ! ca. 46 (umol kg-1) Newton & Atkinson (1991)
 
-      real(8), parameter :: ratio(Ncl) = (/ 0.6d0, 1.0d0 /) !!!0.9d0** 0.8d0  !1.0d0* !!!*適当
+      real(8), parameter :: ratio(Ncl) = (/ 0.7d0, 0.7d0 /) !!!0.9d0** 0.8d0  !1.0d0* !!!*適当
 
 !     Temperature dependency parameters (Hikosaka et al. 2006) 
 !        - Parameters estimated from data by Fujimura et al. (2008)
@@ -432,14 +432,14 @@
 
 !      real(8), parameter :: k_Gn(Ncl) /1.d-2/!(未使用）
 
-      real(8), parameter :: eeff(Ncl)  = (/ 0.1d0, 0.4d0 /)   !!! 0.01d0** !0.3d0*!Energy efficency of calcification (<12%, 4~7%?; Lervik et al., 2012)
-      real(8), parameter :: E_other(Ncl)=(/ 5.0d3, 2.5d4 /)   !!! 1.0d4** ! 5.0d3* Energy flux of other metabolisms (nJ cm-2 s-1)
+      real(8), parameter :: eeff(Ncl)  = (/ 0.05d0, 0.05d0 /)   !!! 0.01d0** !0.3d0*!Energy efficency of calcification (<12%, 4~7%?; Lervik et al., 2012)
+      real(8), parameter :: E_other(Ncl)=(/ 2.0d4, 2.0d4 /)   !!! 1.0d4** ! 5.0d3* Energy flux of other metabolisms (nJ cm-2 s-1)
 
-      real(8), parameter :: k_CO2i(Ncl) =(/ 1.0d-2, 1.5d-3 /)  ! 1.5d-3* !permeability coefficient (cm s-1): Sueltemeyer and Rinast (1996): (1.49d-3 cm s-1)
-      real(8), parameter :: k_TA(Ncl)   =(/ 3.0d-4, 3.0d-4 /)  !!! 3.0d-5**  5.0d-5 !3.0d-3* !conductivity of TA through the leak pass (cm s-1) *Tuned
-      real(8), parameter :: k_DIC(Ncl)  =(/ 3.0d-4, 3.0d-4 /)  !!! 3.0d-5**  5.0d-5 !3.0d-3* !conductivity of DIC through the leak pass (cm s-1) *Tuned
+      real(8), parameter :: k_CO2i(Ncl) =(/ 1.5d-3, 1.5d-3 /)  ! 1.5d-3* !permeability coefficient (cm s-1): Sueltemeyer and Rinast (1996): (1.49d-3 cm s-1)
+      real(8), parameter :: k_TA(Ncl)   =(/ 1.0d-4, 1.0d-4 /)  !!! 3.0d-4**  5.0d-5 !3.0d-3* !conductivity of TA through the leak pass (cm s-1) *Tuned
+      real(8), parameter :: k_DIC(Ncl)  =(/ 1.0d-4, 1.0d-4 /)  !!! 3.0d-4**  5.0d-5 !3.0d-3* !conductivity of DIC through the leak pass (cm s-1) *Tuned
 #if defined CORAL_MUCUS
-      real(8), parameter :: ForgC(Ncl)  =(/ 0.232d0/10.0d0, -0.073d0/2.0d0 /)  !!! Organic carbon release rate(+) or uptake rate(-) (nmol cm-2 s-1) *Tuned
+      real(8), parameter :: ForgC(Ncl)  =(/ 0.232d0/20.0d0, -0.073d0/2.5d0 /)  !!! Organic carbon release rate(+) or uptake rate(-) (nmol cm-2 s-1) *Tuned
           ! 200 mmol m-2 d-1 for 100% covered inner reef corals
           ! -63 mmol m-2 d-1 for 100% covered reef slope corals 
           ! For converting reef scale (mmol m-2 d-1) to polyp scale (nmol cm-2 s-1)
@@ -640,7 +640,8 @@
       Si_DI13C=S_i(tau_amb,dif_HCO3,340.0d0,1.05d0)*1.0d2
 # if defined CORAL_NONE_CO2_EQ
 !      Si_13CO2=(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
-      Si_13CO2=S_i(tau_amb,dif_CO2 ,340.0d0,1.05d0)*1.0d2
+!      Si_13CO2=S_i(tau_amb,dif_CO2 ,340.0d0,1.05d0)*1.0d2
+      Si_13CO2=S_i(tau_amb,dif_CO2/1.00087d0 ,340.0d0,1.05d0)*1.0d2   ! ratio of diffusion coefficent: 1.00087 by Jahne et al 1987 
 # endif
 #endif
 #if defined CORAL_ZOOXANTHELLAE
@@ -1066,7 +1067,9 @@
 # if defined CORAL_NONE_CO2_EQ
 ! Carbon isotope fluxes
       c13CO2aquptake=Si_13CO2 *(c13CO2aqamb-CORAL(ng)%c13CO2aqcoe(n,i,j))*rho_sw
-      Fpp_13CO2aq=k_DIC(n)*(CORAL(ng)%c13CO2aqcoe(n,i,j)-CORAL(ng)%c13CO2aqcal(n,i,j))*rho_sw
+!      Fpp_13CO2aq=k_DIC(n)*(CORAL(ng)%c13CO2aqcoe(n,i,j)-CORAL(ng)%c13CO2aqcal(n,i,j))*rho_sw
+      Fpp_13CO2aq=k_DIC(n)/1.00087d0*(CORAL(ng)%c13CO2aqcoe(n,i,j)-CORAL(ng)%c13CO2aqcal(n,i,j))*rho_sw
+                  ! ratio of diffusion coefficent: 1.00087 by Jahne et al 1987 
 # endif
 
 #endif /* End isotope calculation */
@@ -1432,7 +1435,7 @@
                                   ! 1.0: pure unidirectional flow
       
       real(8), parameter :: vis_sw = 0.94d-6  ! kinematic viscosity   (m2 s-1)
-      real(8), parameter :: d_DBL = 0.3d-3    ! Maximum boundary layer depth (m)
+      real(8), parameter :: d_DBL = 1.0d-3    ! Maximum boundary layer depth (m)
                                               ! ~1 mm: due to vortical ciliary flows (Shapiro et al., 2014)
       real(8) :: Sc               ! Schmidt number
       real(8) :: S_high,S_low

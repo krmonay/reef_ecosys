@@ -285,7 +285,8 @@
       real(8), parameter :: AttSW  = 0.12d0     ! Light attenuation due to seawater [1/m], {0.04d0}.
       real(8), parameter :: AttChl = 0.02486d0  ! Light attenuation by chlorophyll [1/(mg_Chl m2)], {0.02486d0}.
 #ifdef CORAL_POLYP
-      real(8), parameter :: P2R(Ncl) = (/ 10.0d0, 2.0d0 /)  !!! Conversion factor from polyp scale to reef scale
+      real(8), parameter :: P2R(Ncl) = (/ 20.0d0, 2.5d0 /)  !!! Conversion factor from polyp scale to reef scale
+!      real(8), parameter :: P2R(Ncl) = (/ 5.0d0, 3.0d0 /)  !!! Conversion factor from polyp scale to reef scale
                                       !*~9.0d0 convert projected area to coral surface area for branching Acropora (Naumann et al. 2009)
 #endif
 !---- POM deposition flux parameters
