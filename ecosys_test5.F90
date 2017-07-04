@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -61,7 +61,7 @@
 !                5: Incubation chamber simulation of Nakamura & Nakamori (2009) experiments
 !                6: Flume simulation of Comeau et al. (2016) experiments
       
-      nSetting = 5  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      nSetting = 1  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
 !----- Set initial conditions -------------------------
 
@@ -97,6 +97,10 @@
        CALL write_crl_his_lavel(12)
        CALL write_crl_ave_lavel(21)
        CALL write_crl_ave_lavel(22)
+# if defined CORAL_ZOOXANTHELLAE
+       CALL write_zox_his_lavel(31)
+       CALL write_zox_his_lavel(32)
+# endif
 #endif
 #if defined ECOSYS_TESTMODE
        CALL write_ecosys_his_lavel(40)

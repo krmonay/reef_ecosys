@@ -10,7 +10,7 @@
 
 /* compartments */
 /*# define ORGANIC_MATTER*/
-# define CARBON_ISOTOPE
+/*# define CARBON_ISOTOPE*/
 /*# define NUTRIENTS*/
 
 # define CORAL_POLYP  /* USE coral module */
@@ -29,7 +29,7 @@
 
 /*** Coral Polyp model options. ***/
 # if defined CORAL_POLYP
-/*#  define CORAL_ZOOXANTHELLAE*/
+#  define CORAL_ZOOXANTHELLAE
 #  define CORAL_MUCUS           /*Mucus release from coral */
 #  if defined ORGANIC_MATTER
 #   define CORAL_INGESTION
