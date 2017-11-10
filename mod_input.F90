@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -24,116 +24,106 @@
       
       implicit none
       
-      integer, parameter :: datamax = 1000
-      real(8) :: fdata(4,datamax)
-      
+      integer :: nm_data, ios
       integer i,j
 !
 ! ----- READ Tide data (m) ---------------------------------------------
 
-      open(77,file='./input/tide2009summer.dat')
+      open(77,file='./input/tide2010_0820-0930.dat')
       dt_tide=1.d0  !1.0 hour interval
       
-      nm_tide=1      
-      do i=1,datamax
-        read(77,*,end=1000) fdata(1,i) !tide(i)
-        nm_tide=nm_tide+1
-      enddo
- 1000 close(77)
-
-      allocate( tide(nm_tide) )
-
-      do i=1,nm_tide
-        tide(i)=fdata(1,i)
-      enddo
-
-      etide=0.0e0
-
-! --------- READ Wind data (m/s)------------------------------------------
-
-      open(77,file='./input/wind2009summer.dat')
-      dt_wind=1.d0  !1.0 hour interval
-      
-      nm_wind=1
-      do i=1,datamax
-        read(77,*,end=1100) fdata(1,i),fdata(2,i) !windu(i), windv(i)
-        nm_wind=nm_wind+1
-      enddo
- 1100 close(77)
- 
-      allocate( windu(nm_wind), windv(nm_wind) )
-
-      do i=1,nm_wind
-        windu(i)=fdata(1,i)
-        windv(i)=fdata(2,i)
-      enddo
-
+!  ---- count data number -----
+      nm_data = 0
+      do
+        read(77,*,iostat=ios)   ! 一回目の読み込みではデータは読み捨てる。
+        if(ios==-1) exit        ! ファイルが終わったらループを抜ける
+        nm_data = nm_data+1   ! データ数のカウント
+      end do
+      allocate( tide_data(nm_data) )
+      nm_tide = nm_data
+      rewind(77)                ! ファイルのはじめに戻る。
+!  ---- データの読み込み -----
+      do i=1, nm_data
+        read(77,*) tide_data(i)
+      end do
+      close(77)
 
 ! ----- READ meterological dataset --------------------------------
 
-      open(77,file='./input/air2009summer.dat')
+      open(77,file='./input/air2010_0820-1001.dat')
       dt_air=1.d0  !1.0 hour interval
       
-      nm_air=1
-      do i=1,datamax
-        read(77,*,end=1200) fdata(1,i),fdata(2,i),fdata(3,i),fdata(4,i) !sradi(i),eTair(i),eEair(i),ePsea(i)
-        nm_air=nm_air+1
-      enddo
- 1200 close(77)
+!  ---- count data number -----
+      nm_data = 0
+      do
+        read(77,*,iostat=ios)   ! 一回目の読み込みではデータは読み捨てる。
+        if(ios==-1) exit        ! ファイルが終わったらループを抜ける
+        nm_data = nm_data+1   ! データ数のカウント
+      end do
+      allocate( Pair_data (nm_data))
+      allocate( Uwind_data(nm_data))
+      allocate( Vwind_data(nm_data))
+      allocate( Tair_data (nm_data))
+      allocate( Qair_data (nm_data))
+      allocate( rain_data (nm_data))
+      allocate( swrad_data(nm_data))
+      allocate( cloud_data(nm_data))
+      nm_air = nm_data
+      rewind(77)                ! ファイルのはじめに戻る。
+!  ---- データの読み込み -----
+      do i=1, nm_data
+        read(77,*) Pair_data (i), Uwind_data(i), Vwind_data(i),    &
+    &              Tair_data (i), Qair_data (i), rain_data (i),    &
+    &              swrad_data(i), cloud_data(i)
+      end do
+      close(77)
 
-      allocate( sradi(nm_air),eTair(nm_air),eEair(nm_air),ePsea(nm_air))
-
-      do i=1,nm_air
-        sradi(i)=fdata(1,i)
-        eTair(i)=fdata(2,i)
-        eEair(i)=fdata(3,i)
-        ePsea(i)=fdata(4,i)
-      enddo
-      
-#ifdef LONGWAVE_OUT
+#ifdef LONGWAVE_IN
       
 ! ----- READ downward longwave radiation (W m-2) ---------------------------------------------
 
-      open(77,file='./input/dwlwradi2009summer.dat')
+      open(77,file='./input/dwlw2010_0820-1001.dat')
       dt_dlwrad=1.d0  !1.0 hour interval
       
-      nm_dlwrad=1      
-      do i=1,datamax
-        read(77,*,end=1000) fdata(1,i) !tide(i)
-        nm_dlwrad=nm_dlwrad+1
-      enddo
- 1000 close(77)
-
-      allocate( dlwrad(nm_dlwrad) )
-
-      do i=1,nm_tide
-        dlwrad(i)=fdata(1,i)
-      enddo
-
+!  ---- count data number -----
+      nm_data = 0
+      do
+        read(77,*,iostat=ios)   ! 一回目の読み込みではデータは読み捨てる。
+        if(ios==-1) exit        ! ファイルが終わったらループを抜ける
+        nm_data = nm_data+1   ! データ数のカウント
+      end do
+      allocate( dlwrad_data(nm_data))
+      nm_dlwrad = nm_data
+      rewind(77)                ! ファイルのはじめに戻る。
+!  ---- データの読み込み -----
+      do i=1, nm_data
+        read(77,*) dlwrad_data(i)
+      end do
+      close(77)
 #endif
 
 ! --------- READ Wave data ---------------------------------------------
 
-      open(77,file='./input/wave2009summer.dat')
-      dt_wave=2.d0  !2.0 hour interval
+      open(77,file='./input/wave2010_0820-0905test.dat')
+      dt_wave=0.25d0  !15 min interval
 
-      nm_wave=1
-      do i=1,datamax
-        read(77,*,end=1300) fdata(1,i),fdata(2,i) ! Ht(i),Tmt(i)
-        nm_wave=nm_wave+1
+!  ---- count data number -----
+      nm_data = 0
+      do
+        read(77,*,iostat=ios)   ! 一回目の読み込みではデータは読み捨てる。
+        if(ios==-1) exit        ! ファイルが終わったらループを抜ける
+        nm_data = nm_data+1   ! データ数のカウント
       end do
- 1300 close(77)
+      allocate( Hs_data(nm_data), Tp_data(nm_data) )
+      nm_wave = nm_data
+      rewind(77)                ! ファイルのはじめに戻る。
+!  ---- データの読み込み -----
+      do i=1, nm_data
+        read(77,*) Hs_data(i), Tp_data(i)
+      end do
+      close(77)
  
-      allocate( Hsin(nm_wave),Tpin(nm_wave) )
- 
-      do i=1,nm_wave
-        Hsin(i) =fdata(1,i)
-        Tpin(i)=fdata(2,i)
-      enddo
-
 !-----------READ river data---------------------------------------------
-
-
 
 
       return
@@ -197,11 +187,6 @@
       end do
       N_PFD = N_PFD*N_rep
       close(77)
-      
-!      do i=1, N_PFD   !!!!!! for DEBUG
-!        write(99,*) PFD_time(i)
-!      end do
-
 
 ! ===== READ TA and DIC data =================================================
 !         time (hour), TA & DIC (umol kg-1)
@@ -240,58 +225,10 @@
       end do
       close(77)
       
-!      do i=1, N_WQ   !!!!!! for DEBUG
-!        write(99,*) WQ_time(i)
-!      end do
-
-
       return
 
     end subroutine read_chambercondition
 
-
-! **********************************************************************
-!  Read 2D mapping data file
-! **********************************************************************
-!
-!    subroutine read_map(im,jm)
-!
-!      use mod_ecosys
-!      
-!      implicit none
-!      
-!      integer im,jm
-!      
-!      integer i,j
-!
-!! --------- READ Spring points data ---------------------------------------------
-!      
-!      open(77,file='input/SpringPoints.txt')
-!      do j=jm,1,-1
-!        read(77,*) (sprpoint(i,j),i=1,im)
-!      enddo
-!      close(77)
-!
-!! --------- READ Coral coverage data ---------------------------------------------
-!      
-!      open(77,file='./input/coralcover2007-3.txt')
-!      do j=jm,1,-1
-!        read(77,*) (p_coral(1,i,j),i=1,im)
-!      enddo
-!      close(77)
-!
-!! --------- READ seagrass coverage data ---------------------------------------------
-!
-!      open(77,file='./input/seagrasscover2007-4.txt')
-!      do j=jm,1,-1
-!        read(77,*) (p_sgrass(1,i,j),i=1,im)
-!      enddo
-!      close(77)
-!
-!      return
-!
-!    end subroutine read_map
-!
 !
 ! **********************************************************************
 !  Set environmental condition
@@ -313,17 +250,14 @@
       integer, intent(in) :: nSetting
 
 !  -- Set Tide data ---------------------------------------------
-
-!      etide=lin_interpol(time,tide,dt_tide,nm_tide)
-!      etide=-lin_interpol(time,tide,dt_tide)!!!!!Debug test
-      etide=0.!!!!!Debug test
-
+!      tide=0.0d0
+      tide=lin_interpol(time,tide_data,dt_tide,nm_tide)
 !   -- Set wind data -----------------------------------------------
 
-      Uwind=0.
-      Vwind=0.
-!      Uwind=lin_interpol(time,windu,dt_wind,nm_wind)
-!      Vwind=lin_interpol(time,windv,dt_wind,nm_wind)
+!      Uwind=0.
+!      Vwind=0.
+      Uwind=lin_interpol(time,Uwind_data,dt_air,nm_air)
+      Vwind=lin_interpol(time,Vwind_data,dt_air,nm_air)
 
 
       if (nSetting .eq. 5) then
@@ -334,21 +268,21 @@
 
 !   -- Set solar radiation data -----------------------------------------------
 
-!        ssradi=lin_interpol(time,sradi,dt_air,nm_air)   !data from file
+        swrad=lin_interpol(time,swrad_data,dt_air,nm_air)   !data from file
 
-!        ssradi=solar_radi(time,1400.d0,0.d0)!9.d0/24.d0)                !Artificial solar radiation
+!        swrad=solar_radi(time,1400.d0,0.d0)!9.d0/24.d0)                !Artificial solar radiation
 
-!        ssradi=light_and_dark(time, 140.0d0, 10./60./24., 0.5/60./24.)   !light and dark method 10 min interval
-!        ssradi=light_and_dark(time, 350.0d0, 30./60./24., 0.5/60./24.)   !light and dark method 1 hour interval
+!        swrad=light_and_dark(time, 140.0d0, 10./60./24., 0.5/60./24.)   !light and dark method 10 min interval
+!        swrad=light_and_dark(time, 350.0d0, 30./60./24., 0.5/60./24.)   !light and dark method 1 hour interval
 
-!        ssradi=short_radi(time, 0.0d0, 1.0d0, 24.0d0, 25.0d0, 50.0d0, 1) !shortwave radiation by Zillman equation
-        ssradi=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 25.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
+!        swrad=short_radi(time, 0.0d0, 1.0d0, 24.0d0, 25.0d0, 50.0d0, 1) !shortwave radiation by Zillman equation
+!        swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 25.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
       
 !     Convert solar radiation (W m-2) to photosynthetic photon flux 
 !     density: 2.1 umol m-2 s-1 per W m-2 (Britton and Dodd 1976)
 !     Sea surface albedo: 0.07
 
-        PFDsurf = 2.1d0 * ssradi*(1.0d0-0.07d0)
+        PFDsurf = 2.1d0 * swrad*(1.0d0-0.07d0)
       end if
 
 !----- Temperature controle -----------------------------------------
@@ -384,11 +318,15 @@
       
 #if defined USE_HEAT
 !  --- Set heat data ------------------------------------------------
-      Tair=lin_interpol(time,eTair,dt_air,nm_air)   !data from file
-      Eair=lin_interpol(time,eEair,dt_air,nm_air)   !data from file
-      Psea=lin_interpol(time,ePsea,dt_air,nm_air)   !data from file
+      Pair = lin_interpol(time,Pair_data ,dt_air,nm_air)   !data from file
+      Tair = lin_interpol(time,Tair_data ,dt_air,nm_air)   !data from file
+      Qair = lin_interpol(time,Qair_data ,dt_air,nm_air)   !data from file
+      rain = lin_interpol(time,rain_data ,dt_air,nm_air)   !data from file
+      cloud= lin_interpol(time,cloud_data,dt_air,nm_air)   !data from file
 #endif
-
+      Hs = lin_interpol(time,Hs_data ,dt_wave,nm_wave)   !data from file
+      Tp = lin_interpol(time,Tp_data, dt_wave,nm_wave)   !data from file
+      
       return
 
     end subroutine setdata

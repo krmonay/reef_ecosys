@@ -1,7 +1,10 @@
 
+#define USE_HEAT
+#define REEF_HYDRO
+#define LONGWAVE_IN
+
 /*----- CPP defines for coral module ----------------*/
 /***  Biological model options. (Original CPP flags) ***/
-
 #define REEF_ECOSYS
 
 #if defined REEF_ECOSYS

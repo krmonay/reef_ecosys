@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -19,33 +19,42 @@
 
     real(8) :: time    !(day)
     
-    real(8), allocatable :: tide(:)
-    real(8) :: etide
+    real(8), allocatable :: tide_data(:)
+    real(8) :: tide
     real(8) :: dt_tide
     integer :: nm_tide
     
-    real(8), allocatable :: windu(:) 
-    real(8), allocatable :: windv(:)
+    real(8), allocatable :: Hs_data(:)
+    real(8), allocatable :: Tp_data(:)
+    real(8) :: Hs
+    real(8) :: Tp
+    real(8) :: dt_wave
+    integer :: nm_wave
+    
+    real(8), allocatable :: Pair_data (:)
+    real(8), allocatable :: Uwind_data(:)
+    real(8), allocatable :: Vwind_data(:)
+    real(8), allocatable :: Tair_data (:)
+    real(8), allocatable :: Qair_data (:)
+    real(8), allocatable :: rain_data (:)
+    real(8), allocatable :: swrad_data(:)
+    real(8), allocatable :: cloud_data(:)
+    real(8) :: Pair
     real(8) :: Uwind
     real(8) :: Vwind
-    real(8) :: dt_wind
-    integer :: nm_wind
-    
-    real(8), allocatable :: sradi(:)
-    real(8), allocatable :: eTair(:)
-    real(8), allocatable :: eEair(:)
-    real(8), allocatable :: ePsea(:)
-    real(8) :: ssradi
     real(8) :: Tair
-    real(8) :: Eair
-    real(8) :: Psea
+    real(8) :: Qair
+    real(8) :: rain
+    real(8) :: swrad
+    real(8) :: cloud
     real(8) :: dt_air
     integer :: nm_air
     
-    real(8), allocatable :: dlwrad(:)
-    real(8) :: dw_lwradi
+    real(8), allocatable :: dlwrad_data(:)
+    real(8) :: dlwrad
     real(8) :: dt_dlwrad
     integer :: nm_dlwrad
+    
     real(8), allocatable :: PFD_time(:)
     real(8), allocatable :: PFD_data(:)
     integer :: N_PFD
@@ -56,13 +65,6 @@
     real(8), allocatable :: DO_data(:)
     integer :: N_WQ
     integer :: i_WQ = 1
-    
-    real(8), allocatable :: Hsin(:)
-    real(8), allocatable :: Tpin(:)
-    real(8) :: Tp
-    real(8) :: Hs
-    real(8) :: dt_wave
-    integer :: nm_wave
 
 
     real(8) :: PFDsurf    

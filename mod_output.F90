@@ -254,6 +254,7 @@
 #if defined CARBON_ISOTOPE
       USE mod_geochem
 #endif
+      USE mod_reef_hydro
       
       implicit none
       
@@ -287,7 +288,7 @@
 #if defined COT_STARFISH
      &       ,C(1,1,1,1,iCOTe),',',C(1,1,1,1,iCOTl),','              &
 # endif
-     &       ,dz(1,1,1),',',etide,',', ereef
+     &       ,dz(1,1,1),',',tide,',', REEF(1)%el (1,1)
 
 
       RETURN

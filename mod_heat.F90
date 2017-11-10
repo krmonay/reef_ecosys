@@ -1,5 +1,5 @@
 
-!!!=== ver 2016/03/16   Copyright (c) 2012-2016 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -59,10 +59,10 @@
      &            ,ssradi         &   ! Surface shortwave radiation (W m-2)
      &            ,tair           &   ! air temperature (oC)
      &            ,pair           &   ! atm pressure (hPa)
-     &            ,eair           &   ! vapor pressur (hPa)
+     &            ,Hum            &   ! relative humidity (%)
      &            ,u10            &   ! wind speed (m s-1)
      &            ,fvol_pre       &   ! Precipitation volume flux (m s-1)
-#ifdef LONGWAVE_OUT
+#ifdef LONGWAVE_IN
      &            ,dw_lwradi      &   ! Downward longwave radiation (W m-2)
 #endif
      &            ,Tmp            &   ! Tmp(N): Temperature (oC)
@@ -107,10 +107,10 @@
       real(8), intent(in) :: ssradi     
       real(8), intent(in) :: tair    ! air temperature (oC)
       real(8), intent(in) :: pair    ! atm pressure (hPa)
-      real(8), intent(in) :: eair    ! vapor pressur (hPa)
+      real(8), intent(in) :: Hum     ! relative humidity (%)
       real(8), intent(in) :: u10        
       real(8), intent(in) :: fvol_pre  ! Precipitation volume flux (m s-1)
-#ifdef LONGWAVE_OUT
+#ifdef LONGWAVE_IN
       real(8), intent(in) :: dw_lwradi ! Downward longwave radiation (W m-2)
 #endif
 
@@ -154,17 +154,17 @@
 !-----------------------------------------------------------------------
 
 ! Long wave radiation (W m-2)
-#ifdef LONGWAVE_OUT
+#ifdef LONGWAVE_IN
       lradi = up_long_wave_radi(Tmp(N))-dw_lwradi
 #else
       lradi = net_long_wave_radi(Tmp(N))
 #endif
 
 ! Sensible heat (W m-2)
-      sens = sensheat(Tmp(N), tair, pair, eair, u10)
+      sens = sensheat(Tmp(N), tair, pair, Hum, u10)
 
 ! Evaporation volume flux (m s-1)
-      fvol_evap=evaporation(Tmp(N), Sal(N), tair, pair, eair, u10) 
+      fvol_evap=evaporation(Tmp(N), Sal(N), tair, pair, Hum, u10) 
       
 
 
@@ -239,99 +239,11 @@
 
     END SUBROUTINE heat_mass_balance
 
-
-!! **********************************************************************
-!!  Caliculate heat flux between water column and soil. 
-!! **********************************************************************
-!
-!    subroutine calgsoil
-!!
-!      implicit none
-!
-!
-!      dzzzz = 0.03                        !  [m]
-!      dzzzz2 = dzzzz*dzzzz
-!      ag = 5.9d-7                      !  [m2/s]
-!      cgrg =3.0d+6                     !  [J/m3/K]
-!
-!!$OMP parallel
-!!$OMP do
-!      do j=1,jm
-!        do i=1,im
-!
-!          Tg(i,j,1)=t(i,j,kbm1)
-!
-!          do loop=1,20
-!
-!            do k=2,kmaxG-1
-!              Tgn(i,j,k)=(Tgb(i,j,k)
-!     &            +dti*ag*(Tg(i,j,k+1)+Tg(i,j,k-1))/dzzzz2)         &
-!     &                                   /(1.0+2.*ag*dti/dzzzz2)
-!            enddo
-!
-!            error = 0.e0
-!            do k=2,kmaxG-1
-!              error = max( error,abs(Tgn(i,j,k)-Tg(i,j,k)) )
-!            enddo
-!
-!            if(error.le.1.0d-6) goto 1000
-!
-!            do k=2,kmaxG-1
-!              Tg(i,j,k) = Tgn(i,j,k)
-!            enddo
-!
-!!:      b.c for Tg
-!
-!            Tg(i,j,1)    = t(i,j,kbm1)
-!            Tg(i,j,kmaxG)=Tg(i,j,kmaxG-1)
-!
-!          enddo
-!
-! 1000   continue
-!
-!          Gsoil(i,j) = 0.e0
-!          Gsoil(i,j) = Gsoil(i,j)         &
-!     &                 + cgrg*(Tg(i,j,2)-Tgb(i,j,2))/dti*dzzzz
-!          do k=2,kmaxG
-!            Gsoil(i,j) = Gsoil(i,j)         &
-!     &                 + cgrg*(Tg(i,j,k)-Tgb(i,j,k))/dti*dzzzz   ! [J/m2/s]
-!          enddo
-!
-!          Gsoil(i,j)=Gsoil(i,j)/rhoref         &                           ! [m*K/s]
-!     &             /(3.958-0.0523*s(i,j,kbm1)+0.000837*t(i,j,kbm1))/1000  !Bromley, L.A. etal,(1967)
-!
-!          if(iint.gt.int(3600.e0/dti)) then
-!            Gcoef = 1.0
-!          else
-!            Gcoef = 0.5*(1.-cos(pi*(iint*dti)/3600.0))
-!          endif
-!
-!          Gsoil(i,j) = Gcoef * Gsoil(i,j)
-!
-!        enddo
-!      enddo
-!!$OMP end do
-!
-!!$OMP do
-!      do j=1,jm
-!        do i=1,im
-!          do k=1,kmaxG
-!            Tgb(i,j,k)=Tg(i,j,k)
-!         enddo
-!        enddo
-!      enddo
-!!$OMP end do
-!!$OMP end parallel
-!
-!      return
-!    end subroutine calgsoil
-
-
 ! **********************************************************************
 !  Evaporation volume flux (m s-1)
 ! **********************************************************************
 
-    real(8) function evaporation(tsurf, Ssurf, tair, pair, eair, u10) ! Evaporation volume flux (m s-1)
+    real(8) function evaporation(tsurf, Ssurf, tair, pair, Hum, u10) ! Evaporation volume flux (m s-1)
 
       implicit none
 !                          input parameters
@@ -339,17 +251,18 @@
       real(8), intent(in) :: Ssurf   ! Sea surface salinity (psu)
       real(8), intent(in) :: tair    ! air temperature (oC)
       real(8), intent(in) :: pair    ! atm pressure (hPa)
-      real(8), intent(in) :: eair    ! vapor pressur (hPa)
+!      real(8), intent(in) :: eair    ! vapor pressur (hPa)
+      real(8), intent(in) :: Hum     !relative humidity (%)
       real(8), intent(in) :: u10     ! wind speed (m s-1)
-!      real(8), intent(in) :: Hum     !relative humidity (%)
 
-      real(8) rhoatm, esw, spHumw, spHuma   
+      real(8) :: rhoatm, esw, spHumw, spHuma   
+      real(8) :: eair    ! vapor pressur (hPa)
 
 !      tair=27.0
 !      pair=1013.0
 !      Hum=50.d0   ! Humidity
 
-!      eair=sat_vapor_press(tair)*Hum/100.d0    ! vapor pressur (hPa)
+      eair=sat_vapor_press(tair)*Hum/100.d0    ! vapor pressur (hPa)
       rhoatm=dens_air(tair,pair,eair)                   !density of air (kg m-3)
       spHuma=specific_humidity(eair,pair)               !air specific humidity (kg kg-1)
       esw=(1.d0-5.37d-4*Ssurf)*sat_vapor_press(tsurf)   !vapor pressur on sea surface(hPa)
@@ -365,23 +278,24 @@
 !  Sensible heat (W m-2)  [sea surface to air is postive]
 ! **********************************************************************
 
-    real(8) function sensheat(tsurf, tair, pair, eair, u10) !sensible heat (W m-2)
+    real(8) function sensheat(tsurf, tair, pair, Hum, u10) !sensible heat (W m-2)
 
       implicit none
       
       real(8), intent(in) :: tsurf   ! Sea surface temperature (oC)
       real(8), intent(in) :: tair    ! air temperature (oC)
       real(8), intent(in) :: pair    ! atm pressure (hPa)
-      real(8), intent(in) :: eair    ! vapor pressur (hPa)
+!      real(8), intent(in) :: eair    ! vapor pressur (hPa)
+      real(8), intent(in) :: Hum     !relative humidity (%)
       real(8), intent(in) :: u10     ! wind speed (m s-1)
-!      real(8), intent(in) :: Hum     !relative humidity (%)
 
-      real(8) rhoatm   !density of air (kg m-3)
+      real(8) :: rhoatm   !density of air (kg m-3)
+      real(8) :: eair    ! vapor pressur (hPa)
 
 !      tair=27.0
 !      pair=1013.0
 !      Hum=50.e0   ! Humidity
-!      eair=sat_vapor_press(tair)*Hum/100.e0    ! vapor pressur (hPa)
+      eair=sat_vapor_press(tair)*Hum/100.e0    ! vapor pressur (hPa)
 
       rhoatm=dens_air(tair,pair,eair)                 !density of air (kg m-3)
       sensheat=1005.d0*rhoatm*1.2d-3*u10*(tsurf-tair) !sensible heat (W m-2)
@@ -408,26 +322,26 @@
 !  Net long wave radiation (W m-2)
 ! **********************************************************************
 
-    real(8) function net_long_wave_radi(tsurf,tair,eair) ! Long wave radiation (W m-2)
-
-      implicit none
-!                          input parameters
-      real(8), intent(in) :: tsurf   ! Sea surface temperature (oC)
-      real(8), intent(in) :: tair    ! air temperature (oC)
-      real(8), intent(in) :: eair    ! vapor pressur (hPa)
-      real(8) :: Ta,Ts
-      
-      Ta = tair + 273.15d0
-      Ts = tsurf+ 273.15d0
-      
-      net_long_wave_radi = 0.97 * 5.670d-8 * Ta**3.0d0 * (              &
-     &     Ta*(0.39d0-0.05d0*SQRT(eair))*(1.0d0-x*n*n)                  &
-     &   + 4.0d0*Ta*(Ts-Ta) )
-      
-      return
-    end function net_long_wave_radi
-
-
+!    real(8) function net_long_wave_radi(tsurf,tair,eair) ! Long wave radiation (W m-2)
+!
+!      implicit none
+!!                          input parameters
+!      real(8), intent(in) :: tsurf   ! Sea surface temperature (oC)
+!      real(8), intent(in) :: tair    ! air temperature (oC)
+!      real(8), intent(in) :: eair    ! vapor pressur (hPa)
+!      real(8) :: Ta,Ts
+!      
+!      Ta = tair + 273.15d0
+!      Ts = tsurf+ 273.15d0
+!      
+!      net_long_wave_radi = 0.97 * 5.670d-8 * Ta**3.0d0 * (              &
+!     &     Ta*(0.39d0-0.05d0*SQRT(eair))*(1.0d0-x*n*n)                  &
+!     &   + 4.0d0*Ta*(Ts-Ta) )
+!      
+!      return
+!    end function net_long_wave_radi
+!
+!
 ! **********************************************************************
 !  density of air (kg m-3)
 ! **********************************************************************
