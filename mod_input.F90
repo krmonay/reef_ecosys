@@ -104,7 +104,8 @@
 
 ! --------- READ Wave data ---------------------------------------------
 
-      open(77,file='./input/wave2010_0820-0905test.dat')
+!      open(77,file='./input/wave2010_0820-0905test.dat')
+      open(77,file='./input/wave2010_0820-0905.dat')
       dt_wave=0.25d0  !15 min interval
 
 !  ---- count data number -----
@@ -120,6 +121,27 @@
 !  ---- データの読み込み -----
       do i=1, nm_data
         read(77,*) Hs_data(i), Tp_data(i)
+      end do
+      close(77)
+
+! --------- READ Offshre temperature data ---------------------------------------------
+
+      open(77,file='./input/offshoretemp.dat')
+      dt_offtemp=3.0d0  !3 hour interval
+
+!  ---- count data number -----
+      nm_data = 0
+      do
+        read(77,*,iostat=ios)   ! 一回目の読み込みではデータは読み捨てる。
+        if(ios==-1) exit        ! ファイルが終わったらループを抜ける
+        nm_data = nm_data+1   ! データ数のカウント
+      end do
+      allocate( offtemp_data(nm_data) )
+      nm_offtemp = nm_data
+      rewind(77)                ! ファイルのはじめに戻る。
+!  ---- データの読み込み -----
+      do i=1, nm_data
+        read(77,*) offtemp_data(i)
       end do
       close(77)
  
@@ -321,11 +343,14 @@
       Pair = lin_interpol(time,Pair_data ,dt_air,nm_air)   !data from file
       Tair = lin_interpol(time,Tair_data ,dt_air,nm_air)   !data from file
       Qair = lin_interpol(time,Qair_data ,dt_air,nm_air)   !data from file
-      rain = lin_interpol(time,rain_data ,dt_air,nm_air)   !data from file
+      rain = lin_interpol(time,rain_data ,dt_air,nm_air)   !data from file (mm h-1)
+      rain = rain/3600000.0d0 ! mm h-1 -> m s-1
       cloud= lin_interpol(time,cloud_data,dt_air,nm_air)   !data from file
 #endif
       Hs = lin_interpol(time,Hs_data ,dt_wave,nm_wave)   !data from file
       Tp = lin_interpol(time,Tp_data, dt_wave,nm_wave)   !data from file
+      
+      Co(1,1,iTemp) = lin_interpol(time,offtemp_data, dt_offtemp,nm_offtemp)   !data from file
       
       return
 

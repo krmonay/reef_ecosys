@@ -47,6 +47,9 @@
 !  For Output      
       real(8), parameter :: OUTPUT_INTERVAL = 5.0d0     ! Output interval (min)
       real(8), save :: dsec = 0.d0 !sec
+      
+      real(8) :: h1,h2
+      real(8) :: fvol_rc, fvol_ch
 
 !----- Open output files -------------------------
 
@@ -112,7 +115,7 @@
 !----- Main loop -------------------------------------------
 
 !      do istep=1, int(60.*60./dt)+1       ! 1 hour
-      do istep=1, int(24.*60.*60./dt) * 5 +1      ! 5 days
+      do istep=1, int(24.*60.*60./dt) * 14 +1      ! 5 days
 !      do istep=1, int(24.*60.*60./dt) * 7 +1      ! 7 days
 !      do istep=1, int(24.*60.*60./dt) * 9 +1      ! 9 days
 !      do istep=1, int(24.*60.*60./dt) * 30 +1      ! 30 days
@@ -121,7 +124,25 @@
 !------ Set environmental parameters ----------------------------
 
         CALL setdata(nSetting)
+        
+        if (nSetting .eq. 4) then
+!----- Reef hydrodynamics model ----------------------------------------
 
+        h1 = REEF(1)%el(1,1)+REEF(1)%Dir(1,1)
+        
+          CALL reef_hydro         &
+!          input parameters
+     &            (1, 1, 1        &   ! ng: nested grid number; i,j: position
+     &            ,dt             &   ! Time step (sec)
+     &            ,Hs             &   ! Significant wave hight at offshore (m)
+     &            ,Tp             &   ! Significant Wave period (s)
+     &            ,tide           &   ! Sea surface elevation at offshore (m)
+     &             )
+            
+          h2 = (REEF(1)%el(1,1)+REEF(1)%Dir(1,1))
+          dz(1,1,:) =h2/N
+        end if
+        
 #if defined USE_HEAT
 
 !----- Heat & mass balance model ----------------------------------------
@@ -283,24 +304,17 @@
 !---------- Reef condition ------------------------------------
 
           else if (nSetting .eq. 4) then
-          
-            CALL reef_hydro         &
-!          input parameters
-     &            (1, 1, 1        &   ! ng: nested grid number; i,j: position
-     &            ,dt             &   ! Time step (sec)
-     &            ,Hs             &   ! Significant wave hight at offshore (m)
-     &            ,Tp             &   ! Significant Wave period (s)
-     &            ,tide           &   ! Sea surface elevation at offshore (m)
-     &             )
-            
-!            do id=1,Nid
-!              C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt               &
-!     &                      +(0.5d0*(ABS(fvol_cre)+fvol_cre)* (C(2,1,k,1,id)-C(1,1,k,1,id))  &  !  (t unit) m s-1
-!!     &                       -0.5d0*(ABS(fvol_cre)-fvol_cre)* C(1,1,k,1,id)  &
-!     &                       +0.5d0*(ABS(fvol_cha)+fvol_cha)* (C(2,1,k,1,id)-C(1,1,k,1,id))   &
-!!     &                       -0.5d0*(ABS(fvol_cha)-fvol_cha)* C(1,1,k,1,id)  &
-!     &                       )*dt/dz(1,1,k)
-!            end do
+            fvol_rc = REEF(1)%Qrc(1,1)*REEF(1)%Wrc(1,1)
+            fvol_ch = REEF(1)%Qch(1,1)*REEF(1)%Wch(1,1)
+            do id=1,Nid
+              C(1,1,k,1,id) = C(1,1,k,1,id)*h1/h2                          &
+     &                      +(0.5d0*(ABS(fvol_rc)+fvol_rc)* Co(1,1,id)     &  !  (t unit) m s-1
+     &                       -0.5d0*(ABS(fvol_rc)-fvol_rc)* C(1,1,k,1,id)  &  !  (t unit) m s-1
+     &                       +0.5d0*(ABS(fvol_ch)+fvol_ch)* Co(1,1,id)     &  !  (t unit) m s-1
+     &                       -0.5d0*(ABS(fvol_ch)-fvol_ch)* C(1,1,k,1,id)  &  !  (t unit) m s-1
+     &                       )/h2/REEF(1)%Air(1,1)*dt
+              C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
+            end do
 
 !---------- Incubation chamber condition ------------------------------------
 

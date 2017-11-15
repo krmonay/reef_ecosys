@@ -157,7 +157,7 @@
 #ifdef LONGWAVE_IN
       lradi = up_long_wave_radi(Tmp(N))-dw_lwradi
 #else
-      lradi = net_long_wave_radi(Tmp(N))
+      lradi = net_long_wave_radi(Tmp(N),tair,Hum,cloud)
 #endif
 
 ! Sensible heat (W m-2)
@@ -322,25 +322,39 @@
 !  Net long wave radiation (W m-2)
 ! **********************************************************************
 
-!    real(8) function net_long_wave_radi(tsurf,tair,eair) ! Long wave radiation (W m-2)
-!
-!      implicit none
-!!                          input parameters
-!      real(8), intent(in) :: tsurf   ! Sea surface temperature (oC)
-!      real(8), intent(in) :: tair    ! air temperature (oC)
-!      real(8), intent(in) :: eair    ! vapor pressur (hPa)
-!      real(8) :: Ta,Ts
+    real(8) function net_long_wave_radi(tsurf,tair,Hum,cloud) ! Long wave radiation (W m-2)
+
+      implicit none
+!                          input parameters
+      real(8), intent(in) :: tsurf   ! Sea surface temperature (oC)
+      real(8), intent(in) :: tair    ! air temperature (oC)
+      real(8), intent(in) :: Hum     ! Humidity (%)
+      real(8), intent(in) :: cloud   ! Cloud cover factor
+      real(8) :: eair    ! vapor pressur (hPa)
+      real(8) :: TairK,TseaK
+      
+!  Use Berliand (1952) formula to calculate net longwave radiation.
+      
+      TairK = tair + 273.15d0
+      TseaK = tsurf+ 273.15d0
+      
+      eair=sat_vapor_press(tair)*Hum/100.d0    ! vapor pressur (hPa)
+      
+!      net_long_wave_radi = 0.97 * 5.670d-8 * TairK**3.0d0 * (          &
+!     &     TairK*(0.39d0-0.05d0*SQRT(eair))*(1.0d0-x*n*n)              &
+!     &   + 4.0d0*TairK*(TseaK-TairK) )
+!     
+!     
+!          cff2=TairK(i)*TairK(i)*TairK(i)
+!          cff1=cff2*TairK(i)
+!          LRad(i,j)=-emmiss*StefBo*                                     &
+!     &              (cff1*(0.39_r8-0.05_r8*SQRT(vap_p))*                &
+!     &                    (1.0_r8-0.6823_r8*cloud*cloud)+     &
+!     &               cff2*4.0_r8*(TseaK(i)-TairK(i)))
 !      
-!      Ta = tair + 273.15d0
-!      Ts = tsurf+ 273.15d0
-!      
-!      net_long_wave_radi = 0.97 * 5.670d-8 * Ta**3.0d0 * (              &
-!     &     Ta*(0.39d0-0.05d0*SQRT(eair))*(1.0d0-x*n*n)                  &
-!     &   + 4.0d0*Ta*(Ts-Ta) )
-!      
-!      return
-!    end function net_long_wave_radi
-!
+      return
+    end function net_long_wave_radi
+
 !
 ! **********************************************************************
 !  density of air (kg m-3)

@@ -225,7 +225,8 @@
 #if defined COT_STARFISH
      &    ,'COT, ','COTl '                                             &
 # endif
-     &    ,'dz, ', 'etide, ', 'ereef'
+     &    ,'dz, ', 'el, ', 'el_reef, '                                 &
+     &    ,'Q_rc, ', 'Q_ch'
       
 
       RETURN
@@ -288,7 +289,8 @@
 #if defined COT_STARFISH
      &       ,C(1,1,1,1,iCOTe),',',C(1,1,1,1,iCOTl),','              &
 # endif
-     &       ,dz(1,1,1),',',tide,',', REEF(1)%el (1,1)
+     &       ,dz(1,1,1),',',tide,',', REEF(1)%el (1,1),','           &
+     &       ,REEF(1)%Qrc(1,1),',', REEF(1)%Qch(1,1)
 
 
       RETURN

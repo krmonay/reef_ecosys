@@ -21,6 +21,7 @@
       real(8), pointer :: Wch(:,:)
       real(8), pointer :: Dch(:,:)
       real(8), pointer :: Lch(:,:)
+      real(8), pointer :: Slp(:,:)
       
       real(8), pointer :: Air(:,:)
 
@@ -56,6 +57,7 @@
       allocate( REEF(ng)%Wch(LBi:UBi,LBj:UBj)  )
       allocate( REEF(ng)%Dch(LBi:UBi,LBj:UBj)  )
       allocate( REEF(ng)%Lch(LBi:UBi,LBj:UBj)  )
+      allocate( REEF(ng)%Slp(LBi:UBi,LBj:UBj)  )
       
       allocate( REEF(ng)%Air(LBi:UBi,LBj:UBj)  )
       
@@ -67,14 +69,15 @@
       do j=LBj,UBj
         do i=LBi,UBi
           REEF(ng)%Wir(i,j)=800.0d0   ! Inner reef width (m)
-          REEF(ng)%Dir(i,j)=3.0d0     ! Inner reef depth (m)
+          REEF(ng)%Dir(i,j)=1.0d0     ! Inner reef depth (m)
           REEF(ng)%Lir(i,j)=700.0d0   ! Inner reef length (m)
           REEF(ng)%Wrc(i,j)=750.0d0   ! Reef crest width (m)
-          REEF(ng)%Drc(i,j)=0.1d0     ! Reef crest depth (m)
+          REEF(ng)%Drc(i,j)=0.0d0     ! Reef crest depth (m)
           REEF(ng)%Lrc(i,j)=100.0d0   ! Reef crest length (m)
           REEF(ng)%Wch(i,j)=REEF(ng)%Wir(i,j)-REEF(ng)%Wrc(i,j)   ! Channel width (m)
-          REEF(ng)%Dch(i,j)=2.0d0               ! Channel depth (m)
+          REEF(ng)%Dch(i,j)=0.8d0               ! Channel depth (m)
           REEF(ng)%Lch(i,j)=REEF(ng)%Lrc(i,j)   ! Channel length (m)
+          REEF(ng)%Slp(i,j)=0.3   ! Reef slope
           
           REEF(ng)%Air(i,j)=REEF(ng)%Wir(i,j)*REEF(ng)%Lir(i,j)   ! Inner reef area (m2)
 
@@ -134,22 +137,29 @@
       real(8), parameter :: rho = 1024.0d0   ! Seawater density (kg m-3)
       real(8), parameter :: g   = 9.80665d0  ! Gravitational acceleration (m s-2)
       real(8), parameter :: pi  = 3.14159265359d0  ! Circle ratio
+      
+      real(8), parameter :: dx_o  = 50.0d0   ! Surf zone length (m)
 
 !-----------------------------------------------------------------------
       real(8) :: d_o          ! Water depth (m)
       real(8) :: d_i          ! Water depth (m)
+      real(8) :: del          ! difference of elevation between inner and outer reef (m)
       
       d_o = el_o + REEF(ng)%Drc(i,j)
+!      d_o = el_o + REEF(ng)%Slp(i,j)*dx_o
       d_i = REEF(ng)%el (i,j) + REEF(ng)%Drc(i,j)
+      del = REEF(ng)%el (i,j) - el_o
 
       CALL momentum_eq               &
 !          input parameters
      &            (dt                &   ! Time step (sec)
      &            ,REEF(ng)%Lrc(i,j) &   ! Distance (m)
+!     &            ,dx_o &   ! Distance (m)
      &            ,Hs_o              &   ! Significant wave hight at offshore (m)
      &            ,Ts                &   ! Significant Wave period (s)
      &            ,d_o               &   ! Depth at offshore side edge (m)
      &            ,d_i               &   ! Depth at inshore side edge (m)
+!     &            ,del               &   ! Differnce of elevation (m)
 !          input and output parameters
      &            ,REEF(ng)%Qrc(i,j) &   ! Volume flux per unit width (m2 s-1) (o->i is positive, m s-1)
      &             )
@@ -161,10 +171,12 @@
 !          input parameters
      &            (dt                &   ! Time step (sec)
      &            ,REEF(ng)%Lch(i,j) &   ! Distance (m)
+!     &            ,dx_o &   ! Distance (m)
      &            ,Hs_o              &   ! Significant wave hight at offshore (m)
      &            ,Ts                &   ! Significant Wave period (s)
      &            ,d_o               &   ! Depth at offshore side edge (m)
      &            ,d_i               &   ! Depth at inshore side edge (m)
+!     &            ,del               &   ! Differnce of elevation (m)
 !          input and output parameters
      &            ,REEF(ng)%Qch(i,j) &   ! Volume flux per unit width (m2 s-1) (o->i is positive, m s-1)
      &             )
@@ -190,6 +202,7 @@
      &            ,Ts             &   ! Significant Wave period (s)
      &            ,d_o            &   ! Depth at offshore side edge (m)
      &            ,d_i            &   ! Depth at inshore side edge (m)
+!     &            ,del            &   ! Differnce of elevation (m)
 
 !          input and output parameters
      &            ,q              &   ! Volume flux per unit width (m2 s-1) (o->i is positive, m s-1)
@@ -205,6 +218,7 @@
       real(8), intent(in ) :: Ts
       real(8), intent(in ) :: d_o
       real(8), intent(in ) :: d_i
+!      real(8), intent(in ) :: del
 ! input and output parameters
       real(8), intent(inout) :: q
 
@@ -212,7 +226,8 @@
       real(8), parameter :: rho = 1024.0d0   ! Seawater density (kg m-3)
       real(8), parameter :: g   = 9.80665d0  ! Gravitational acceleration (m s-2)
       real(8), parameter :: pi  = 3.14159265359d0  ! Circle ratio
-      real(8), parameter :: Cd  = 0.02  ! Bottom drag coefficient (Lowe et al., 2009)
+      real(8), parameter :: Cd  = 0.02d0  ! Bottom drag coefficient (Lowe et al., 2009)
+      real(8), parameter :: dcrt= 0.01d0  ! Critical depth for Weting and Drying (m)
 
       real(8) :: Hs_i         ! Significant wave hight (m)
       real(8) :: k            ! Wave number
@@ -233,19 +248,20 @@
             
 !-----------------------------------------------------------------------
 
-     if (d_o <= 0.0d0) then
-       d_o2  = 0.0d0
+     if (d_o <= dcrt) then
+       d_o2  = dcrt
        Sxx_o = 0.0d0
      else
        d_o2  = d_o
-       L = 0.5d0*g*Ts*Ts*pi  ! wave length of Deep water wave
+       CALL wavelength_from_T_h(Ts, d_o, L)  ! wave length
+!       L = 0.5d0*g*Ts*Ts*pi  ! wave length of Deep water wave
        k = 2.0d0*pi/L
        Ew_o = 0.125d0*rho*g*Hs_o*Hs_o
        Sxx_o = Ew_o * (2.0d0*k*d_o/(sinh(2*k*d_o)) + 0.5)
      endif
      
-     if (d_i <= 0.0d0) then
-       d_i2   = 0.0d0
+     if (d_i <= dcrt) then
+       d_i2   = dcrt
        Sxx_i = 0.0d0
      else
        d_i2 = d_i
@@ -260,17 +276,19 @@
      del = d_i2 - d_o2
      dSxx = Sxx_i - Sxx_o
      d_m  = 0.5d0*(d_i2 + d_o2)
-     if (d_m <= 0.01d0) then
-       u  = 0.0d0
-     else
-       u = q/d_m
-     endif
+!     if (d_m <= 0.01d0) then
+!       u  = 0.0d0
+!     else
+!       u = q/d_m
+!     endif
+     u = q/d_m
      tau = rho*Cd*abs(u)*u
      
      ! Momentum equation
      q = q + (-g*d_m*del/dx -dSxx/rho/dx -tau/rho)*dt
+!     q = q + (-g*d_m*del/dx -dSxx/rho/dx)*dt
      
-     write(99,*) q, d_i2,d_o2,Sxx_i,Sxx_o,u, d_m
+     write(99,*) q, d_i2,d_o2,Sxx_i,Sxx_o,u, d_m, del, tau
 
     END SUBROUTINE momentum_eq
     
