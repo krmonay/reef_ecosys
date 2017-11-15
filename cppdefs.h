@@ -1,7 +1,12 @@
 
+#define USE_HEAT
+#define LONGWAVE_IN
+
+#define REEF_HYDRO
+
+
 /*----- CPP defines for coral module ----------------*/
 /***  Biological model options. (Original CPP flags) ***/
-
 #define REEF_ECOSYS
 
 #if defined REEF_ECOSYS
@@ -10,7 +15,7 @@
 
 /* compartments */
 /*# define ORGANIC_MATTER*/
-# define CARBON_ISOTOPE
+/*# define CARBON_ISOTOPE*/
 /*# define NUTRIENTS*/
 
 # define CORAL_POLYP  /* USE coral module */
@@ -25,7 +30,7 @@
 #  define FOODWEB      /* USE foodweb module */
 # endif
 
-/*# define AIR_SEA_GAS_EXCHANGE*/
+# define AIR_SEA_GAS_EXCHANGE
 
 /*** Coral Polyp model options. ***/
 # if defined CORAL_POLYP

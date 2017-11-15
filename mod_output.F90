@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/10   Copyright (c) 2017 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2017 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -102,7 +102,10 @@
       open(12,file='./output/eco5-crl2_his.csv')
       open(21,file='./output/eco5-crl1_ave.csv')
       open(22,file='./output/eco5-crl2_ave.csv')
+#  if defined CORAL_ZOOXANTHELLAE
       open(31,file='./output/eco5-zoo1_his.csv')
+      open(32,file='./output/eco5-zoo2_his.csv')
+#  endif
 # endif
 # if defined ECOSYS_TESTMODE
       open(40,file='./output/eco5-ecosys_his.csv')
@@ -154,7 +157,10 @@
       close(12)
       close(21)
       close(22)
+# if defined CORAL_ZOOXANTHELLAE
       close(31)
+      close(32)
+# endif
 #endif
 #if defined ECOSYS_TESTMODE
       close(40)
@@ -219,7 +225,8 @@
 #if defined COT_STARFISH
      &    ,'COT, ','COTl '                                             &
 # endif
-     &    ,'dz, ', 'etide, ', 'ereef'
+     &    ,'dz, ', 'el, ', 'el_reef, '                                 &
+     &    ,'Q_rc, ', 'Q_ch'
       
 
       RETURN
@@ -248,6 +255,7 @@
 #if defined CARBON_ISOTOPE
       USE mod_geochem
 #endif
+      USE mod_reef_hydro
       
       implicit none
       
@@ -281,7 +289,8 @@
 #if defined COT_STARFISH
      &       ,C(1,1,1,1,iCOTe),',',C(1,1,1,1,iCOTl),','              &
 # endif
-     &       ,dz(1,1,1),',',etide,',', ereef
+     &       ,dz(1,1,1),',',tide,',', REEF(1)%el (1,1),','           &
+     &       ,REEF(1)%Qrc(1,1),',', REEF(1)%Qch(1,1)
 
 
       RETURN
@@ -365,6 +374,40 @@
       RETURN
 
     END SUBROUTINE write_crl_ave_lavel
+
+#  if defined CORAL_ZOOXANTHELLAE
+    SUBROUTINE write_zox_his_lavel(fid)
+    
+      USE mod_param
+      
+      implicit none
+      
+      integer, intent(in) :: fid
+      
+      write(fid,*)                                &
+     &   'time,', 'PFD,'                          &
+     &   ,'Pg,', 'R,'                             &
+     &   ,'dens,','QC,'                           &
+     &   ,'ROS,'                                  &
+     &   ,'C_repro,','Repro,','Morta,','F_ROS,'   &
+#  if defined CORAL_NUTRIENTS
+     &   ,'QN,','QP,'                             &
+     &   ,'N_repro,','P_repro,'                   &
+     &   ,'NO3,','NO2,'                           &
+     &   ,'NH4,','F_ONOO,'                        &
+     &   ,'NO3_trans,','NO2_trans,','NH4_trans,'  &
+     &   ,'NO3_reduc,','NO2_reduc,'               &
+     &   ,'N_assim,','N_dissim,'                  &
+     &   ,'PO4,','PO4_trans,','P_assim,'          &
+#  endif
+     &   ,'F_Zexpul,','Repro_x_dens,'             &
+     &   ,'Morta_x_dens'
+
+      RETURN
+
+    END SUBROUTINE write_zox_his_lavel
+
+# endif
 #endif
 #if defined ECOSYS_TESTMODE
 ! **********************************************************************

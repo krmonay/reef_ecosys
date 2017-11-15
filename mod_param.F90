@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -19,33 +19,47 @@
 
     real(8) :: time    !(day)
     
-    real(8), allocatable :: tide(:)
-    real(8) :: etide
+    real(8), allocatable :: tide_data(:)
+    real(8) :: tide
     real(8) :: dt_tide
     integer :: nm_tide
     
-    real(8), allocatable :: windu(:) 
-    real(8), allocatable :: windv(:)
+    real(8), allocatable :: Hs_data(:)
+    real(8), allocatable :: Tp_data(:)
+    real(8) :: Hs
+    real(8) :: Tp
+    real(8) :: dt_wave
+    integer :: nm_wave
+    
+    real(8), allocatable :: Pair_data (:)
+    real(8), allocatable :: Uwind_data(:)
+    real(8), allocatable :: Vwind_data(:)
+    real(8), allocatable :: Tair_data (:)
+    real(8), allocatable :: Qair_data (:)
+    real(8), allocatable :: rain_data (:)
+    real(8), allocatable :: swrad_data(:)
+    real(8), allocatable :: cloud_data(:)
+    real(8) :: Pair
     real(8) :: Uwind
     real(8) :: Vwind
-    real(8) :: dt_wind
-    integer :: nm_wind
-    
-    real(8), allocatable :: sradi(:)
-    real(8), allocatable :: eTair(:)
-    real(8), allocatable :: eEair(:)
-    real(8), allocatable :: ePsea(:)
-    real(8) :: ssradi
     real(8) :: Tair
-    real(8) :: Eair
-    real(8) :: Psea
+    real(8) :: Qair
+    real(8) :: rain
+    real(8) :: swrad
+    real(8) :: cloud
     real(8) :: dt_air
     integer :: nm_air
     
-    real(8), allocatable :: dlwrad(:)
-    real(8) :: dw_lwradi
+    real(8), allocatable :: dlwrad_data(:)
+    real(8) :: dlwrad
     real(8) :: dt_dlwrad
     integer :: nm_dlwrad
+    
+    real(8), allocatable :: offtemp_data(:)
+    real(8) :: offtemp
+    real(8) :: dt_offtemp
+    integer :: nm_offtemp
+    
     real(8), allocatable :: PFD_time(:)
     real(8), allocatable :: PFD_data(:)
     integer :: N_PFD
@@ -56,13 +70,6 @@
     real(8), allocatable :: DO_data(:)
     integer :: N_WQ
     integer :: i_WQ = 1
-    
-    real(8), allocatable :: Hsin(:)
-    real(8), allocatable :: Tpin(:)
-    real(8) :: Tp
-    real(8) :: Hs
-    real(8) :: dt_wave
-    integer :: nm_wave
 
 
     real(8) :: PFDsurf    
@@ -130,6 +137,7 @@
     real(8), allocatable :: dz(:,:,:)    
     real(8), allocatable :: C(:,:,:,:,:)
     real(8), allocatable :: dC_dt(:,:,:,:)
+    real(8), allocatable :: Co(:,:,:)
     
     real(8), allocatable :: p_coral(:,:,:)
     real(8), allocatable :: p_sgrass(:,:)
@@ -232,6 +240,7 @@
 
       allocate( C(LBi:UBi, LBj:UBj, N, 1, Nid) , &
      &          dC_dt(LBi:UBi, LBj:UBj, N, Nid)   )
+      allocate( Co(LBi:UBi, LBj:UBj, Nid) )
      
       allocate( p_coral (2,LBi:UBi, LBj:UBj) , &
      &          p_sgrass(LBi:UBi, LBj:UBj) , &
@@ -252,8 +261,8 @@
           
             C(i,j,k,1,iTemp) = 27.0d0   !27.0d0 32.0d0
 !            C(i,j,k,1,iTemp) = 29.0d0   !27.0d0 32.0d0
-!            C(i,j,k,1,iSalt) = 34.0d0
-            C(i,j,k,1,iSalt) = 35.9d0
+            C(i,j,k,1,iSalt) = 34.0d0
+!            C(i,j,k,1,iSalt) = 35.9d0
 
             C(i,j,k,1,iSedi) = 0.0d0    !Sediment concentration (g m-3) 0.e0, 1.e0
 
@@ -262,17 +271,36 @@
 
 !            C(i,j,k,1,iOxyg) = 200.0d0      !DO  (umol L-1)
             C(i,j,k,1,iOxyg) = O2satu(C(i,j,k,1,iTemp)+273.15d0, C(i,j,k,1,iSalt))
+
+! Offshore values
+            Co(i,j,iTemp) = 27.0d0   !27.0d0 32.0d0
+            Co(i,j,iSalt) = 34.0d0
+
+            Co(i,j,iSedi) = 0.0d0    !Sediment concentration (g m-3) 0.e0, 1.e0
+
+            Co(i,j,iTIC_) = 1915.0d0     !DIC  (umol kg-1) 1915.0d0 1930.0d0, 1700.0d0, 2100.0d0, 2300.0d0, 2500.0d0, 2700.0d0, 3000.0d0 
+            Co(i,j,iTAlk) = 2232.0d0     !TA  (umol kg-1)  2232.0d0 2275.0d0, 2500.0d0, 2150.0d0, 2000.0d0, 1800.0d0, 1700.0d0, 1600.0d0 
+
+            Co(i,j,iOxyg) = O2satu(C(i,j,k,1,iTemp)+273.15d0, C(i,j,k,1,iSalt))
 #if defined ORGANIC_MATTER
             C(i,j,k,1,iDOC_) = 65.0d0       !DOC  (umol L-1) 
             C(i,j,k,1,iPOC_) = 4.2d0        !POC  (umol L-1) 
             C(i,j,k,1,iPhyt1) =  2.23d0       !Phytoplankton1 0.3(umolC L-1) all0.561 0.746-gC/gchla-1h 2.23-gC/gchla-30 4.47-gC/gchla-60	others
             C(i,j,k,1,iPhyt2) =  2.23d0       !Phytoplankton2 0.3(umolC L-1) 							diatom
             C(i,j,k,1,iZoop) =  1.3d0       !Zooplankton (umol L-1)1.3
+! Offshore values
+            Co(i,j,iDOC_) = 65.0d0       !DOC  (umol L-1) 
+            Co(i,j,iPOC_) = 4.2d0        !POC  (umol L-1) 
+            Co(i,j,iPhyt1) =  2.23d0       !Phytoplankton1 0.3(umolC L-1) all0.561 0.746-gC/gchla-1h 2.23-gC/gchla-30 4.47-gC/gchla-60	others
+            Co(i,j,iPhyt2) =  2.23d0       !Phytoplankton2 0.3(umolC L-1) 							diatom
+            Co(i,j,iZoop) =  1.3d0       !Zooplankton (umol L-1)1.3
 #endif
 #if defined CARBON_ISOTOPE
             R13C=R13C_fromd13C(0.7d0)
 !            Ci(nDI13C,i,j,k)=R13C/(1.+R13C)*Ci(nDIC,i,j,k) !DI13C (umol kg-1)
             C(i,j,k,1,iT13C) =R13C*C(i,j,k,1,iTIC_) !DI13C (umol kg-1) 
+! Offshore values
+            Co(i,j,iT13C) =R13C*C(i,j,k,1,iTIC_) !DI13C (umol kg-1) 
 #endif
 #if defined NUTRIENTS            
 !!!!!!!!!!!!
@@ -285,12 +313,22 @@
 !!!!!!!!!!!!
             C(i,j,k,1,iNO2_) =  0.02d0      !NO2  (umol L-1) 
             C(i,j,k,1,iNH4_) =  0.26d0       !NH4  (umol L-1) 
+! Offshore values
+            Co(i,j,iNO3_) =  0.2d0       !NO3  (umol L-1)  0.5d0, 10.0d0 control0.2d0 N1.8d0 N*2 3.5d0
+            Co(i,j,iPO4_) =  0.04d0      !PO4  (umol L-1) 0.03d0 0.05d0, 2.0d0 control0.04d0 P0.2d0
+            Co(i,j,iNO2_) =  0.02d0      !NO2  (umol L-1) 
+            Co(i,j,iNH4_) =  0.26d0       !NH4  (umol L-1) 
 
 # if defined ORGANIC_MATTER
             C(i,j,k,1,iDON_) =  10.0d0 !3.0d0       !DON  (umol L-1) 
             C(i,j,k,1,iPON_) =  0.6d0 !0.05d0      !PON  (umol L-1) 
             C(i,j,k,1,iDOP_) =  0.6d0 !0.1d0       !DOP  (umol L-1) 
             C(i,j,k,1,iPOP_) =  0.04d0 !0.015d0     !POP  (umol L-1) 
+! Offshore values
+            Co(i,j,iDON_) =  10.0d0 !3.0d0       !DON  (umol L-1) 
+            Co(i,j,iPON_) =  0.6d0 !0.05d0      !PON  (umol L-1) 
+            Co(i,j,iDOP_) =  0.6d0 !0.1d0       !DOP  (umol L-1) 
+            Co(i,j,iPOP_) =  0.04d0 !0.015d0     !POP  (umol L-1) 
 # endif
 #endif
 #if defined COT_STARFISH

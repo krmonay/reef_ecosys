@@ -1,5 +1,5 @@
 
-!!!=== ver 2017/03/10   Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2017 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -7,7 +7,7 @@
       PROGRAM ecosys_test
 ! **********************************************************************
 ! *                                                                    *
-! *   Test program of mod_reef_ecosys3                                 *
+! *   Test program of mod_reef_ecosys                                  *
 ! *                                                                    *
 ! **********************************************************************
 !
@@ -19,6 +19,7 @@
       USE mod_input
       USE mod_output
       USE mod_geochem
+      USE mod_reef_hydro
 
       implicit none
       
@@ -46,6 +47,9 @@
 !  For Output      
       real(8), parameter :: OUTPUT_INTERVAL = 5.0d0     ! Output interval (min)
       real(8), save :: dsec = 0.d0 !sec
+      
+      real(8) :: h1,h2
+      real(8) :: fvol_rc, fvol_ch
 
 !----- Open output files -------------------------
 
@@ -61,7 +65,7 @@
 !                5: Incubation chamber simulation of Nakamura & Nakamori (2009) experiments
 !                6: Flume simulation of Comeau et al. (2016) experiments
       
-      nSetting = 5  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      nSetting = 4  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
 !----- Set initial conditions -------------------------
 
@@ -80,6 +84,7 @@
 #if defined USE_HEAT
       CALL initialize_heat(1, Ngrids, 1, Im, 1, Jm)
 #endif
+      CALL initialize_reef_hydro(1, Ngrids, 1, Im, 1, Jm)
       CALL initialize_reef_ecosys(1, Ngrids, 1, Im, 1, Jm)
 
 !      call Coral_iniSizeDis
@@ -97,6 +102,10 @@
        CALL write_crl_his_lavel(12)
        CALL write_crl_ave_lavel(21)
        CALL write_crl_ave_lavel(22)
+# if defined CORAL_ZOOXANTHELLAE
+       CALL write_zox_his_lavel(31)
+       CALL write_zox_his_lavel(32)
+# endif
 #endif
 #if defined ECOSYS_TESTMODE
        CALL write_ecosys_his_lavel(40)
@@ -106,7 +115,7 @@
 !----- Main loop -------------------------------------------
 
 !      do istep=1, int(60.*60./dt)+1       ! 1 hour
-      do istep=1, int(24.*60.*60./dt) * 5 +1      ! 5 days
+      do istep=1, int(24.*60.*60./dt) * 14 +1      ! 5 days
 !      do istep=1, int(24.*60.*60./dt) * 7 +1      ! 7 days
 !      do istep=1, int(24.*60.*60./dt) * 9 +1      ! 9 days
 !      do istep=1, int(24.*60.*60./dt) * 30 +1      ! 30 days
@@ -115,7 +124,25 @@
 !------ Set environmental parameters ----------------------------
 
         CALL setdata(nSetting)
+        
+        if (nSetting .eq. 4) then
+!----- Reef hydrodynamics model ----------------------------------------
 
+        h1 = REEF(1)%el(1,1)+REEF(1)%Dir(1,1)
+        
+          CALL reef_hydro         &
+!          input parameters
+     &            (1, 1, 1        &   ! ng: nested grid number; i,j: position
+     &            ,dt             &   ! Time step (sec)
+     &            ,Hs             &   ! Significant wave hight at offshore (m)
+     &            ,Tp             &   ! Significant Wave period (s)
+     &            ,tide           &   ! Sea surface elevation at offshore (m)
+     &             )
+            
+          h2 = (REEF(1)%el(1,1)+REEF(1)%Dir(1,1))
+          dz(1,1,:) =h2/N
+        end if
+        
 #if defined USE_HEAT
 
 !----- Heat & mass balance model ----------------------------------------
@@ -126,14 +153,14 @@
      &            ,N              &   ! Number of vertical grid (following ROMS vertical grid)
      &            ,dt             &   ! Time step (sec)
      &            ,dz(1,1,:)      &   ! dz(N): vertical grid size (m)
-     &            ,ssradi         &   ! Surface shortwave radiation (W m-2)
+     &            ,swrad          &   ! Surface shortwave radiation (W m-2)
      &            ,Tair           &   ! air temperature (oC)
-     &            ,Psea           &   ! atm pressure (hPa)
-     &            ,Eair           &   ! vapor pressur (hPa)
+     &            ,Pair           &   ! atm pressure (hPa)
+     &            ,Qair           &   ! vapor pressur (hPa)
      &            ,U10            &   ! wind speed (m s-1)
-     &            ,fvol_pre       &   ! Precipitation volume flux (m s-1)
-#ifdef LONGWAVE_OUT
-     &            ,dw_lwradi      &   ! Downward longwave radiation (W m-2)
+     &            ,rain           &   ! Precipitation volume flux (m s-1)
+#ifdef LONGWAVE_IN
+     &            ,dlwrad         &   ! Downward longwave radiation (W m-2)
 #endif
 
      &            ,C(1,1,:,1,iTemp)     &   ! Tmp(N): Temperature (oC)
@@ -277,38 +304,16 @@
 !---------- Reef condition ------------------------------------
 
           else if (nSetting .eq. 4) then
-!            wave_setup=0.20d0 !(m)
-            wave_setup=0.12*Hs !(m)
-            wave_setup=0.12*Hs +0.1d0 !(m)
-
-            if (max(etide+wave_setup,ereef) .gt. z_crest) then
-              fvol_cre = kvol_cre*(etide+wave_setup - ereef) * ABS(etide+wave_setup - ereef)  ! volume flux (m3 m-2 s-1)
-!              if (etide+wave_setup .gt. ereef) then
-!                fvol_cre =  kvol_cre*(ereef-z_crest)* (etide+wave_setup - ereef)**0.5d0  ! volume flux (m3 m-2 s-1)
-!              else
-!                fvol_cre = -kvol_cre*(etide+wave_setup-z_crest)* (ereef - (etide+wave_setup))**0.5d0  ! volume flux (m3 m-2 s-1)
-!              end if
-            else
-              fvol_cre = 0.0d0
-            end if
-            
-            fvol_cha = kvol_cha*(etide - ereef) * ABS(etide - ereef)  ! volume flux (m3 m-2 s-1)
-!            if (etide .gt. ereef) then
-!              fvol_cha =  kvol_cha *(ereef-(z_crest-1.0d0))* (etide - ereef)**0.5d0  ! volume flux (m3 m-2 s-1)
-!            else
-!              fvol_cha = -kvol_cha *(etide-(z_crest-1.0d0))* (ereef - etide)**0.5d0  ! volume flux (m3 m-2 s-1)
-!            end if
-            
-            ereef = ereef + (fvol_cre + fvol_cha) * dt
-            dz(1,1,k) = dz(1,1,k) + (fvol_cre + fvol_cha) * dt/N 
-            
+            fvol_rc = REEF(1)%Qrc(1,1)*REEF(1)%Wrc(1,1)
+            fvol_ch = REEF(1)%Qch(1,1)*REEF(1)%Wch(1,1)
             do id=1,Nid
-              C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt               &
-     &                      +(0.5d0*(ABS(fvol_cre)+fvol_cre)* (C(2,1,k,1,id)-C(1,1,k,1,id))  &  !  (t unit) m s-1
-!     &                       -0.5d0*(ABS(fvol_cre)-fvol_cre)* C(1,1,k,1,id)  &
-     &                       +0.5d0*(ABS(fvol_cha)+fvol_cha)* (C(2,1,k,1,id)-C(1,1,k,1,id))   &
-!     &                       -0.5d0*(ABS(fvol_cha)-fvol_cha)* C(1,1,k,1,id)  &
-     &                       )*dt/dz(1,1,k)
+              C(1,1,k,1,id) = C(1,1,k,1,id)*h1/h2                          &
+     &                      +(0.5d0*(ABS(fvol_rc)+fvol_rc)* Co(1,1,id)     &  !  (t unit) m s-1
+     &                       -0.5d0*(ABS(fvol_rc)-fvol_rc)* C(1,1,k,1,id)  &  !  (t unit) m s-1
+     &                       +0.5d0*(ABS(fvol_ch)+fvol_ch)* Co(1,1,id)     &  !  (t unit) m s-1
+     &                       -0.5d0*(ABS(fvol_ch)-fvol_ch)* C(1,1,k,1,id)  &  !  (t unit) m s-1
+     &                       )/h2/REEF(1)%Air(1,1)*dt
+              C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
             end do
 
 !---------- Incubation chamber condition ------------------------------------
@@ -438,7 +443,7 @@
 !------------------------------------------------------------------------------
 
 !              depsed(i,j)=0.
-!              radi(i,j,k)=-ssradi
+!              radi(i,j,k)=-swrad
 
               
         enddo
