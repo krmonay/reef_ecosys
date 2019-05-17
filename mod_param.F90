@@ -257,10 +257,11 @@
           do k=1,N
           
 !            dz(i,j,k)=0.3d0 !(m)
-            dz(i,j,k)=0.7d0 !(m)
+            dz(i,j,k)=3.0d0 !(m)
           
             C(i,j,k,1,iTemp) = 27.0d0   !27.0d0 32.0d0
-!            C(i,j,k,1,iTemp) = 29.0d0   !27.0d0 32.0d0
+!            C(i,j,k,1,iTemp) = 33.0d0   !27.0d0 32.0d0
+            
             C(i,j,k,1,iSalt) = 34.0d0
 !            C(i,j,k,1,iSalt) = 35.9d0
 
@@ -273,7 +274,7 @@
             C(i,j,k,1,iOxyg) = O2satu(C(i,j,k,1,iTemp)+273.15d0, C(i,j,k,1,iSalt))
 
 ! Offshore values
-            Co(i,j,iTemp) = 27.0d0   !27.0d0 32.0d0
+            Co(i,j,iTemp) = 33.0d0   !27.0d0 32.0d0
             Co(i,j,iSalt) = 34.0d0
 
             Co(i,j,iSedi) = 0.0d0    !Sediment concentration (g m-3) 0.e0, 1.e0

@@ -15,8 +15,8 @@ mean(eco.coral1_G(1297:1333))
 mean(eco.coral1_G(1153:1225))
 
 
-tot_Pn = eco.coral1_Pn + eco.coral2_Pn + eco.sedeco_Pn;
-tot_G  = eco.coral1_G + eco.coral2_G  + eco.sedeco_G ;
+% tot_Pn = eco.coral1_Pn + eco.coral2_Pn + eco.sedeco_Pn;
+% tot_G  = eco.coral1_G + eco.coral2_G  + eco.sedeco_G ;
 
 figure('PaperSize',[20 30],...
     'OuterPosition',[0 0 1000 1050]);

@@ -1,5 +1,5 @@
 
-!!!=== Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2018 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -272,14 +272,14 @@
       integer, intent(in) :: nSetting
 
 !  -- Set Tide data ---------------------------------------------
-!      tide=0.0d0
-      tide=lin_interpol(time,tide_data,dt_tide,nm_tide)
+      tide=0.0d0
+!      tide=lin_interpol(time,tide_data,dt_tide,nm_tide)
 !   -- Set wind data -----------------------------------------------
 
-!      Uwind=0.
-!      Vwind=0.
-      Uwind=lin_interpol(time,Uwind_data,dt_air,nm_air)
-      Vwind=lin_interpol(time,Vwind_data,dt_air,nm_air)
+      Uwind=0.
+      Vwind=0.
+!      Uwind=lin_interpol(time,Uwind_data,dt_air,nm_air)
+!      Vwind=lin_interpol(time,Vwind_data,dt_air,nm_air)
 
 
       if (nSetting .eq. 5) then
@@ -290,7 +290,7 @@
 
 !   -- Set solar radiation data -----------------------------------------------
 
-        swrad=lin_interpol(time,swrad_data,dt_air,nm_air)   !data from file
+!        swrad=lin_interpol(time,swrad_data,dt_air,nm_air)   !data from file
 
 !        swrad=solar_radi(time,1400.d0,0.d0)!9.d0/24.d0)                !Artificial solar radiation
 
@@ -298,7 +298,9 @@
 !        swrad=light_and_dark(time, 350.0d0, 30./60./24., 0.5/60./24.)   !light and dark method 1 hour interval
 
 !        swrad=short_radi(time, 0.0d0, 1.0d0, 24.0d0, 25.0d0, 50.0d0, 1) !shortwave radiation by Zillman equation
-!        swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 25.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
+        swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
+!        swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2)*0.25d0 !shortwave radiation around 3/21 by Zillman equation
+!        swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2)*0.5d0 !shortwave radiation around 3/21 by Zillman equation
       
 !     Convert solar radiation (W m-2) to photosynthetic photon flux 
 !     density: 2.1 umol m-2 s-1 per W m-2 (Britton and Dodd 1976)
@@ -323,8 +325,9 @@
       
 !----- Flux calculation -----------------------------------------
 
-      tau = 1024*0.01*0.0**2. *0.5 !densSW*Cd*Ub**2    (0 cm s-1)
+!      tau = 1024*0.01*0.0**2. *0.5 !densSW*Cd*Ub**2    (0 cm s-1)
 !      tau = 1024*0.01*0.02**2. *0.5  !densSW*Cd*Ub**2  (2 cm s-1)
+      tau = 1024*0.01*0.01**2. *0.5  !densSW*Cd*Ub**2  (1 cm s-1)
 
 !      tau = 1024*0.14*0.02**2. *0.5  !densSW*Cd*Ub**2  (2 cm s-1)
 !      tau = 1024*0.14*0.05**2. *0.5  !densSW*Cd*Ub**2  (5 cm s-1)
@@ -347,10 +350,12 @@
       rain = rain/3600000.0d0 ! mm h-1 -> m s-1
       cloud= lin_interpol(time,cloud_data,dt_air,nm_air)   !data from file
 #endif
+#if defined REEF_HYDRO
       Hs = lin_interpol(time,Hs_data ,dt_wave,nm_wave)   !data from file
       Tp = lin_interpol(time,Tp_data, dt_wave,nm_wave)   !data from file
       
       Co(1,1,iTemp) = lin_interpol(time,offtemp_data, dt_offtemp,nm_offtemp)   !data from file
+#endif
       
       return
 

@@ -105,6 +105,7 @@
 #  if defined CORAL_ZOOXANTHELLAE
       open(31,file='./output/eco5-zoo1_his.csv')
       open(32,file='./output/eco5-zoo2_his.csv')
+      open(41,file='./output/eco5-zphot1_his.csv')
 #  endif
 # endif
 # if defined ECOSYS_TESTMODE
@@ -160,6 +161,7 @@
 # if defined CORAL_ZOOXANTHELLAE
       close(31)
       close(32)
+      close(41)
 # endif
 #endif
 #if defined ECOSYS_TESTMODE
@@ -225,8 +227,11 @@
 #if defined COT_STARFISH
      &    ,'COT, ','COTl '                                             &
 # endif
-     &    ,'dz, ', 'el, ', 'el_reef, '                                 &
-     &    ,'Q_rc, ', 'Q_ch'
+#if defined REEF_HYDRO
+     &    ,'Q_rc, ', 'Q_ch, '                                          &
+     &    ,'el_reef, '                                                 &
+# endif
+     &    ,'dz, ', 'el'
       
 
       RETURN
@@ -255,7 +260,9 @@
 #if defined CARBON_ISOTOPE
       USE mod_geochem
 #endif
+#if defined REEF_HYDRO
       USE mod_reef_hydro
+#endif
       
       implicit none
       
@@ -289,8 +296,11 @@
 #if defined COT_STARFISH
      &       ,C(1,1,1,1,iCOTe),',',C(1,1,1,1,iCOTl),','              &
 # endif
-     &       ,dz(1,1,1),',',tide,',', REEF(1)%el (1,1),','           &
-     &       ,REEF(1)%Qrc(1,1),',', REEF(1)%Qch(1,1)
+#if defined REEF_HYDRO
+     &       ,REEF(1)%Qrc(1,1),',', REEF(1)%Qch(1,1),','             &
+     &       ,REEF(1)%el (1,1),','                                   &
+# endif
+     &       ,dz(1,1,1),',',tide 
 
 
       RETURN
@@ -327,6 +337,9 @@
      &   ,'c13CO2aqcal,','cH13CO3cal,','c13CO3cal,'               &
      &   ,'c13CO2aqcoe,','cH13CO3coe,','c13CO3coe,'               &
 # endif
+# if defined CORAL_ZOOXANTHELLAE
+     &   ,'ROS,','F_ROS,','F_detox,','F_dam,'                     &
+# endif
 # if defined CORAL_BORON_ISOTOPE
      &   ,'d11Barg,'                                              &
 # endif
@@ -338,7 +351,6 @@
 # endif
 # if defined CORAL_SIZE_DYNAMICS
      &   ,'growth,','mort,','Damage,','F_Cgrowth,'                &
-     &   ,'F_damage,','F_detox,'                                  &
 # endif
      &   ,'E_ca'
 
@@ -390,6 +402,7 @@
      &   ,'dens,','QC,'                           &
      &   ,'ROS,'                                  &
      &   ,'C_repro,','Repro,','Morta,','F_ROS,'   &
+     &   ,'F_Csec,'                               &
 #  if defined CORAL_NUTRIENTS
      &   ,'QN,','QP,'                             &
      &   ,'N_repro,','P_repro,'                   &
@@ -406,7 +419,29 @@
       RETURN
 
     END SUBROUTINE write_zox_his_lavel
+    
+#  if defined CORAL_PHOTOINHIBITION
 
+    SUBROUTINE write_zphot_his_lavel(fid)
+    
+      implicit none
+      
+      integer, intent(in) :: fid
+      
+      write(fid,*)                                          &
+     &    'time,','PFD,','Tamb,'                            &
+     &   ,'QAo,','QAr,'                                     &
+     &   ,'QAi,','QAt,','QAa,'                              &
+     &   ,'Fv/Fm,','Yield,'                                 &
+     &   ,'J_ea,','J_ep_in,','J_ep,','J_ee,','J_ep_max,'    &
+     &   ,'Ji2a,','Ja2i,','kr,','ko,','F_ROS,'              &
+     &   ,'Pg,','Pgcal,','Pgmax,','Ra'
+     
+      RETURN
+
+    END SUBROUTINE write_zphot_his_lavel
+
+#  endif
 # endif
 #endif
 #if defined ECOSYS_TESTMODE

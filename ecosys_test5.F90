@@ -1,5 +1,5 @@
 
-!!!=== Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2018 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -19,7 +19,9 @@
       USE mod_input
       USE mod_output
       USE mod_geochem
+#if defined REEF_HYDRO
       USE mod_reef_hydro
+#endif
 
       implicit none
       
@@ -65,7 +67,7 @@
 !                5: Incubation chamber simulation of Nakamura & Nakamori (2009) experiments
 !                6: Flume simulation of Comeau et al. (2016) experiments
       
-      nSetting = 4  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      nSetting = 1  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
 !----- Set initial conditions -------------------------
 
@@ -84,7 +86,9 @@
 #if defined USE_HEAT
       CALL initialize_heat(1, Ngrids, 1, Im, 1, Jm)
 #endif
+#if defined REEF_HYDRO
       CALL initialize_reef_hydro(1, Ngrids, 1, Im, 1, Jm)
+#endif
       CALL initialize_reef_ecosys(1, Ngrids, 1, Im, 1, Jm)
 
 !      call Coral_iniSizeDis
@@ -105,6 +109,9 @@
 # if defined CORAL_ZOOXANTHELLAE
        CALL write_zox_his_lavel(31)
        CALL write_zox_his_lavel(32)
+#  if defined CORAL_PHOTOINHIBITION
+       CALL write_zphot_his_lavel(41)
+#  endif
 # endif
 #endif
 #if defined ECOSYS_TESTMODE
@@ -118,14 +125,17 @@
       do istep=1, int(24.*60.*60./dt) * 14 +1      ! 5 days
 !      do istep=1, int(24.*60.*60./dt) * 7 +1      ! 7 days
 !      do istep=1, int(24.*60.*60./dt) * 9 +1      ! 9 days
-!      do istep=1, int(24.*60.*60./dt) * 30 +1      ! 30 days
+!      do istep=1, int(24.*60.*60./dt) * 120 +1      ! 30 days
 !      do istep=1, int(24.*60.*60./dt) *365*3 +1      ! 3 year
 
 !------ Set environmental parameters ----------------------------
 
         CALL setdata(nSetting)
         
+#if defined REEF_HYDRO
         if (nSetting .eq. 4) then
+        
+
 !----- Reef hydrodynamics model ----------------------------------------
 
         h1 = REEF(1)%el(1,1)+REEF(1)%Dir(1,1)
@@ -142,6 +152,7 @@
           h2 = (REEF(1)%el(1,1)+REEF(1)%Dir(1,1))
           dz(1,1,:) =h2/N
         end if
+#endif
         
 #if defined USE_HEAT
 
@@ -276,6 +287,10 @@
           if (nSetting .eq. 1) then
               
             ! nothing to calculate
+            
+            if (time >= 5.0d0 ) then
+!              C(1,1,k,1,iTemp) = 27.0d0
+            end if
 
 !---------- for Closed Chamber condition -------------------------
 
@@ -304,6 +319,7 @@
 !---------- Reef condition ------------------------------------
 
           else if (nSetting .eq. 4) then
+#if defined REEF_HYDRO
             fvol_rc = REEF(1)%Qrc(1,1)*REEF(1)%Wrc(1,1)
             fvol_ch = REEF(1)%Qch(1,1)*REEF(1)%Wch(1,1)
             do id=1,Nid
@@ -315,6 +331,7 @@
      &                       )/h2/REEF(1)%Air(1,1)*dt
               C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
             end do
+#endif
 
 !---------- Incubation chamber condition ------------------------------------
 

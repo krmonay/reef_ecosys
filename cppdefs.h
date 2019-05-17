@@ -1,8 +1,8 @@
 
-#define USE_HEAT
-#define LONGWAVE_IN
+/*#define USE_HEAT*/
+/*#define LONGWAVE_IN*/
 
-#define REEF_HYDRO
+/*#define REEF_HYDRO*/
 
 
 /*----- CPP defines for coral module ----------------*/
@@ -19,9 +19,9 @@
 /*# define NUTRIENTS*/
 
 # define CORAL_POLYP  /* USE coral module */
-# define SEAGRASS     /* USE seagrass module */
-# define MACROALGAE        /* USE algae module  */
-# define SEDIMENT_ECOSYS        /* USE sedecosys module  */
+/*# define SEAGRASS*/     /* USE seagrass module */
+/*# define MACROALGAE*/        /* USE algae module  */
+/*# define SEDIMENT_ECOSYS*/        /* USE sedecosys module  */
 # if defined SEDIMENT_ECOSYS
 #  define SEDIMENT_EMPIRICAL     /* USE empirical sediment module  */
 # endif
@@ -34,12 +34,13 @@
 
 /*** Coral Polyp model options. ***/
 # if defined CORAL_POLYP
-/*#  define CORAL_ZOOXANTHELLAE*/
-#  define CORAL_MUCUS           /*Mucus release from coral */
+#  define CORAL_ZOOXANTHELLAE
+#  define CORAL_PHOTOINHIBITION
+/*#  define CORAL_MUCUS*/           /*Mucus release from coral */
 #  if defined ORGANIC_MATTER
 #   define CORAL_INGESTION
 #  endif
-/*#  define CORAL_SIZE_DYNAMICS*/
+#  define CORAL_SIZE_DYNAMICS
 #  if defined CARBON_ISOTOPE
 #   define CORAL_CARBON_ISOTOPE
 /*#   define CORAL_NONE_CO2_EQ*/

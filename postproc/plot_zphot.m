@@ -1,14 +1,11 @@
 % === Copyright (c) 2017 Takashi NAKAMURA  =====
 
-zh1_file = '.././output/eco5-zoo1_his.csv';
-ch1_file = '.././output/eco5-crl1_his.csv';
-% zh1_file = '.././output/eco5-zoo2_his.csv';
+zph1_file = '.././output/eco5-zphot1_his.csv';
 
 xmin=0; xmax=5;
 PFDmax =2000;
 
-zh1 = readtable(zh1_file,'Delimiter',',', 'ReadVariableNames', true);
-ch1 = readtable(zh1_file,'Delimiter',',', 'ReadVariableNames', true);
+zh1 = readtable(zph1_file,'Delimiter',',', 'ReadVariableNames', true);
 
 %% 
 
@@ -25,13 +22,13 @@ ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
-plot(zh1.time, zh1.Pg-zh1.R,'b');
-plot(zh1.time, zh1.F_Csec,'-r');
-plot(zh1.time, zh1.C_repro,'-g');
-axis([xmin xmax  -0.1e-3 5e-4])
-ylabel('Pn, Fs, Fr (pmol cell^-^1 s^-^1)')
+plot(zh1.time, zh1.QAo,'b');
+plot(zh1.time, zh1.QAr,'-r');
+plot(zh1.time, zh1.QAi,'-g');
+axis([xmin xmax  0 2.5e-6])
+ylabel('RCII (pmol cell^-^1)')
 ax = gca; ax.YColor = 'k';
-legend('Pn','FZsec','FZrepro','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
+legend('QAo','QAr','QAi','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,2);
@@ -42,12 +39,13 @@ ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
-plot(zh1.time, zh1.QC,'b');
+plot(zh1.time, zh1.Fv_Fm,'b');
+plot(zh1.time, zh1.Ra,'-r');
 ax = gca; ax.YColor = 'k';
-axis([xmin xmax  0 200])
-ylabel('QCz (pmol cell^-^1)')
+axis([xmin xmax  0 1])
+ylabel('Fv/Fm')
 ax = gca; ax.YColor = 'k';
-legend('QC','E', 'Location','southoutside','Orientation','horizontal')
+legend('Fv/Fm','Ra','E', 'Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,3);
@@ -58,12 +56,12 @@ ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
-plot(zh1.time, zh1.dens,'b');
-axis([xmin xmax  0 3.5e6])
+plot(zh1.time, zh1.Yield,'b');
+axis([xmin xmax  0 1])
 hold on
-ylabel('Zoox. density (cell cm^-^2)')
+ylabel('Yield')
 ax = gca; ax.YColor = 'k';
-legend('Zoox. dens','E', 'Location','southoutside','Orientation','horizontal')
+legend('Yield','E', 'Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,4);
@@ -74,28 +72,30 @@ ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
-plot(zh1.time, zh1.F_Zexpul,'b');
-axis([xmin xmax  0 100])
+plot(zh1.time, zh1.Pg,'b');
+axis([xmin xmax  0 0.001])
 hold on
-ylabel('Zoox. release (cell cm^-^2 s^-^1)')
+ylabel('Pg (pmolC cell-^1 s^-^1)')
 ax = gca; ax.YColor = 'k';
-legend('Zoox. release','E', 'Location','southoutside','Orientation','horizontal')
+legend('Pg','E', 'Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,5);
 yyaxis right
-plot(ch1.time, ch1.PFD, 'Color', [1 0.6 0]);
+plot(zh1.time, zh1.PFD, 'Color', [1 0.6 0]);
 ax = gca; ax.YColor = 'k';
 ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
-plot(ch1.time, ch1.ROS,'b');
-axis([xmin xmax  0 10])
-hold on
-ylabel('ROS (uM)')
+plot(zh1.time, zh1.J_ea,'b');
+plot(zh1.time, zh1.J_ep,'-r');
+plot(zh1.time, zh1.J_ee,'-g');
+plot(zh1.time, zh1.J_ep_in,'-c');
+axis([xmin xmax  0 0.002])
+ylabel('Je- (pmol cell^-^1)')
 ax = gca; ax.YColor = 'k';
-legend('ROS','E', 'Location','southoutside','Orientation','horizontal')
+legend('Jea','Jep','Jee','Jepin','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,6);
@@ -106,10 +106,10 @@ ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
-plot(ch1.time, ch1.F_ROS*1e3, 'b');
-axis([xmin xmax  0 1e-1])
+plot(zh1.time, zh1.F_ROS, 'b');
+axis([xmin xmax  0 1e-4])
 hold on
-ylabel('FROS (pmol cm^-^2 s^-^1)')
+ylabel('FROS (pmol cell^-^1 s^-^1)')
 ax = gca; ax.YColor = 'k';
 legend('FROS','E', 'Location','southoutside','Orientation','horizontal')
 
@@ -122,12 +122,12 @@ ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
-plot(zh1.time, zh1.C_repro,'b');
-axis([xmin xmax  0 0.00005])
-hold on
-ylabel('repro (pmol cell^-^1 s^-1)')
+plot(zh1.time, zh1.Ji2a,'b');
+plot(zh1.time, zh1.Ja2i,'-r');
+axis([xmin xmax  0 1e-10])
+ylabel('JRCII (pmol cell^-^1)')
 ax = gca; ax.YColor = 'k';
-legend('repro','E', 'Location','southoutside','Orientation','horizontal')
+legend('Ji2a','Ja2i','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,8);
@@ -138,11 +138,11 @@ ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
-plot(zh1.time, zh1.Repro*3600*24,'b');
-axis([xmin xmax  0 0.05])
-hold on
-ylabel('Repro (d^-^1)')
+plot(zh1.time, zh1.kr,'b');
+plot(zh1.time, zh1.ko,'-r');
+axis([xmin xmax  0 5e3])
+ylabel('k (s^-^1)')
 ax = gca; ax.YColor = 'k';
-legend('Repro','E', 'Location','southoutside','Orientation','horizontal')
+legend('kr','ko','E', 'Location','southoutside','Location','southoutside','Orientation','horizontal')
 
 

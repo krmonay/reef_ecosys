@@ -27,7 +27,7 @@ subplot(4,2,1);
 plot(ch1.time, ch1.Pn,'b');
 hold on
 plot(ch1.time, ch1.G, 'r');
-axis([xmin ymin  -0.1 0.2])
+axis([xmin ymin  -0.15 0.25])
 ylabel('G, Pn (nmol cm^-^2 s^-^1)')
 yyaxis right
 plot(ch1.time, ch1.PFD, 'Color', [1 0.6 0]);
@@ -110,23 +110,22 @@ legend('Wcal','Wcoe','E', 'Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,7);
-plot(ch1.time, ch1.DICcal,'r');
-axis([xmin ymin  0 4000])
+plot(ch1.time, ch1.growth*24*60*60,'r');
+axis([xmin ymin  0 3e-3])
 hold on
-plot(ch1.time, ch1.DICcoe, 'g');
-plot(ch1.time, ch1.DICamb, 'b');
-ylabel('DIC (umol kg^-^1)')
+plot(ch1.time, ch1.mort*24*60*60, 'b');
+ylabel('rate (cm^2 cm^-^2 d^-^1)')
 yyaxis right
 plot(ch1.time, ch1.PFD, 'Color', [1 0.6 0]);
 ax = gca; ax.YColor = 'k';
 ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin ymin  0 PFDmax])
-legend('DICcal','DICcoe','DICamb','E', 'Location','southoutside','Orientation','horizontal')
+legend('growth','mort','E', 'Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,8);
 plot(ch1.time, ch1.QC,'g');
-axis([xmin ymin  0 300])
+axis([xmin ymin  100 200])
 hold on
 ylabel('QC_C (umol cm^-^2)')
 yyaxis right

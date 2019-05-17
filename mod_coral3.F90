@@ -1,5 +1,5 @@
 
-!!!=== Copyright (c) 2012-2017 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2019 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -50,10 +50,19 @@
       real(8), pointer :: growth(:,:,:)  ! growth rate
       real(8), pointer :: mort(:,:,:)  ! mortaliny rate
 !      real(8), pointer :: dsed_coral(:,:,:)
-# endif
+#endif
     END TYPE T_CORAL
 
-    TYPE (T_CORAL), allocatable :: CORAL(:)
+!-----------------------------------------------------------------------
+#if defined CORAL_PHOTOINHIBITION
+!  Photoinihibition model
+
+    TYPE T_PHOT
+      real(8), pointer :: QAo(:,:,:)
+      real(8), pointer :: QAr(:,:,:)
+      real(8), pointer :: QAi(:,:,:)
+    END TYPE T_PHOT
+#endif
 
 !-----------------------------------------------------------------------
 #if defined CORAL_ZOOXANTHELLAE
@@ -65,6 +74,7 @@
       real(8), pointer :: R (:,:,:) 
       real(8), pointer :: dens(:,:,:)
       real(8), pointer :: QC(:,:,:)
+!      real(8), pointer :: ROS(:,:,:)
 # if defined CORAL_CARBON_ISOTOPE
 !  13C isotope
       real(8), pointer :: Q13C(:,:,:)
@@ -76,11 +86,16 @@
       real(8), pointer :: NO2(:,:,:)
       real(8), pointer :: NH4(:,:,:)
       real(8), pointer :: PO4(:,:,:)
-
 # endif
     END TYPE T_ZOOX
+#endif
 
+    TYPE (T_CORAL), allocatable :: CORAL(:)
+#if defined CORAL_ZOOXANTHELLAE
     TYPE (T_ZOOX), allocatable :: ZOOX(:)
+# if defined CORAL_PHOTOINHIBITION
+    TYPE (T_PHOT), allocatable :: ZPHOT(:)
+# endif
 #endif
 
 
@@ -143,6 +158,7 @@
 
       allocate( ZOOX(ng)%dens(Ncl,LBi:UBi,LBj:UBj)  )
       allocate( ZOOX(ng)%QC(Ncl,LBi:UBi,LBj:UBj)    )
+!      allocate( ZOOX(ng)%ROS(Ncl,LBi:UBi,LBj:UBj)   )
 # if defined CORAL_CARBON_ISOTOPE
       allocate( ZOOX(ng)%Q13C(Ncl,LBi:UBi,LBj:UBj)  )
 # endif
@@ -154,25 +170,14 @@
       allocate( ZOOX(ng)%QN(Ncl,LBi:UBi,LBj:UBj)   )
       allocate( ZOOX(ng)%QP(Ncl,LBi:UBi,LBj:UBj)   )
 # endif
+# if defined CORAL_PHOTOINHIBITION
+      IF (ng.eq.1) allocate ( ZPHOT(Ngrids) )
+      allocate( ZPHOT(ng)%QAo(Ncl,LBi:UBi,LBj:UBj)  )
+      allocate( ZPHOT(ng)%QAr(Ncl,LBi:UBi,LBj:UBj)  )
+      allocate( ZPHOT(ng)%QAi(Ncl,LBi:UBi,LBj:UBj)  )
+# endif
 #endif
 
-
-
-!----------set data -----------------------
-
-!!   Coral minimum quota
-!      data QC0coral /286.d0  /   ! Minimum quota (umol cm-2)   (Tanaka et al. 2010)  ÅñminimumÇ©Ç«Ç§Ç©ÇÕï™Ç©ÇÁÇ»Ç¢ÅB
-!      data QN0coral / 28.d0  /   ! Minimum quota (umol cm-2)  
-!      data QP0coral /  0.85d0/   ! Minimum quota (umol cm-2) 
-!!
-!!   Zooxanthellae minimum cell quota      
-!      data QC0zoox   /8.d0 / !(pmolC/cell)  100 pg cell-1 ~ 10 pmol cell-1 = (Verde & McCloskey 1998)
-!      data QN0zoox   /1.1d0/ !(pmolN/cell)  calculated from C:N:P = 116:16:1
-!      data QP0   /0.07d0/ !(pmolP/cell) 
-!      
-!      data V_zoox    / 5.d-10/ ! Volume of zooxanthellae (cm3/cells)
-!                               ! ~500 um3 =5.e-10 cm3 (e.g. Jone 1997; Jones and Yellowlees 1997)
-!------------------------------------------
 !  Set initial conditions
       do j=LBj,UBj
         do i=LBi,UBi
@@ -188,8 +193,8 @@
             CORAL(ng)%DICcal (n,i,j)=2100.d0
             CORAL(ng)%DICcoe (n,i,j)=2100.d0
             CORAL(ng)%DOcoe (n,i,j)=10.d0 !(umol/L)
-            CORAL(ng)%QC (n,i,j)=15.d0 !450 ug/cm2 = 15 umol cm-2 -> 5.e6 umol kg-1 (çoí∞ì‡ïΩãœîZìxÇ∆ÇµÇΩÅj
-!            CORAL(ng)%QC (n,i,j)=285.d0 ! Tanaka et al. 2010
+!            CORAL(ng)%QC (n,i,j)=15.d0 !450 ug/cm2 = 15 umol cm-2 -> 5.e6 umol kg-1 (ÔøΩoÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩœîZÔøΩxÔøΩ∆ÇÔøΩÔøΩÔøΩÔøΩj
+            CORAL(ng)%QC (n,i,j)=158.d0 ! Tanaka et al. 2009
 
 #if defined CORAL_NONE_CO2_EQ
             CORAL(ng)%cCO2aqcal(n,i,j)= 9.d0
@@ -229,18 +234,24 @@
 #if defined CORAL_ZOOXANTHELLAE
             ZOOX(ng)%Pg(n,i,j)=0.d0
             ZOOX(ng)%R (n,i,j)=0.d0
-            ZOOX(ng)%dens(n,i,j) = 1.0d6 ! (cell/cm2)
-            ZOOX(ng)%QC(n,i,j)   = 8.d0  ! (pmolC/cell)  100 pg cell-1 ~ 10 pmol cell-1 = (Verde & McCloskey 1998)
+            ZOOX(ng)%dens(n,i,j) = 3.0d6 ! (cell/cm2)
+            ZOOX(ng)%QC(n,i,j)   = 82.7d0  ! (pmolC/cell)  600-1400 pgC cell-1 (Muller-Parker et al., 1994)
+!            ZOOX(ng)%ROS(n,i,j)  = 0.0d0  ! (pmolC/cell)
 # if defined CORAL_CARBON_ISOTOPE
             ZOOX(ng)%Q13C(n,i,j) = R13C*ZOOX(ng)%QC(n,i,j)
 # endif
 # if defined CORAL_NUTRIENTS
-            ZOOX(ng)%NO3(n,i,j) = 0.0d0  !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
-            ZOOX(ng)%NO2(n,i,j) = 0.0d0  !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
-            ZOOX(ng)%NH4(n,i,j) = 0.0d0  !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
-            ZOOX(ng)%PO4(n,i,j) = 0.0d0  !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
+            ZOOX(ng)%NO3(n,i,j) = 0.0d0  !!!!!!!!!!!!!!!!!!!!!!!!!!
+            ZOOX(ng)%NO2(n,i,j) = 0.0d0  !!!!!!!!!!!!!!!!!!!!!!!!!!
+            ZOOX(ng)%NH4(n,i,j) = 0.0d0  !!!!!!!!!!!!!!!!!!!!!!!!!!
+            ZOOX(ng)%PO4(n,i,j) = 0.0d0  !!!!!!!!!!!!!!!!!!!!!!!!!!
             ZOOX(ng)%QN(n,i,j)  = 1.1d0  ! (pmolN/cell)  calculated from C:N:P = 116:16:1
             ZOOX(ng)%QP(n,i,j)  = 0.07d0 ! (pmolP/cell)
+# endif
+# if defined CORAL_PHOTOINHIBITION
+            ZPHOT(ng)%QAo(n,i,j) = 2.3d-6*0.6 ! (pmolRCII/cell) Gustafsson et al. 2014
+            ZPHOT(ng)%QAr(n,i,j) = 2.3d-6*0.1 ! (pmolRCII/cell) Gustafsson et al. 2014
+            ZPHOT(ng)%QAi(n,i,j) = 2.3d-6*0.3 ! (pmolRCII/cell) Gustafsson et al. 2014
 # endif
 #endif
           enddo
@@ -253,7 +264,7 @@
       
 
 !!! **********************************************************************
-!!!  Main program of coral polyp model (Nakamura et al. 2013)
+!!!  Main program of coral polyp model (Nakamura et al. 2013, 2018)
 !!! **********************************************************************
 
     SUBROUTINE coral_polyp        &
@@ -379,8 +390,9 @@
 
 !----- Coral basic parameters ----------------------------------------
 
-      real(8), parameter :: hcoe=0.3d0    !Tickness of coral tissue (cm) 3000 um Reviewer's suggestion: 1000-5000 um
-      real(8), parameter :: hcal=0.0005d0 !Tickness of coral calcifying fluid (cm) 5um Reviewer's suggestion: 5 um
+      real(8), parameter :: hcoe=0.3d0    ! Tickness of coral tissue (cm) 3000 um Reviewer's suggestion: 1000-5000 um
+      real(8), parameter :: hcal=0.0005d0 ! Tickness of coral calcifying fluid (cm) 5um Reviewer's suggestion: 5 um
+      real(8), parameter :: htis=0.01d0   ! Tickness of coral tissue (cm) 100 um  !!!!!!!!!!!!!!!!!!!! Need check!!!
 
 !----- for gross photosynthesi -------------------
 
@@ -420,11 +432,12 @@
 
                                                !!! * Nakamura et al. 2013 setting; ** New setting
 
-      real(8), parameter :: Rmax(Ncl) = (/ 0.8d0, 0.8d0 /) !!!0.53d0*  0.37d0** !Maximum respiration rate (nmol O2 cm-2 s-1) *Tuned using Kuhl et al (1995), Al-Horani et al. (2003) data
-      real(8), parameter :: K_QC(Ncl) = (/ 20.d0, 20.d0 /)     !!!5.0d0* umol cm-2!!!*ìKìñ
-      real(8), parameter :: K_DO(Ncl) = (/ 40.d0, 40.d0 /)   ! ca. 46 (umol kg-1) Newton & Atkinson (1991)
+      real(8), parameter :: Rmax(Ncl) = (/ 0.30d0, 0.30d0 /) !!!0.53d0*  0.37d0** !Maximum respiration rate (nmol O2 cm-2 s-1) *Tuned using Kuhl et al (1995), Al-Horani et al. (2003) data
+!      real(8), parameter :: K_QC(Ncl) = (/ 20.d0, 20.d0 /)     !!!5.0d0* umol cm-2!!!
+      real(8), parameter :: K_QC(Ncl) = (/ 150.d0, 150.d0 /)     !!!5.0d0* umol cm-2!!!
+      real(8), parameter :: K_DO(Ncl) = (/ 46.d0, 46.d0 /)   ! ca. 46 (umol kg-1) Newton & Atkinson (1991)
 
-      real(8), parameter :: ratio(Ncl) = (/ 0.7d0, 0.7d0 /) !!!0.9d0** 0.8d0  !1.0d0* !!!*ìKìñ
+      real(8), parameter :: ratio(Ncl) = (/ 0.8d0, 0.8d0 /) !!!0.9d0** 0.8d0  !1.0d0* !!!
 
 !     Temperature dependency parameters (Hikosaka et al. 2006) 
 !        - Parameters estimated from data by Fujimura et al. (2008)
@@ -433,7 +446,7 @@
 
 !----- for calcification ------------------------
 
-!      real(8), parameter :: k_Gn(Ncl) /1.d-2/!(ñ¢égópÅj
+!      real(8), parameter :: k_Gn(Ncl) /1.d-2/!(ÔøΩÔøΩÔøΩgÔøΩpÔøΩj
 
       real(8), parameter :: eeff(Ncl)  = (/ 0.05d0, 0.05d0 /)   !!! 0.01d0** !0.3d0*!Energy efficency of calcification (<12%, 4~7%?; Lervik et al., 2012)
       real(8), parameter :: E_other(Ncl)=(/ 2.0d4, 2.0d4 /)   !!! 1.0d4** ! 5.0d3* Energy flux of other metabolisms (nJ cm-2 s-1)
@@ -448,30 +461,40 @@
           ! For converting reef scale (mmol m-2 d-1) to polyp scale (nmol cm-2 s-1)
           !   1 mmol m-2 d-1 = 100/24/60/60/P2R(n) nmol cm-2 s-1 ~ 1.16d-3/P2R(n),
           !   Thus: 200*1.16d-3/P2R =  0.232/P2R nmol cm-2 s-1 for inner reef corals
-          !!!       -63*1.16d-3/P2R = -0.073/P2R nmol cm-2 s-1 for reef slope corals  ******óvåüì¢ÅiP2RÇÃílÇ…çáÇÌÇπóvèCê≥Åj
+          !!!       -63*1.16d-3/P2R = -0.073/P2R nmol cm-2 s-1 for reef slope corals  ******ÔøΩvÔøΩÔøΩÔøΩÔøΩÔøΩiP2RÔøΩÃílÔøΩ…çÔøΩÔøΩÌÇπÔøΩvÔøΩCÔøΩÔøΩÔøΩj
 #endif
+#if defined CORAL_ZOOXANTHELLAE
+!      real(8), parameter :: K_ROS(Ncl)   = (/ 10.0d0, 10.0d0 /)     !!! umol L!!!*ÔøΩKÔøΩÔøΩ
+!      real(8), parameter :: V_detox(Ncl) = (/ 2.0d0, 2.0d0 /)   ! 
+      real(8), parameter :: k_detox(Ncl) = (/ 3.0d7, 3.0d7 /)     ! Rate constant of specific catalase activity (M-1 s-1): Ogura (1955), Mueller et al., (1997)
+      real(8), parameter :: CAT(Ncl)     = (/ 1.0d-9, 1.0d-9 /)   ! Catalase concentration (M): !!!!!!! Tuning
+      real(8), parameter :: k_dam(Ncl)   = (/ 1.0d-4, 1.0d-4 /)   ! Reaction rate constant (s-1): !!!!!!! Tuning
+      real(8), parameter :: a_dam(Ncl)   = (/ 2.0d3,  2.0d3  /)   ! Constant ((nmol cm-2 s-1) -1): !!!!!!! Tuning
+      real(8), parameter :: k_Zelm(Ncl)  = (/ 0.2d0,  0.2d0 /)   ! Reaction rate constant (cell cm-2 s-1): !!!!!!! Tuning
+      real(8), parameter :: F_cROS(Ncl)  = (/ 1.0d-1, 1.0d-1 /)   ! ROS production rate by coral (nmol cm-2 s-1): !!!!!!! Tuning
 
+#endif
 #if defined CORAL_CARBON_ISOTOPE
 !----- for carbon isotope ------------------------
-      real(8), parameter :: a_phot = -20.0d-3 + 1.0d0!!!!!!!!!!!!!!!!!!ìKìñ
+      real(8), parameter :: a_phot = -20.0d-3 + 1.0d0!!!!!!!!!!!!!!!!!!ÔøΩKÔøΩÔøΩ
       real(8), parameter :: a_resp =   0.0d-3 + 1.0d0
       real(8), parameter :: a_calc =   2.7d-3 + 1.0d0 
-      real(8), parameter :: a_co2  =  -7.0d-3 + 1.0d0!!!!!!!!!!!!!!!!!!ìKìñ-8-4.4
+      real(8), parameter :: a_co2  =  -7.0d-3 + 1.0d0!!!!!!!!!!!!!!!!!!ÔøΩKÔøΩÔøΩ-8-4.4
 #endif
 #if ( defined CORAL_ZOOXANTHELLAE || defined CORAL_SIZE_DYNAMICS )
 !----- Coral minimum quota ------------------------
-!      real(8), parameter :: QC0(Ncl) = (/ 2.0d0, 2.0d0 /)     ! Minimum quota (umol cm-2)  !!!!!!!!!!!!!!!!!!ìKìñ
-      real(8), parameter :: QC0(Ncl) = (/ 200.0d0, 200.0d0 /) ! Minimum quota (umol cm-2)  !!!!!!!!!!!!!!!!!!ìKìñ
+!      real(8), parameter :: QC0(Ncl) = (/ 2.0d0, 2.0d0 /)     ! Minimum quota (umol cm-2)  refereed minimum value of tissue C by Tanaka et al., (2009)
+      real(8), parameter :: QC0(Ncl) = (/130.0d0, 130.0d0 /) ! Minimum quota (umol cm-2)  !!!!!!!!!!!!!!!!!!ÔøΩKÔøΩÔøΩ
 # if defined CORAL_NUTRIENTS
       real(8), parameter :: QN0(Ncl) = (/ 0.20d0, 0.20d0 /)   ! Minimum quota (umol cm-2)  
       real(8), parameter :: QP0(Ncl) = (/ 0.02d0, 0.02d0 /)   ! Minimum quota (umol cm-2) 
 # endif
 #endif
 #if defined CORAL_SIZE_DYNAMICS
-      real(8), parameter :: g_max(Ncl) = (/ 1.0d-2, 1.0d-2 /) ! Maximum growth rate (nmol cm-2 s-1)  !!!!!!!!!!!!!!!!!!ìKìñ!!!!!!!!!!!!!!
-      real(8), parameter :: km_CNP = 1.0d-10     ! (s-1)!!!!!!!!!!!!!!!!!!ìKìñ!!!!!!!!!!!!!!
-      real(8), parameter :: am_CNP = 5.0d0       ! (no dimension)!!!!!!!!!!!!!!!!!!ìKìñ!!!!!!!!!!!!!!
-      real(8), parameter :: km_dam = 1.0d-10     ! (s-1)!!!!!!!!!!!!!!!!!!ìKìñ!!!!!!!!!!!!!!
+      real(8), parameter :: g_max(Ncl) = (/ 1.0d-2, 1.0d-2 /) ! Maximum growth rate (nmol cm-2 s-1)  !!!!!!!!!!!!!!!!!!ÔøΩKÔøΩÔøΩ!!!!!!!!!!!!!!
+      real(8), parameter :: km_CNP = 1.0d-9     ! (s-1)!!!!!!!!!!!!!!!!!!ÔøΩKÔøΩÔøΩ!!!!!!!!!!!!!!
+      real(8), parameter :: aC_m   = 2.0d-1       ! ((umol cm-2)-1)!!!!!!!!!!!!!!!!!!ÔøΩKÔøΩÔøΩ!!!!!!!!!!!!!!
+      real(8), parameter :: km_dam = 1.0d-10     ! (s-1)!!!!!!!!!!!!!!!!!!ÔøΩKÔøΩÔøΩ!!!!!!!!!!!!!!
 #endif
 
 !--- Other variables ----------------------------------------------
@@ -480,6 +503,7 @@
       real(8) :: Si_DIC, Si_TA, Si_DO   !Mass transfer coefficient (cm s-1)
 #if defined ORGANIC_MATTER
       real(8) :: Si_DOC
+      real(8) :: Si_POC
 #endif
 #if defined CORAL_INGESTION
       real(8) :: Si_PHY, Si_ZOO
@@ -506,7 +530,7 @@
 !----- for CO2 system dynamics -------------------
       real(8) :: pHcal,fCO2cal,cHCO3cal,cCO3cal,Wargcal
       real(8) :: pHcoe,fCO2coe,cHCO3coe,cCO3coe
-      real(8) :: pHamb,fCO2amb,cCO2aqamb,cHCO3amb,cCO3amb,Wargamb  !!!!!ïsóvÅFÉAÉEÉgÉvÉbÉgóp
+      real(8) :: pHamb,fCO2amb,cCO2aqamb,cHCO3amb,cCO3amb,Wargamb  !!!!!ÔøΩsÔøΩvÔøΩFÔøΩAÔøΩEÔøΩgÔøΩvÔøΩbÔøΩgÔøΩp
 #if defined CORAL_NONE_CO2_EQ
       real(8) :: cHcoe,cOHcoe
       real(8) :: cHcal,cOHcal
@@ -541,18 +565,18 @@
 #endif
 
 #if defined CORAL_ZOOXANTHELLAE
-      real(8) :: F_Cexcr
+      real(8) :: F_Csec
       real(8) :: F_Cwaste
-      real(8) :: F_Zexpul
-      real(8) :: F_ROS
+      real(8) :: F_Zelm
+      real(8) :: F_zROS
       real(8) :: Rz
       real(8) :: F_detox
-      real(8) :: F_damage
+      real(8) :: F_dam
       real(8) :: Damage
 # if defined CORAL_NUTRIENTS
-      real(8) :: F_Nexcr
+      real(8) :: F_Nsec
       real(8) :: F_Nwaste
-      real(8) :: F_Pexcr
+      real(8) :: F_Psec
       real(8) :: F_Pwaste
 # endif
 #endif
@@ -648,7 +672,7 @@
 # endif
 #endif
 #if defined CORAL_ZOOXANTHELLAE
-      Si_ROS=(65.7d0*tau_amb**0.4d0+4.7d0)*1.d-4
+      Si_ROS=S_i(tau_amb,dif_H2O2,340.0d0,1.05d0)*1.0d2
 #endif
 
 #if defined CORAL_NUTRIENTS
@@ -656,7 +680,7 @@
 !------- Nutrients flux (nmol cm-2 s-1) ------------------------
 
 ! NH4 uptake
-! M Atkinson, J FalterÅc - Coral Reefs, 2001 
+! M Atkinson, J FalterÔøΩc - Coral Reefs, 2001 
 !     SiNH4 =7.5 m day-1 = 7.5*100./24./60./60. cm s-1
 !     cNH4 umol kg-1 -> 1.023 nmol cm-3
 !     Flux nmol cm-2 s-1
@@ -753,32 +777,19 @@
 
 #if defined CORAL_ZOOXANTHELLAE
 
-!---------- ROS related fluxes (nmol cm-2 s-1) ----------------------------
+!---------- ROS detox rate (nmol cm-2 s-1) ----------------------------
 
-!     V_detoxÇÕó]èËÇÃâhó{ëfÇÃä÷êî
-!
-!      V_detox=k_detox(n)*exp(
-!     &                     min(  1.-QP0coral(n)/QPcoral(n,i,j)  ,
-!     &                       min(1.-QN0coral(n)/QNcoral(n,i,j),
-!     &                           1.-QC0coral(n)/QCcoral(n,i,j) ) )
-!     &                       )
-!
-!
-!      F_detox=V_detox(n)*ROS(n,i,j)/(K_ROS(n)+ROS(n,i,j))
-!      F_detox = 0.15d0 * CORAL(ng)%ROS(n,i,j) * hcoe  !(s-1) * (umol L-1) * (cm)*0.001(n/u)=(nmol cm-2 s-1)
-             !0.15
-!      F_detox=0.02*ROS(n,i,j)/(K_ROS(n)+ROS(n,i,j))
-!      F_detox = 3.5d-2 * CORAL(ng)%ROS(n,i,j)/(1.0d-1 + CORAL(ng)%ROS(n,i,j))
-      F_detox = 0.1d0 * CORAL(ng)%ROS(n,i,j)
+!      F_detox=V_detox(n)*CORAL(ng)%ROS(n,i,j)/(K_ROS(n)+CORAL(ng)%ROS(n,i,j))
+      F_detox = k_detox(n) * CORAL(ng)%ROS(n,i,j) * CAT(n)
     
-!      F_damage=k_damage(n)*ROS(n,i,j)
-      F_damage = 0.017d0 * CORAL(ng)%ROS(n,i,j)
+!---------- ROS oxydation rate (damage rate) (nmol cm-2 s-1) ----------------------------
+      F_dam = k_dam(n) * CORAL(ng)%ROS(n,i,j)
 
-!  Zooxanthellae release rate by host coral (individual cm-2 s-1)
-!      Damage=exp(F_damage + 3.*F_ONOO)-1.   !Damage by ROS (F_damage) and peroxynitrite (F_ONOO)
-!      Damage=exp(F_damage + F_ONOO)-1.   !Damage by ROS (F_damage) and peroxynitrite (F_ONOO)
-      Damage = exp( 5.0d2 * F_damage ) - 1.0d0   !Damage by ROS (F_damage)
-      F_Zexpul  = 5.0d-2 * Damage
+!  Zooxanthellae release rate by host coral (cell cm-2 s-1)
+!      Damage=exp(F_dam + 3.*F_ONOO)-1.   !Damage by ROS (F_dam) and peroxynitrite (F_ONOO)
+!      Damage=exp(F_dam + F_ONOO)-1.   !Damage by ROS (F_dam) and peroxynitrite (F_ONOO)
+      Damage = exp( a_dam(n) * F_dam ) - 1.0d0   !Damage by ROS (F_dam)
+      F_Zelm  = k_Zelm(n) * Damage
 
 
       CALL zooxanthellae                              &
@@ -786,26 +797,28 @@
      &            (ng, n, i, j                        &
      &            ,dt                                 &
      &            ,PFDsurf                            &
-     &            ,TKamb                              &      !Temperature (K)
+     &            ,Tamb                               &      !Temperature (oC)
      &            ,CORAL(ng)%cCO2aqcoe(n,i,j)         &
      &            ,cHCO3coe                           &
-     &            ,F_Zexpul                           & ! Zooxanthellae release rate by host coral (individual cm-2 s-1)
+     &            ,F_Zelm                             & ! Zooxanthellae release rate by host coral (individual cm-2 s-1)
+     &            ,CORAL(ng)%ROS(n,i,j)               & ! ROS concentration in the coral tissue
 !          output parameters
 !     &            ,Pg                                 & ! Gross photosynthesis rate (nmol cm-2 s-1)
 !     &            ,Rz                                 & ! Zooxanthellae respiration rate (nmol cm-2 s-1)
-     &            ,F_Cexcr                            & ! Organic C excretion controled by host coral (nmol cm-2 s-1)
+     &            ,F_Csec                             & ! Organic C excretion controled by host coral (nmol cm-2 s-1)
      &            ,F_Cwaste                           & ! Waste organic C (nmol cm-2 s-1)
-     &            ,F_ROS                              & ! Flux of Reactive Oxygen Species  (nmol cm-2 s-1)
+     &            ,F_zROS                             & ! Flux of Reactive Oxygen Species  (nmol cm-2 s-1)
 # if defined CORAL_NUTRIENTS
-     &            ,F_Nexcr                            & ! Organic N excretion controled by host coral (nmol cm-2 s-1)
+     &            ,F_Nsec                             & ! Organic N excretion controled by host coral (nmol cm-2 s-1)
      &            ,F_Nwaste                           & ! Waste organic N (nmol cm-2 s-1)
-     &            ,F_Pexcr                            & ! Organic P excretion controled by host coral (nmol cm-2 s-1)
+     &            ,F_Psec                             & ! Organic P excretion controled by host coral (nmol cm-2 s-1)
      &            ,F_Pwaste                           & ! Waste organic P (nmol cm-2 s-1)
      &            ,NO3_trans, NO2_trans, NH4_trans    & ! Nutrients transport rate from host to Zooxanthellae (nmol cm-2 s-1)
      &            ,PO4_trans                          & ! Nutrients transport rate from host to Zooxanthellae (nmol cm-2 s-1)
      &            ,F_ONOO                             & ! Flux of peroxynitrite  (nmol cm-2 s-1)
 # endif
      &             )
+      CORAL(ng)%Pg(n,i,j)=ZOOX(ng)%Pg(n,i,j)-ZOOX(ng)%R(n,i,j)
 
 #else
 
@@ -833,26 +846,19 @@
       f_temp=1.d0
 !      f_temp=exp(Eact(n)*(TKamb-298.)/298./Rgas/TKamb)
 
-#if defined CORAL_ZOOXANTHELLAE
-!   Respilation rate (nmolO2 cm-2 s-1) 
       Rc = Rmax(n)*f_temp                                            &
-     &     *CORAL(ng)%QC(n,i,j)**4.0d0                               &  ! Hill equation
-     &        /(QC0(n)**4.0d0+CORAL(ng)%QC(n,i,j)**4.0d0)            &  !  Half saturation constant: QC0
-     &     *CORAL(ng)%DOcoe(n,i,j)/(K_DO(n)+CORAL(ng)%DOcoe(n,i,j))
+     &     *CORAL(ng)%QC(n,i,j)**6.d0/(K_QC(n)**6.d0+CORAL(ng)%QC(n,i,j)**6.d0)    & !  Hill equation
+     &     *CORAL(ng)%DOcoe(n,i,j)/(K_DO(n)+CORAL(ng)%DOcoe(n,i,j))   !  Michaelis-Menten equation
+
+#if defined CORAL_ZOOXANTHELLAE
 
       CORAL(ng)%R(n,i,j) = Rc + ZOOX(ng)%R (n,i,j)
 #else
-!   Respilation rate (nmolO2 cm-2 s-1) 
-      Rc = Rmax(n)*f_temp                                            &
-     &     *CORAL(ng)%QC(n,i,j)/(K_QC(n)+CORAL(ng)%QC(n,i,j))        & !  Michaelis-Menten equation
-     &     *CORAL(ng)%DOcoe(n,i,j)/(K_DO(n)+CORAL(ng)%DOcoe(n,i,j))
 
       CORAL(ng)%R(n,i,j) = Rc
 #endif
 
 !----- Calcification rate (nmol cm-2 s-1) ------------------------------------
-
-!      Gn=k_Gn(n)*(Wargcal-1.)
       
       if (Wargcal .ge. 1.d0) then
         CORAL(ng)%G(n,i,j)=1.1d-3*(Wargcal-1.d0)**1.63d0
@@ -873,7 +879,7 @@
 
 !   H+ flux (nmol cm-2 s-1)
 
-      F_H= E_ca * eeff(n)/                                         &
+      F_H= E_ca * eeff(n)/                                      &
      &  (2.3d0*8.31d0*(Tamb+273.15d0)                           &
      &                 *max((pHcal-pHcoe)+0.01d0, 0.01d0))
 !     &          *10.**(-pHcal)*10.**8
@@ -973,7 +979,8 @@
       F_Pgrowth = F_Cgrowth*CORAL(ng)%QP(n,i,j)/CORAL(ng)%QC(n,i,j)
 
 # else
-      F_Cgrowth = g_max(n) * (1.0d0 - QC0(n)/CORAL(ng)%QC(n,i,j) )
+!      F_Cgrowth = g_max(n) * (1.0d0 - QC0(n)/CORAL(ng)%QC(n,i,j) )
+      F_Cgrowth = 5.0d-5 * (CORAL(ng)%QC(n,i,j) - QC0(n))
       F_Cgrowth = max(F_Cgrowth, 0.0d0)
 
 # endif
@@ -990,19 +997,18 @@
 # if defined CORAL_NUTRIENTS
 
       CORAL(ng)%mort(n,i,j) = km_CNP                                   &   ! mortality (cm2 cm-2 s-1) 
-     &                *exp(-am_CNP*                                    &  !* ë´ÇËÇ»Ç¢âhó{ëfÇ…àÀë∂Åióvåüì¢!!!Åj
+     &                *exp(-am_CNP*                                    &  !* ÔøΩÔøΩÔøΩÔøΩÔøΩ»ÇÔøΩÔøΩhÔøΩ{ÔøΩfÔøΩ…àÀëÔøΩÔøΩiÔøΩvÔøΩÔøΩÔøΩÔøΩ!!!ÔøΩj
      &                    min( 1.0d0 - QC0(n)/CORAL(ng)%QC(n,i,j) ,    &
      &                     min(1.0d0 - QN0(n)/CORAL(ng)%QN(n,i,j),     &
      &                         1.0d0 - QP0(n)/CORAL(ng)%QP(n,i,j) )))  & 
-     &               +km_dam * Damage                                !* É_ÉÅÅ[ÉWàÀë∂Åióvåüì¢!!!Åj
+     &               +km_dam * Damage                                !* ÔøΩ_ÔøΩÔøΩÔøΩ[ÔøΩWÔøΩÀëÔøΩÔøΩiÔøΩvÔøΩÔøΩÔøΩÔøΩ!!!ÔøΩj
 # else
-      CORAL(ng)%mort(n,i,j) = km_CNP                               &   ! mortality (cm2 cm-2 s-1) 
-     &                *exp(-am_CNP*                                &
-     &                    ( 1.0d0 - QC0(n)/CORAL(ng)%QC(n,i,j) ))  &
-     &               +km_dam * Damage                                !* É_ÉÅÅ[ÉWàÀë∂Åióvåüì¢!!!Åj
+      CORAL(ng)%mort(n,i,j) =                                          &
+     &      km_CNP *exp( aC_m*(QC0(n)-CORAL(ng)%QC(n,i,j)) )           &
+     &     +km_dam * Damage                                !* ÔøΩ_ÔøΩÔøΩÔøΩ[ÔøΩWÔøΩÀëÔøΩÔøΩiÔøΩvÔøΩÔøΩÔøΩÔøΩ!!!ÔøΩj
 # endif
 
-      CORAL(ng)%mort(n,i,j) = min(CORAL(ng)%mort(n,i,j), 1.0d0)  !!! for Error handling
+!      CORAL(ng)%mort(n,i,j) = min(CORAL(ng)%mort(n,i,j), 1.0d0)  !!! for Error handling
 
 !-----------END CORAL_SIZE_DYNAMICS ------------------------------------
 #endif
@@ -1083,7 +1089,7 @@
 !     Pg,R: nmol cm-2 s-1
       CORAL(ng)%QC (n,i,j)=CORAL(ng)%QC (n,i,j)+(              &
 #if defined CORAL_ZOOXANTHELLAE
-               F_Cexcr-Rc                                      &
+               F_Csec-Rc                                      &
 #else
      &         CORAL(ng)%Pg(n,i,j)-CORAL(ng)%R (n,i,j)         &
 #endif
@@ -1201,12 +1207,13 @@
 !    ROS (umol/L) mass balance
 
       CORAL(ng)%ROS(n,i,j)=CORAL(ng)%ROS(n,i,j)        &
-     &         +( F_ROS                                &
+     &         +( F_zROS                               &
+     &           +F_cROS(n)                            &
      &           -F_detox                              &
-     &           -F_damage                             &
+     &           -F_dam                                &
 !     &           -F_ONOO                               &
-     &           -Si_ROS * CORAL(ng)%ROS(n,i,j)            &
-     &          )/hcoe *dt            !umol L-1
+     &           -Si_ROS * CORAL(ng)%ROS(n,i,j)        &
+     &          )/htis *dt            !umol L-1
       CORAL(ng)%ROS(n,i,j)=max(CORAL(ng)%ROS(n,i,j),0.d0) !Error handring
 
 #endif
@@ -1344,6 +1351,9 @@
      &   ,CORAL(ng)%c13CO2aqcal(n,i,j),',',cH13CO3cal,',',c13CO3cal,',' &
      &   ,CORAL(ng)%c13CO2aqcoe(n,i,j),',',cH13CO3coe,',',c13CO3coe,',' &
 # endif
+# if defined CORAL_ZOOXANTHELLAE
+     &   ,CORAL(ng)%ROS(n,i,j),',',F_zROS,',',F_detox,',',F_dam,','      &
+# endif
 # if defined CORAL_BORON_ISOTOPE
      &   ,d11Barg,','                                                   &
 # endif
@@ -1356,7 +1366,6 @@
 # if defined CORAL_SIZE_DYNAMICS
      &   ,CORAL(ng)%growth(n,i,j),',', CORAL(ng)%mort(n,i,j),','        &
      &   , Damage,',',F_Cgrowth,','                                     &
-     &   ,F_damage,',',F_detox,','                                      &
 # endif
      &   ,E_ca
      
@@ -1464,20 +1473,21 @@
      &            (ng, n, i, j                        & ! ng: nested grid number; n: coral compartment; i,j: position
      &            ,dt                                 &
      &            ,PFDsurf                            &
-     &            ,TKamb                              & ! Temperature (K)
+     &            ,Tamb                               & ! Temperature (oC)
      &            ,cCO2aqcoe                          &
      &            ,cHCO3coe                           &
-     &            ,F_Zexpul                           & ! Zooxanthellae release rate by host coral (individual cm-2 s-1)
+     &            ,F_Zelm                             & ! Zooxanthellae release rate by host coral (cells cm-2 s-1)
+     &            ,ROS                                & ! ROS concentration in the coral tissue (
 !          output parameters
 !     &            ,Pg                                 & ! Gross photosynthesis rate (nmol cm-2 s-1)
 !     &            ,Rz                                 & ! Zooxanthellae respiration rate (nmol cm-2 s-1)
-     &            ,F_Cexcr                            & ! Organic C excretion controled by host coral (nmol cm-2 s-1)
+     &            ,F_Csec                             & ! Organic C excretion controled by host coral (nmol cm-2 s-1)
      &            ,F_Cwaste                           & ! Waste organic C (nmol cm-2 s-1)
-     &            ,F_ROS                              & ! Flux of Reactive Oxygen Species  (nmol cm-2 s-1)
+     &            ,F_zROS                              & ! Flux of Reactive Oxygen Species  (nmol cm-2 s-1)
 # if defined CORAL_NUTRIENTS
-     &            ,F_Nexcr                            & ! Organic N excretion controled by host coral (nmol cm-2 s-1)
+     &            ,F_Nsec                             & ! Organic N excretion controled by host coral (nmol cm-2 s-1)
      &            ,F_Nwaste                           & ! Waste organic N (nmol cm-2 s-1)
-     &            ,F_Pexcr                            & ! Organic P excretion controled by host coral (nmol cm-2 s-1)
+     &            ,F_Psec                             & ! Organic P excretion controled by host coral (nmol cm-2 s-1)
      &            ,F_Pwaste                           & ! Waste organic P (nmol cm-2 s-1)
      &            ,NO3_trans, NO2_trans, NH4_trans    & ! Nutrients transport rate from host to Zooxanthellae (nmol cm-2 s-1)
      &            ,PO4_trans                          & ! Nutrients transport rate from host to Zooxanthellae (nmol cm-2 s-1)
@@ -1489,46 +1499,35 @@
       implicit none
 
 
-      integer, intent(in) :: ng, n, i, j                     ! ng: nested grid number; n: coral compartment; i,j: position
-      real(8), intent(in) :: dt                              
-      real(8), intent(in) :: PFDsurf                         
-      real(8), intent(in) :: TKamb                            !Temperature (K)
-      real(8), intent(in) :: cCO2aqcoe, cHCO3coe             
-      real(8), intent(in) :: F_Zexpul                            ! Zooxanthellae release rate by host coral (individual cm-2 s-1)
+      integer, intent(in) :: ng, n, i, j                       ! ng: nested grid number; n: coral compartment; i,j: position
+      real(8), intent(in) :: dt                                
+      real(8), intent(in) :: PFDsurf                           
+      real(8), intent(in) :: Tamb                              !Temperature (oC)
+      real(8), intent(in) :: cCO2aqcoe, cHCO3coe               
+      real(8), intent(in) :: F_Zelm                            ! Zooxanthellae release rate by host coral (cells cm-2 s-1)
+      real(8), intent(in) :: ROS                               ! ROS concentration in the coral tissue (
 !          output parameters
-!      real(8), intent(out) :: Pg                               ! Gross photosynthesis rate (nmol cm-2 s-1)
-!      real(8), intent(out) :: Rz                               ! Zooxanthellae respiration rate (nmol cm-2 s-1)
-      real(8), intent(out) :: F_Cexcr                          ! Organic C excretion controled by host coral (nmol cm-2 s-1)
-      real(8), intent(out) :: F_Cwaste                          ! Waste organic C (nmol cm-2 s-1)
-      real(8), intent(out) :: F_ROS                            ! Flux of Reactive Oxygen Species  (nmol cm-2 s-1)
+!      real(8), intent(out) :: Pg                              ! Gross photosynthesis rate (nmol cm-2 s-1)
+!      real(8), intent(out) :: Rz                              ! Zooxanthellae respiration rate (nmol cm-2 s-1)
+      real(8), intent(out) :: F_Csec                           ! Organic C excretion controled by host coral (nmol cm-2 s-1)
+      real(8), intent(out) :: F_Cwaste                         ! Waste organic C (nmol cm-2 s-1)
+      real(8), intent(out) :: F_zROS                            ! Flux of Reactive Oxygen Species  (nmol cm-2 s-1)
 # if defined CORAL_NUTRIENTS
-      real(8), intent(out) :: F_Nexcr                          ! Organic N excretion controled by host coral (nmol cm-2 s-1)
-      real(8), intent(out) :: F_Nwaste                          ! Waste organic N (nmol cm-2 s-1)
-      real(8), intent(out) :: F_Pexcr                          ! Organic P excretion controled by host coral (nmol cm-2 s-1)
-      real(8), intent(out) :: F_Pwaste                          ! Waste organic P (nmol cm-2 s-1)
+      real(8), intent(out) :: F_Nsec                           ! Organic N excretion controled by host coral (nmol cm-2 s-1)
+      real(8), intent(out) :: F_Nwaste                         ! Waste organic N (nmol cm-2 s-1)
+      real(8), intent(out) :: F_Psec                           ! Organic P excretion controled by host coral (nmol cm-2 s-1)
+      real(8), intent(out) :: F_Pwaste                         ! Waste organic P (nmol cm-2 s-1)
       real(8), intent(out) :: NO3_trans, NO2_trans, NH4_trans  ! Nutrients transport rate from host to Zooxanthellae (nmol cm-2 s-1)
       real(8), intent(out) :: PO4_trans                        ! Nutrients transport rate from host to Zooxanthellae (nmol cm-2 s-1)
       real(8), intent(out) :: F_ONOO                           ! Flux of peroxynitrite  (nmol cm-2 s-1)
 # endif
 
 !------------Set Constants  ----------------------------------
-!----- Physical constants ------------------------
 
-      real(8), parameter :: Rgas = 8.314d0 ! Gas constant (J mol-1)
-
-!----- for gross photosynthesi -------------------
-!
-!  Kuhl et al. 1995, MEPS 
-!     Pg=Pgmax*tanh(I/Ik) for Acropora sp.
-!
-!      Pg=Pgmax(n)*tanh(PFDsurf/Ik(n))*(1-Br(i,j))
-!     &       *cHCO3coe/(K_HCO3+cHCO3coe)
-!     &       *hcoe
-
-      real(8), parameter :: lamb = 1000.d0 !*ìKìñ(ñ¢égópÅj
-
-      real(8), parameter :: Pgmax(Ncl) = 0.80d-3 !1.0 (nmol cm-2 -s)=1.0/dens=1.0e-6 (nmol cell-1 s-1) =1.0e-3 (pmol cell-1 s-1)
-      real(8), parameter :: Ik(Ncl)    = 275.d0    !(275 uEin m-2 s-1) * refference value
+!      real(8), parameter :: Pgmax(Ncl) = 2.1d-4 ! ~0.76 (pmol cell-1 h-1) =~1.0d-4 (pmol cell-1 s-1)
+      real(8), parameter :: Pgmax(Ncl) = 4.0d-4 ! Maximum photosynthetic rate (pmol cell-1 s-1) !!! Tuning
+!      real(8), parameter :: Ik(Ncl)    = 42.0d0    ! 210 (umol m-2 s-1) ~210 Suggett et al. (2008); 42 Goreau et al. (1996)
+      real(8), parameter :: Ik(Ncl)    = 210.0d0    ! 210 (umol m-2 s-1) ~210 Suggett et al. (2008); 42 Goreau et al. (1996)
 
 !------ Goreau et al. (1996)------------------------------------------   
 !                    Coral    FIZ    CZ
@@ -1537,30 +1536,32 @@
 !          K_CO2aq    5.     0.67     2.7  uM
 !          V_CO2aq    2.     1.15    12.5  nmol O2 (ug Chl a)-1 min-1
 !---------------------------------------------------------------------
-      real(8), parameter :: K_HCO3(Ncl) = 408.d0   !uM
-      real(8), parameter :: V_HCO3(Ncl) = 1.45d0  !nmol O2 (ug Chl a)-1 min-1
-      real(8), parameter :: K_CO2aq(Ncl)= 5.d0 !/5./  !uM
-      real(8), parameter :: V_CO2aq(Ncl)= 2.d0 !/2./  !nmol O2 (ug Chl a)-1 min-1
+      real(8), parameter :: K_HCO3(Ncl) = 71.d0   !uM Goreau et al. (1996)
+!      real(8), parameter :: V_HCO3(Ncl) = 1.45d0  !nmol O2 (ug Chl a)-1 min-1
+!      real(8), parameter :: K_CO2aq(Ncl)= 5.d0 !/5./  !uM
+!      real(8), parameter :: V_CO2aq(Ncl)= 2.d0 !/2./  !nmol O2 (ug Chl a)-1 min-1
 
 !     Temperature dependency parameters (Hikosaka et al. 2006) 
 !        - Parameters estimated from data by Al-Horani (2005)
 
-      real(8), parameter :: Hact(Ncl)   = 1.855d5 !Activation energy (J mol-1)) *tuned
-      real(8), parameter :: Hdeact(Ncl) = 3.055d5 !Deactivation energy (J mol-1) *tuned
-      real(8), parameter :: Entr(Ncl)   = 1028.d0   !Entropy term (J K-1) *tuned
+!      real(8), parameter :: Rgas = 8.314d0 ! Gas constant (J mol-1)
+!      real(8), parameter :: Hact(Ncl)   = 1.855d5 !Activation energy (J mol-1)) *tuned
+!      real(8), parameter :: Hdeact(Ncl) = 3.055d5 !Deactivation energy (J mol-1) *tuned
+!      real(8), parameter :: Entr(Ncl)   = 1028.d0   !Entropy term (J K-1) *tuned
 
 !----- Respitration constants ---------------------------
 
-      real(8), parameter :: Rmax = 3.d-5 ! Maximum respiration rate (pmol cell-1 s-1)
-      real(8), parameter :: K_QC = 8.d0  ! (pmol cell-1) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*ìKìñ
-      real(8), parameter :: K_DO = 5.d0  ! ca. 10 (umol kg-1) Shick et al. (1990) *Tuned value
+      real(8), parameter :: Rmax = 0.0d0  !!! 0.2d-4 ! Maximum respiration rate (pmol cell-1 s-1)
+!      real(8), parameter :: Rmax = 3.d-5 ! Maximum respiration rate (pmol cell-1 s-1)
+!      real(8), parameter :: K_QC = 8.d0  ! (pmol cell-1)
+!      real(8), parameter :: K_DO = 5.d0  ! ca. 10 (umol kg-1) Shick et al. (1990) *Tuned value
 
 !----- Zooxanthellar physica condition ---------------------------
 
-      real(8), parameter :: V_zoox = 5.0d-10   ! Volume of zooxanthellae (cm3/cells)
+!      real(8), parameter :: V_zoox = 5.0d-10   ! Volume of zooxanthellae (cm3/cells) ~300 um3 (Fujise et al. 2018)
                                ! ~500 um3 =5.e-10 cm3 (e.g. Jone 1997; Jones and Yellowlees 1997)
 
-      real(8), parameter :: QC0 = 8.0d0  ! (pmolC/cell)  100 pg cell-1 ~ 10 pmol cell-1 = (Verde & McCloskey 1998)
+      real(8), parameter :: QC0 = 50.0d0  ! (pmolC/cell)  100 pg cell-1 ~ 10 pmol cell-1 = (Verde & McCloskey 1998)
 # if defined CORAL_NUTRIENTS
       real(8), parameter :: QN0 = 1.1d0  ! (pmolN/cell)  calculated from C:N:P = 116:16:1
       real(8), parameter :: QP0 = 0.07d0 ! (pmolP/cell) 
@@ -1568,42 +1569,43 @@
 
 # if defined CORAL_NUTRIENTS
 !----- Nutrients related parameters -------------------
-      real(8), parameter :: Vmax_NO3tra = 1.67d-6  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§ 
-      real(8), parameter :: Vmax_NO2tra = 1.5d-7  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
-      real(8), parameter :: Vmax_NH4tra = 1.d-5  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
-      real(8), parameter :: Vmax_PO4tra = 3.d-7  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
+      real(8), parameter :: Vmax_NO3tra = 1.67d-6  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ 
+      real(8), parameter :: Vmax_NO2tra = 1.5d-7  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
+      real(8), parameter :: Vmax_NH4tra = 1.d-5  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
+      real(8), parameter :: Vmax_PO4tra = 3.d-7  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
 
-      real(8), parameter :: K_NO3tra = 50.d0  ! (umol kg-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
-      real(8), parameter :: K_NO2tra = 10.d0  ! (umol kg-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
-      real(8), parameter :: K_NH4tra = 300.d0 ! (umol kg-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§      
-      real(8), parameter :: K_PO4tra = 300.d0 ! (umol kg-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§      
+      real(8), parameter :: K_NO3tra = 50.d0  ! (umol kg-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
+      real(8), parameter :: K_NO2tra = 10.d0  ! (umol kg-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
+      real(8), parameter :: K_NH4tra = 300.d0 ! (umol kg-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ      
+      real(8), parameter :: K_PO4tra = 300.d0 ! (umol kg-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ      
 
-      real(8), parameter :: k_NH4rel = 1.d-5  !(s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
-      real(8), parameter :: k_NO3rel = 1.9d-8  !(s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
-      real(8), parameter :: k_NO2rel = 1.d-5  !(s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
-      real(8), parameter :: k_PO4rel = 1.d-5  !(s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
+      real(8), parameter :: k_NH4rel = 1.d-5  !(s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
+      real(8), parameter :: k_NO3rel = 1.9d-8  !(s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
+      real(8), parameter :: k_NO2rel = 1.d-5  !(s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
+      real(8), parameter :: k_PO4rel = 1.d-5  !(s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
 
-      real(8), parameter :: Vmax_NO3red = 1.3d-6  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§ 
-      real(8), parameter :: Vmax_NO2red = 1.3d-6  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
+      real(8), parameter :: Vmax_NO3red = 1.3d-6  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ 
+      real(8), parameter :: Vmax_NO2red = 1.3d-6  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
 
-      real(8), parameter :: K_NO3red = 0.014d0  !(pmol cell-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
-      real(8), parameter :: K_NO2red = 0.0015d0 !(pmol cell-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
+      real(8), parameter :: K_NO3red = 0.014d0  !(pmol cell-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
+      real(8), parameter :: K_NO2red = 0.0015d0 !(pmol cell-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
 
-      real(8), parameter :: Vmax_Nass = 2.d-5  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§ 
-      real(8), parameter :: K_Nass = 1.d-1  !(pmol cell-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
+      real(8), parameter :: Vmax_Nass = 2.d-5  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ 
+      real(8), parameter :: K_Nass = 1.d-1  !(pmol cell-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
 
-      real(8), parameter :: Vmax_Pass = 5.d-7  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§ 
-      real(8), parameter :: K_Pass = 1.d-2  !(pmol cell-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
+      real(8), parameter :: Vmax_Pass = 5.d-7  ! (pmol cell-1 s-1) !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ 
+      real(8), parameter :: K_Pass = 1.d-2  !(pmol cell-1)  !!!!!!!!!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
 # endif
 
 !----- Population dynamics parameters -------------------
 
-      real(8), parameter :: u_max  = 2.0d-4 !Maximum reproduction rate (pmol cell-1 s-1)  !!!!!!!!!!!!!!!!!!ìKìñ!!!!!!!!!!!!!!
-      
-      real(8), parameter :: km_CNP = 1.d-8 ! (cell cm-2 s-1)  ìKìñ!!!!!!!!!!!!!!
+      real(8), parameter :: u_max  = 5.0d-5 ! Maximum reproduction rate (pmol cell-1 s-1)       !!! Tuning
+      real(8), parameter :: kC_sec = 2.0d-6 ! Mass transfer velocity of secreted organic matter (s-1) !!! Tuning
+
+      real(8), parameter :: km_CNP = 1.d-8 ! (cell cm-2 s-1)  ÔøΩKÔøΩÔøΩ!!!!!!!!!!!!!!
       real(8), parameter :: am_CNP = 1.d0
-      real(8), parameter :: km_ROS = 1.d-11 !                  ìKìñ!!!!!!!!!!!!!!
-      real(8), parameter :: km_min = 1.d-14   ! (cell cm-2 s-1)  ìKìñ!!!!!!!!!!!!!!
+      real(8), parameter :: km_ROS = 1.d-11 !                  ÔøΩKÔøΩÔøΩ!!!!!!!!!!!!!!
+      real(8), parameter :: km_min = 1.d-14   ! (cell cm-2 s-1)  ÔøΩKÔøΩÔøΩ!!!!!!!!!!!!!!
 
 !----- for gross photosynthesi -------------------
 !      Temperature related factor
@@ -1644,9 +1646,24 @@
 
 !----- Zooxanthellae metabolism  ----------------------------------
 
+# if defined CORAL_PHOTOINHIBITION
+      CALL photosynthesis                      &
+!          input parameters
+     &            (ng, n, i, j                 & ! ng: nested grid number; n: coral compartment; i,j: position
+     &            ,dt                          & ! Time step (sec)
+     &            ,PFDsurf                     & ! Photon flux density (umol m-2 s-1)
+     &            ,Tamb                        & ! Temperature (K)
+     &            ,cCO2aqcoe                   &
+     &            ,cHCO3coe                    &
+     &            ,ROS                         & ! ROS concentration in Zooxanthellar cell
+!          output parameters
+     &            ,ZOOX(ng)%Pg(n,i,j)          & ! Gross photosynthetic rate (pmol cell-1 s-1)
+     &            ,F_zROS                       & ! Flux of Reactive Oxygen Species (pmol cell-1 s-1)
+     &             )
+
+# else
+
 !----- Gross photosynthesis rate (pmol cell-1 s-1) -----------------
-
-
 !   Temperature dependent term
       f_temp=1.
 !      f_temp=exp(Hact(n)*(TKamb-298.)/298./Rgas/TKamb)      &
@@ -1654,33 +1671,37 @@
 !     &       /(1.+exp((TKamb*Entr(n)-Hdeact(n))/TKamb/Rgas))
 
 !   Gross photosynthesis rate (pmol cell-1 s-1)
-!      Pg=Pgmax(n)*f_temp*tanh(PFDsurf/Ik(n))                &
-!     &     *1./(V_HCO3(n)+V_CO2aq(n))                       &
-!     &       *( V_HCO3(n)*cHCO3coe/(K_HCO3(n)+cHCO3coe)     &
-!     &         +V_CO2aq(n)*cCO2aqcoe/(K_CO2aq(n)+cCO2aqcoe) &
-!     &        )
-
-      ZOOX(ng)%Pg(n,i,j)=Pgmax(n)*f_temp*tanh(PFDsurf/Ik(n))           &
+!      ZOOX(ng)%Pg(n,i,j)=Pgmax(n)*f_temp*tanh(PFDsurf/Ik(n))           &
+!     &                   * cHCO3coe/(K_HCO3(n)+cHCO3coe)
+      ZOOX(ng)%Pg(n,i,j)=Pgmax(n)*f_temp*(1.0d0 - exp(-PFDsurf/Ik(n)))  &
      &                   * cHCO3coe/(K_HCO3(n)+cHCO3coe)
+
+!----- ROS flux  (pmol cell-1 s-1) ------------------------------------
+
+!  Estimated from Saragosti et al. (2010) data
+!      F_zROS = 0.0072d0*exp(0.14d0*(TKamb-273.15))+0.0024d0*(PFDsurf) ! (fmol min-1 cell-1)
+!  Estimated from combined data of Saragosti et al. (2010) and McGinty et al. (2012)
+      F_zROS = 6.0d-7*exp(0.5d0*(TKamb-273.15))+0.0024d0*(PFDsurf) ! (fmol min-1 cell-1)
+      F_zROS = F_zROS/60.0d0 * 1.0d-3   ! (pmol cell-1 s-1)
+# endif
+      
+!----- peroxynitrite (ONOO-) flux (nmol cm-2 s-1)------------------------------------
+!
+!      F_ONOO=1.e0 * ZOOX(ng)%NO2(n,i,j)*CORAL(ng)%ROS(n,i,j)   ! (pmol cell-1 s-1)!!!!!!!!!!!!!!!!!!ÔøΩƒÇÔøΩÔøΩ∆ÇÔøΩ
+!      F_ONOO=F_ONOO*ZOOX(ng)%dens(n,i,j)*1.d-3   ! (nmol cm-2 s-1)
 
 !----- Respilation rate (pmol cell-1 s-1) ---------------------------
 
 !   Temperature dependent term
 !      f_temp=1.
 !      f_temp=exp(Eact(n)*(TKamb-298.)/298./Rgas/TKamb)
+!
+!      ZOOX(ng)%R (n,i,j)=                                              &
+!     &       Rmax*ZOOX(ng)%QC(n,i,j)/(K_QC+ZOOX(ng)%QC(n,i,j))         & ! Respilation rate (pmol cell-1 s-1)
+!     &       *CORAL(ng)%DOcoe(n,i,j)/(K_DO+CORAL(ng)%DOcoe(n,i,j))
 
-!   Respilation rate (nmolO2 cm-2 s-1) 
-!      R= Rmax(n)*f_temp*QC(n,i,j)/(K_QC(n)+QC(n,i,j)) &
-!     &            *CORAL(ng)%DOcoe(n,i,j)/(K_DO(n)+CORAL(ng)%DOcoe(n,i,j))
-
-      ZOOX(ng)%R (n,i,j)=                                              &
-     &       Rmax*ZOOX(ng)%QC(n,i,j)/(K_QC+ZOOX(ng)%QC(n,i,j))         & ! Respilation rate (pmol cell-1 s-1)
-     &       *CORAL(ng)%DOcoe(n,i,j)/(K_DO+CORAL(ng)%DOcoe(n,i,j))
-
-!      SQC=ZOOX(ng)%QC(n,i,j)-QC0
-
-!      Rz= Rmax*SQC/(K_QC+SQC)
-!     &         *CORAL(ng)%DOcoe(n,i,j)/(K_DO+CORAL(ng)%DOcoe(n,i,j))
+!      ZOOX(ng)%R (n,i,j)= 0.1d0/3600.0d0  ! Respilation rate (pmol cell-1 s-1)  Suggett et al. (2008) ~0.1 (pmol cell-1 h-1)
+      ZOOX(ng)%R (n,i,j)= Rmax ! Respilation rate (pmol cell-1 s-1)  !!! assumed constant value !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 # if defined CORAL_NUTRIENTS
 !----- Nutrient internal dynamics -----------------------------------
@@ -1688,54 +1709,44 @@
 !----- Nutrients transport rate (pmol cell-1 s-1) ---------------------
 
 !  These formulations are basically followed to Flynn and Flynn (1998)
-
       NH4_trans =Vmax_NH4tra*CORAL(ng)%NH4(n,i,j)/(K_NH4tra+CORAL(ng)%NH4(n,i,j)) &
      &          -k_NH4rel * ZOOX(ng)%NH4(n,j,i)
-
       NO3_trans =Vmax_NO3tra*CORAL(ng)%NO3(n,i,j)/(K_NO3tra+CORAL(ng)%NO3(n,i,j)) &
      &               *(1.-ZOOX(ng)%NH4(n,i,j)/0.1)                           &
      &          -k_NO3rel * ZOOX(ng)%NO3(n,j,i)
-
       NO2_trans =Vmax_NO2tra*CORAL(ng)%NO2(n,i,j)/(K_NO2tra+CORAL(ng)%NO2(n,i,j)) &
      &               *(1.-ZOOX(ng)%NH4(n,i,j)/0.1)                           &
      &          -k_NO2rel * ZOOX(ng)%NO2(n,j,i)
-
       PO4_trans =Vmax_PO4tra*PO4(n,i,j)/(K_PO4tra+CORAL(ng)%PO4(n,i,j))
 
 !----- Nutrients reductance rate (pmol cell-1 s-1) ---------------------
-
       NO3_reduc = Vmax_NO3red*ZOOX(ng)%NO3(n,i,j)/(K_NO3red+ZOOX(ng)%NO3(n,i,j))
       NO2_reduc = Vmax_NO2red*ZOOX(ng)%NO2(n,i,j)/(K_NO2red+ZOOX(ng)%NO2(n,i,j))
 
 !----- Nitrogen assimilation rate (pmol cell-1 s-1) ---------------------
-
       N_assim = Vmax_Nass* ZOOX(ng)%NH4(n,i,j)/(K_Nass+ZOOX(ng)%NH4(n,i,j)) 
 
-
 !----- P assimilation rate (pmol cell-1 s-1) ---------------------
-
       P_assim = Vmax_Pass* ZOOX(ng)%PO4(n,i,j)/(K_Pass+ZOOX(ng)%PO4(n,i,j)) 
 
-
 !----- Nitrogen dissimilation rate (pmol cell-1 s-1) ---------------------
-
       N_dissim = Rz * ZOOX(ng)%QN(n,i,j)/ZOOX(ng)%QC(n,i,j)   ! Dissimilation rate (pmol cell-1 s-1)
 
 # endif
 
 !!!----- interaction between zooxanthellae and coral -----------------
 
-!------ Organic matter excretion controled by host coral (pmol cell-1 s-1) -----
+!------ Extracellular secretion rate of organic carbon (pmol cell-1 s-1) -----
 
-      F_Cexcr = 3.0d-5 * ZOOX(ng)%QC(n,i,j) 
+      F_Csec = kC_sec * (ZOOX(ng)%QC(n,i,j) - QC0)
 
 # if defined CORAL_NUTRIENTS
-      F_Nexcr = k_excre(n)*(
+      F_Nsec = k_excre(n)*(
      &                  QNzoox(n,i,j)/QN0zoox
      &                 -QNcoral(n,i,j)/QN0coral(n)
      &                 )*DENSzoox(n,i,j)
       
-      F_Pexcr = k_excre(n)*(
+      F_Psec = k_excre(n)*(
      &                  QPzoox(n,i,j)/QP0zoox
      &                 -QPcoral(n,i,j)/QP0coral(n)
      &                 )*DENSzoox(n,i,j)
@@ -1753,8 +1764,8 @@
       P_repro=C_repro*ZOOX(ng)%QP(n,i,j)/ZOOX(ng)%QC(n,i,j)
 
 # else
-      C_repro = u_max*(1.0d0 - QC0/ZOOX(ng)%QC(n,i,j))        &
-     &         *((2.0d6 - ZOOX(ng)%dens(n,i,j))/2.0d6)       !!! Logistic reproduction
+      C_repro = u_max*(1.0d0 - QC0/ZOOX(ng)%QC(n,i,j))            ! Droop (1973) model
+!      C_repro = C_repro *((2.0d6 - ZOOX(ng)%dens(n,i,j))/2.0d6)       !!! Logistic reproduction
       C_repro = max(C_repro, 0.0d0)
 # endif
 
@@ -1765,15 +1776,16 @@
 # if defined CORAL_NUTRIENTS
 
       Morta= km_CNP                                       & ! mortality (s-1) 
-     &            *exp(-am_CNP*                           &             !* ë´ÇËÇ»Ç¢âhó{ëfÇ…àÀë∂Åióvåüì¢!!!Åj
+     &            *exp(-am_CNP*                           &             !* ÔøΩÔøΩÔøΩÔøΩÔøΩ»ÇÔøΩÔøΩhÔøΩ{ÔøΩfÔøΩ…àÀëÔøΩÔøΩiÔøΩvÔøΩÔøΩÔøΩÔøΩ!!!ÔøΩj
      &                min(  1.-QP0/ZOOX(ng)%QP(n,i,j)  ,  &
      &                  min(1.-QN0/ZOOX(ng)%QN(n,i,j),    &
      &                      1.-QC0/ZOOX(ng)%QC(n,i,j) ) ) &
      &             )
-!     &          +km_ROS * CORAL(ng)%ROS(n,i,j)                                !* ROSîZìxàÀë∂Åióvåüì¢!!!Åj  ç°ÇÃÇ∆Ç±ÇÎÉ[ÉçÇ…ÇµÇƒÇ¢ÇÈ
-!     &          +km_min                                    !* íËêî
+!     &          +km_ROS * CORAL(ng)%ROS(n,i,j)                                !* ROSÔøΩZÔøΩxÔøΩÀëÔøΩÔøΩiÔøΩvÔøΩÔøΩÔøΩÔøΩ!!!ÔøΩj  ÔøΩÔøΩÔøΩÃÇ∆ÇÔøΩÔøΩÔøΩÔøΩ[ÔøΩÔøΩÔøΩ…ÇÔøΩÔøΩƒÇÔøΩÔøΩÔøΩ
+!     &          +km_min                                    !
 # else
-      Morta= km_CNP * (1.0d0 - QC0/ZOOX(ng)%QC(n,i,j) )!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!      Morta= km_CNP * (1.0d0 - QC0/ZOOX(ng)%QC(n,i,j) )!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      Morta= 0.0d0!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # endif
 
 !--------Time step progressing ------------------------
@@ -1816,12 +1828,12 @@
       ZOOX(ng)%PO4(n,i,j)=max(ZOOX(ng)%PO4(n,i,j),0.d0) !Error handring
 # endif
 
-!-----Cell quota (pmol/cell) -----------------!!!!!íPà ïœä∑É`ÉFÉbÉN!!!!!!!!!!!!!!!!!!!!!!!!!!
+!-----Cell quota (pmol/cell) -----------------!!!!!ÔøΩPÔøΩ ïœäÔøΩÔøΩ`ÔøΩFÔøΩbÔøΩN!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       ZOOX(ng)%QC(n,i,j)=ZOOX(ng)%QC(n,i,j)                     &
      &              +(                                          &
      &                 ZOOX(ng)%Pg(n,i,j)-ZOOX(ng)%R(n,i,j)     &
-     &                -F_Cexcr                                  &   !(nmol cm-2 s-1)/(cell cm-2)*1.e3=(pmol cell-1 s-1)
+     &                -F_Csec                                  &   !(nmol cm-2 s-1)/(cell cm-2)*1.e3=(pmol cell-1 s-1)
      &                -C_repro                                  &
      &               )*dt
       ZOOX(ng)%QC(n,i,j)=max(ZOOX(ng)%QC(n,i,j),1.0d-1) !!!Error handring
@@ -1834,7 +1846,7 @@
      &                -N_dissim                        &
 !     &                 NO3uptake/ZOOX(ng)%dens(n,i,j)*1.e3  &  !(nmol cm-2 s-1)/(cell cm-2)*1.e3=(pmol cell-1 s-1)
 !     &                +NH4uptake/ZOOX(ng)%dens(n,i,j)*1.e3  &  !(nmol cm-2 s-1)/(cell cm-2)*1.e3=(pmol cell-1 s-1)
-     &                -F_Nexcr                         &  !(nmol cm-2 s-1)/(cell cm-2)*1.e3=(pmol cell-1 s-1)
+     &                -F_Nsec                         &  !(nmol cm-2 s-1)/(cell cm-2)*1.e3=(pmol cell-1 s-1)
      &                -N_repro                         &
      &               )*dt
       ZOOX(ng)%QN(n,i,j)=max(ZOOX(ng)%QN(n,i,j),0.d0) !Error handring     
@@ -1843,7 +1855,7 @@
      &              +(                                       &
 !     &                 PO4uptake/ZOOX(ng)%dens(n,i,j)*1.e3   &  !(nmol cm-2 s-1)/(cell cm-2)*1.e3=(pmol cell-1 s-1)
      &                 P_assim                               &
-     &                -F_Pexcr                               &   !(nmol cm-2 s-1)/(cell cm-2)*1.e3=(pmol cell-1 s-1)
+     &                -F_Psec                               &   !(nmol cm-2 s-1)/(cell cm-2)*1.e3=(pmol cell-1 s-1)
      &                -P_repro                               &
      &               )*dt
       ZOOX(ng)%QP(n,i,j)=max(ZOOX(ng)%QP(n,i,j),0.d0) !Error handring
@@ -1857,29 +1869,19 @@
      &             +(                                       &
      &                Repro * ZOOX(ng)%dens(n,i,j)          & ! Reproduction
      &               -Morta * ZOOX(ng)%dens(n,i,j)          & ! Death
-     &               -F_Zexpul                              & ! Expulsion by host coral
+     &               -F_Zelm                              & ! Expulsion by host coral
      &              )*dt
       ZOOX(ng)%dens(n,i,j)=max(ZOOX(ng)%dens(n,i,j),1.d0) !Error handring
 
-!-----Output parameters  (nmol cm-2 s-1) --------------------------------
-
-!----- ROS flux (nmol cm-2 s-1)------------------------------------
-
-!  Estimated from Saragosti et al. (2010) data
-!      F_ROS = 0.0072d0*exp(0.14d0*(TKamb-273.15))+0.0024d0*(PFDsurf) ! (fmol min-1 cell-1)
-!  Estimated from combined data of Saragosti et al. (2010) and McGinty et al. (2012)
-      F_ROS = 6.0d-7*exp(0.5d0*(TKamb-273.15))+0.0024d0*(PFDsurf) ! (fmol min-1 cell-1)
-
-      F_ROS = F_ROS * ZOOX(ng)%dens(n,i,j)/60.0d0 * 1.0d-6   ! (nmol cm-2 s-1)
-      
-!----- peroxynitrite (ONOO-) flux (nmol cm-2 s-1)------------------------------------
+!-----ROS concentration (pmol/cell) -----------------
 !
-!      F_ONOO=1.e0 * ZOOX(ng)%NO2(n,i,j)*CORAL(ng)%ROS(n,i,j)   ! (pmol cell-1 s-1)!!!!!!!!!!!!!!!!!!ÇƒÇ´Ç∆Ç§
-!      
-!      F_ONOO=F_ONOO*ZOOX(ng)%dens(n,i,j)*1.d-3   ! (nmol cm-2 s-1)
+!      ZOOX(ng)%ROS(n,i,j)=ZOOX(ng)%ROS(n,i,j)               &
+!     &              +(                                      &
+!     &                 F_zROS                                &
+!     &                -F_zROS                                & !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!     &               )*dt
+!      ZOOX(ng)%ROS(n,i,j)=max(ZOOX(ng)%ROS(n,i,j),1.0d-10) !!!Error handring
 !
-
-
 !------------------------------------------------------------------------
 ! Print section (for debug)
 
@@ -1894,7 +1896,8 @@
      &   ,ZOOX(ng)%Pg(n,i,j),',',  ZOOX(ng)%R(n,i,j),','     &
      &   ,ZOOX(ng)%dens(n,i,j),',',ZOOX(ng)%QC(n,i,j),','    &
      &   ,CORAL(ng)%ROS(n,i,j),','                           &
-     &   ,C_repro,',',Repro,',',Morta,',', F_ROS,','         &
+     &   ,C_repro,',',Repro,',',Morta,',', F_zROS,','         &
+     &   ,F_Csec,','                                         &
 #  if defined CORAL_NUTRIENTS
      &   ,ZOOX(ng)%QN(n,i,j),',',ZOOX(ng)%QP(n,i,j),','      &
      &   ,N_repro,',',P_repro,','                            &
@@ -1905,7 +1908,7 @@
      &   ,N_assim,',',N_dissim,','                           &
      &   ,ZOOX(ng)%PO4(n,i,j),',',PO4_trans,',',P_assim,','  &
 #  endif
-     &   ,F_Zexpul,',',Repro*ZOOX(ng)%dens(n,i,j),','        &
+     &   ,F_Zelm,',',Repro*ZOOX(ng)%dens(n,i,j),','        &
      &   ,Morta*ZOOX(ng)%dens(n,i,j)
 
       dsec(n)=dsec(n)+OUTPUT_INTERVAL*60.0d0
@@ -1922,14 +1925,16 @@
       ZOOX(ng)%Pg(n,i,j)=ZOOX(ng)%Pg(n,i,j)*ZOOX(ng)%dens(n,i,j)*1.0d-3  !=(pmol cell-1 s-1)*(cell cm-1)*1.e-3=(nmol cm-2 s-1)
       ZOOX(ng)%R (n,i,j)=ZOOX(ng)%R (n,i,j)*ZOOX(ng)%dens(n,i,j)*1.0d-3  !=(pmol cell-1 s-1)*(cell cm-1)*1.e-3=(nmol cm-2 s-1)
 
-      F_Cexcr = F_Cexcr*ZOOX(ng)%dens(n,i,j)*1.0d-3  !=(pmol cell-1 s-1)*(cell cm-1)*1.e-3=(nmol cm-2 s-1)
-      F_Cwaste = (Death+F_Zexpul)*ZOOX(ng)%QC(n,i,j)*1.0d-3  !=(cell cm-2 s-1)*(pmol cell-1)*1.e-3=(nmol cm-2 s-1)
+      F_zROS = F_zROS * ZOOX(ng)%dens(n,i,j)*1.0d-3  !=(pmol cell-1 s-1)*(cell cm-1)*1.e-3=(nmol cm-2 s-1)
+
+      F_Csec = F_Csec*ZOOX(ng)%dens(n,i,j)*1.0d-3  !=(pmol cell-1 s-1)*(cell cm-1)*1.e-3=(nmol cm-2 s-1)
+      F_Cwaste = (Death+F_Zelm)*ZOOX(ng)%QC(n,i,j)*1.0d-3  !=(cell cm-2 s-1)*(pmol cell-1)*1.e-3=(nmol cm-2 s-1)
 
 # if defined CORAL_NUTRIENTS
-      F_Nexcr = F_Nexcr*ZOOX(ng)%dens(n,i,j)*1.0d-3  !=(pmol cell-1 s-1)*(cell cm-1)*1.e-3=(nmol cm-2 s-1)
-      F_Pexcr = F_Pexcr*ZOOX(ng)%dens(n,i,j)*1.0d-3  !=(pmol cell-1 s-1)*(cell cm-1)*1.e-3=(nmol cm-2 s-1)
-      F_Nwaste = (Death+F_Zexpul)*ZOOX(ng)%QN(n,i,j)*1.0d-3
-      F_Pwaste = (Death+F_Zexpul)*ZOOX(ng)%QP(n,i,j)*1.0d-3
+      F_Nsec = F_Nsec*ZOOX(ng)%dens(n,i,j)*1.0d-3  !=(pmol cell-1 s-1)*(cell cm-1)*1.e-3=(nmol cm-2 s-1)
+      F_Psec = F_Psec*ZOOX(ng)%dens(n,i,j)*1.0d-3  !=(pmol cell-1 s-1)*(cell cm-1)*1.e-3=(nmol cm-2 s-1)
+      F_Nwaste = (Death+F_Zelm)*ZOOX(ng)%QN(n,i,j)*1.0d-3
+      F_Pwaste = (Death+F_Zelm)*ZOOX(ng)%QP(n,i,j)*1.0d-3
 
       NO3_trans=NO3_trans*ZOOX(ng)%dens(n,i,j)*1.0d-3  !=(pmol cell-1 s-1)*(cell cm-1)*1.e-3=(nmol cm-2 s-1)
       NO2_trans=NO2_trans*ZOOX(ng)%dens(n,i,j)*1.0d-3  !=(pmol cell-1 s-1)*(cell cm-1)*1.e-3=(nmol cm-2 s-1)
@@ -1942,6 +1947,175 @@
       RETURN
 
     END SUBROUTINE zooxanthellae
+#endif
+
+
+#if defined CORAL_PHOTOINHIBITION
+
+!!! **********************************************************************
+!!!  Photoinihibition model (modified from Gustafsson et al. 2014)
+!!! **********************************************************************
+
+    SUBROUTINE photosynthesis                  &
+!          input parameters
+     &            (ng, n, i, j                 & ! ng: nested grid number; n: coral compartment; i,j: position
+     &            ,dt                          & ! Time step (sec)
+     &            ,PFDsurf                     & ! Photon flux density (umol m-2 s-1)
+     &            ,Tamb                        & ! Temperature (oC)
+     &            ,cCO2aqcoe                   &
+     &            ,cHCO3coe                    &
+     &            ,ROS                         & ! ROS concentration in Zooxanthellar cell
+!          output parameters
+     &            ,Pg                          & ! Gross photosynthetic rate (pmol cell-1 s-1)
+     &            ,F_zROS                       & ! Flux of Reactive Oxygen Species (pmol cell-1 s-1)
+     &             )
+!-----------------------------------------------------------------------
+
+      implicit none
+
+      integer, intent(in) :: ng, n, i, j                     ! ng: nested grid number; n: coral compartment; i,j: position
+      real(8), intent(in) :: dt                              
+      real(8), intent(in) :: PFDsurf                         
+      real(8), intent(in) :: Tamb                            !Temperature (K)
+      real(8), intent(in) :: cCO2aqcoe, cHCO3coe             
+      real(8), intent(in) :: ROS                             ! ROS concentration in Zooxanthellar cell
+!          output parameters
+      real(8), intent(out) :: Pg                               ! Gross photosynthesis rate (nmol cm-2 s-1)
+      real(8), intent(out) :: F_zROS                            ! Flux of Reactive Oxygen Species  (nmol cm-2 s-1)
+
+!------------Set Constants  ----------------------------------
+      real(8), parameter :: PI  = 3.14159265359d0
+
+      real(8), parameter :: QAt = 2.3d-6    ! Total RCII (pmol RCII cell-1) Sugget et al. (2008)
+      real(8), parameter :: s_ab = 2.3d0    ! Absorption cross-section (m2 (umol photon)-1); ~390 (ANGSTROM quanta-1) Suggett et al. (2008) * 6.02x10^23 quanta = 1 mol photon
+      real(8), parameter :: phi = 1.0d0     ! quantum efficiency of charge separation at PSII(e- photon-1)  Ross et al. (2008) !!!!!!!!!!!!!check
+      real(8), parameter :: Trb = 33.8d0    ! (oC) estimated from Lilley et al. (2010)
+      real(8), parameter :: arb = 0.55d0    ! (K-1) estimated from Lilley et al. (2010)
+      real(8), parameter :: o2e = 0.25d0    ! Yield of O2 per electron (mol O2 (mol e-)-1) 2H2O -> 4e- +4H+ + O2 
+      real(8), parameter :: o2c = 1.0d0     ! Photosynthetic quotient (mol O2 (mol CO2)-1) !!!Assumed
+      real(8), parameter :: c2e = o2e/o2c   ! (mol C (mol e-)-1)
+      real(8), parameter :: Pmax= 1.0d-4    ! Maximum photosynthetic rate (pmol cell-1 s-1) !!! Tuning
+      real(8), parameter :: K_HCO3 = 71.0d0 ! Half saturation constant (uM) Goreau et al. (1996)
+      real(8), parameter :: K_CO2 = 1.0d0  ! Half saturation constant (uM) !!! Tuning
+      real(8), parameter :: e2ROS = 2.0d0   ! mol of e- required to make mol ROS (mol e- mol RO-1) O2 + 2e- + 2H+ -> H2O2 
+      real(8), parameter :: f_RO = 0.5d0    ! ROS fraction from zoox. to host. !!!Assumed
+      real(8), parameter :: ko = 1.04d3     ! Relaxation rate of QAr to QAo (s-1) : tau = 960 us; Suggett et al. (2008)
+      real(8), parameter :: ki = 6.11d-8    ! Rate constant of photoinhibition (s-1 (umol m-2 s-1)-1): Tyystjarvi & Aro (1996)
+      real(8), parameter :: ka = 1.0d-4     ! Repair rate of QAi to QAo (s-1) estimated from Takahashi et al. (2009)
+      real(8), parameter :: Ti2a = 32.1d0   ! (oC) estimated from Takahashi et al. (2004) A. digitifera
+      real(8), parameter :: ai2a = 0.806d0  ! (K-1) estimated from Takahashi et al. (2004) A. digitifera
+!      real(8), parameter :: Ti2a = 35.6d0   ! (oC) estimated from Takahashi et al. (2004) Stylophora pistillata
+!      real(8), parameter :: ai2a = 0.6d0  ! (K-1) estimated from Takahashi et al. (2004) Stylophora pistillata
+!---------------------------------------------------------------------
+      real(8) :: QAa       ! Active RCII (pmol RCII cell-1)
+      real(8) :: Ra        ! Active fraction of Rubisco
+      real(8) :: J_ea      ! Electron absorption rate (pmol e- cell-1 s-1)
+      real(8) :: J_ep      ! Rate of electrons leading to C fixation (pmol e- cell-1 s-1)
+      real(8) :: J_ee      ! electrons diverted from C fixation (pmol e- cell-1 s-1)
+      real(8) :: J_ep_max  ! maximum electron transport rate (pmol e- cell-1 s-1)
+      real(8) :: J_ep_in   ! Input electron transport rate (pmol e- cell-1 s-1)
+      real(8) :: J_RO      ! Rate of ROS formed by e- (pmol ROS cell-1 s-1)
+      real(8) :: J_ROs     ! Rate of slow ROS formed by e- (pmol ROS cell-1 s-1)
+      real(8) :: J_ROf     ! Rate of fast ROS formed by e- (pmol ROS cell-1 s-1)
+      real(8) :: Jo2r, Jr2o, Jo2i, Jr2i, Ji2o, Ja2i, Ji2a
+      real(8) :: kr       
+      real(8) :: I2e       
+
+# if defined CORAL_TESTMODE
+!  Output
+      real(8), parameter :: OUTPUT_INTERVAL  = 5.0d0    ! Output interval (min)
+      real(8), save :: time(Ncl)         = (/ 0.d0, 0.d0 /) !sec
+      real(8), save :: dsec(Ncl)         = (/ 0.d0, 0.d0 /) !sec
+      real(8), save :: dday(Ncl)         = (/ 1.d0, 1.d0 /) !day
+# endif
+
+!---------------------------------------------------------------------
+      
+      QAa = ZPHOT(ng)%QAo(n,i,j)+ZPHOT(ng)%QAr(n,i,j)
+      
+!---- Active fraction of Rubisco
+!      Ra =0.058d0*(Ti-Tamb)+1.0d0
+!      Ra = max(Ra, 0.0d0)
+!      Ra = min(Ra, 1.0d0)
+      Ra = 1.0d0/(1.0d0+exp(-arb*(Trb-Tamb)))
+!      Ra = Ra * cHCO3coe/(K_HCO3+cHCO3coe)
+      Ra = Ra * cCO2aqcoe/(K_CO2+cCO2aqcoe)
+      
+!---- electron absorption rate (s-1) 
+!     = reduction of active QA (s-1) ---
+      kr = s_ab * phi * PFDsurf
+      
+!---- electrons leading to C fixation (electron transfer rate (ETR)) (pmol e- cell-1 s-1) ---
+      J_ep_in = ko * ZPHOT(ng)%QAr(n,i,j)
+      J_ep_max = Pmax*Ra/c2e
+      J_ep = min( J_ep_in,  J_ep_max ) 
+      
+!---- Photosynthetic rate  (pmol C cell-1 s-1) ---
+      Pg = J_ep * c2e
+
+!---- Electrons that form ROS  (pmol ROf cell-1 s-1) ---
+      J_ee = J_ep_in - J_ep
+      F_zROS = f_RO*J_ee/e2ROS
+      
+!---- Photoinihibition rate of QAa to QAi  (pmol RCII cell-1 s-1) ---
+      Ja2i = ki * PFDsurf * QAa
+!      Ja2i = 0.0d0
+
+!---- Repair rate of QAi to QAo  (pmol RCII cell-1 s-1) --- !!!!!!!!!!!!!!!!! Need update
+!      Ji2a = ka * (ZPHOT(ng)%QAi(n,i,j)-0.3d0*QAt) /(1.0d0+exp(-ai2a*(Ti2a-Tamb)))  !!! Temperature dependent repair
+!      Ji2a = ka * (ZPHOT(ng)%QAi(n,i,j)-0.3d0*QAt)   !!! No temperature dependence
+      Ji2a = ka * ZPHOT(ng)%QAi(n,i,j)/max(ROS, 1.0d-5)  !!! ROS concentration dependent repair
+!      Ji2a = ka * ZPHOT(ng)%QAi(n,i,j)  !!! ROS concentration dependent repair
+
+!--------Time step progressing ------------------------
+
+!-----Inhibited RCII -----------------
+      ZPHOT(ng)%QAi(n,i,j)=ZPHOT(ng)%QAi(n,i,j) &
+     &             +(                                     &
+     &                Ja2i                                & ! Active to inactive
+     &               -Ji2a                                & ! Repair of QAi to QAo
+     &              )*dt
+!      ZPHOT(ng)%QAi(n,i,j)=max(ZPHOT(ng)%QAi(n,i,j), 0.0d0) !Error handring
+
+!-----Active RCII -----------------
+      QAa = QAt - ZPHOT(ng)%QAi(n,i,j)
+
+!-----Reduced RCII -----------------
+      ZPHOT(ng)%QAr(n,i,j)=kr/(kr+ko)*QAa
+
+!-----Oxidizes RCII -----------------
+      ZPHOT(ng)%QAo(n,i,j)=QAa-ZPHOT(ng)%QAr(n,i,j)
+      
+!------------------------------------------------------------------------
+! Print section (for debug)
+
+# if defined CORAL_TESTMODE
+
+      time(n) = time(n) +dt  ! sec
+      
+      if(time(n).ge.dsec(n)) then
+        
+        write(40+n,*)                                             &
+     &    time(n)/86400.0d0,',', PFDsurf,',', Tamb,','            &
+     &   ,ZPHOT(ng)%QAo(n,i,j),',',ZPHOT(ng)%QAr(n,i,j),','       &
+     &   ,ZPHOT(ng)%QAi(n,i,j),',',QAt,',',QAa,','                &
+     &   ,QAa/QAt,',',ZPHOT(ng)%QAo(n,i,j)/QAt,','                &
+     &   ,J_ea,',',J_ep_in,',',J_ep,',',J_ee,',',J_ep_max,','     &
+     &   ,Ji2a,',',Ja2i,',',kr,',',ko,',',F_zROS,','              &
+     &   ,Pg,',',J_ep_in*c2e,',',J_ep_max*c2e,','                 &
+     &   ,Ra
+
+      dsec(n)=dsec(n)+OUTPUT_INTERVAL*60.0d0
+      
+      endif
+# endif
+
+
+!-----------------------------------------------------------------------
+
+      RETURN
+
+    END SUBROUTINE photosynthesis
 #endif
       
   END MODULE mod_coral
