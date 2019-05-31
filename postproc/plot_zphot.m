@@ -42,7 +42,7 @@ hold on
 plot(zh1.time, zh1.Fv_Fm,'b');
 plot(zh1.time, zh1.Ra,'-r');
 ax = gca; ax.YColor = 'k';
-axis([xmin xmax  0 1])
+axis([xmin xmax  0 1.2])
 ylabel('Fv/Fm')
 ax = gca; ax.YColor = 'k';
 legend('Fv/Fm','Ra','E', 'Location','southoutside','Orientation','horizontal')
@@ -57,9 +57,9 @@ axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
 plot(zh1.time, zh1.Yield,'b');
-axis([xmin xmax  0 1])
+axis([xmin xmax  0 1.2])
 hold on
-ylabel('Yield')
+ylabel('Y(II)')
 ax = gca; ax.YColor = 'k';
 legend('Yield','E', 'Location','southoutside','Orientation','horizontal')
 
@@ -107,7 +107,7 @@ axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
 plot(zh1.time, zh1.F_ROS, 'b');
-axis([xmin xmax  0 1e-4])
+axis([xmin xmax  0 1e-3])
 hold on
 ylabel('FROS (pmol cell^-^1 s^-^1)')
 ax = gca; ax.YColor = 'k';

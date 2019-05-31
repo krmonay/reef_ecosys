@@ -4,7 +4,7 @@ zh1_file = '.././output/eco5-zoo1_his.csv';
 ch1_file = '.././output/eco5-crl1_his.csv';
 % zh1_file = '.././output/eco5-zoo2_his.csv';
 
-xmin=0; xmax=5;
+xmin=0; xmax=14;
 PFDmax =2000;
 
 zh1 = readtable(zh1_file,'Delimiter',',', 'ReadVariableNames', true);
@@ -91,7 +91,7 @@ axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
 plot(ch1.time, ch1.ROS,'b');
-axis([xmin xmax  0 10])
+axis([xmin xmax  0 50])
 hold on
 ylabel('ROS (uM)')
 ax = gca; ax.YColor = 'k';
@@ -107,7 +107,7 @@ axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
 plot(ch1.time, ch1.F_ROS*1e3, 'b');
-axis([xmin xmax  0 1e-1])
+axis([xmin xmax  0 1e0])
 hold on
 ylabel('FROS (pmol cm^-^2 s^-^1)')
 ax = gca; ax.YColor = 'k';
