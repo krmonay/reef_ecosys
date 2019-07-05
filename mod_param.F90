@@ -257,7 +257,7 @@
           do k=1,N
           
 !            dz(i,j,k)=0.3d0 !(m)
-            dz(i,j,k)=3.0d0 !(m)
+            dz(i,j,k)=0.3d0 !(m)
           
             C(i,j,k,1,iTemp) = 27.0d0   !27.0d0 32.0d0
 !            C(i,j,k,1,iTemp) = 33.0d0   !27.0d0 32.0d0

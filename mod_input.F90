@@ -1,5 +1,5 @@
 
-!!!=== Copyright (c) 2012-2018 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2019 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -35,14 +35,14 @@
 !  ---- count data number -----
       nm_data = 0
       do
-        read(77,*,iostat=ios)   ! ˆê‰ñ–Ú‚Ì“Ç‚Ýž‚Ý‚Å‚Íƒf[ƒ^‚Í“Ç‚ÝŽÌ‚Ä‚éB
-        if(ios==-1) exit        ! ƒtƒ@ƒCƒ‹‚ªI‚í‚Á‚½‚çƒ‹[ƒv‚ð”²‚¯‚é
-        nm_data = nm_data+1   ! ƒf[ƒ^”‚ÌƒJƒEƒ“ƒg
+        read(77,*,iostat=ios)   ! ï¿½ï¿½ï¿½Ú‚Ì“Ç‚Ýï¿½ï¿½Ý‚Å‚Íƒfï¿½[ï¿½^ï¿½Í“Ç‚ÝŽÌ‚Ä‚ï¿½B
+        if(ios==-1) exit        ! ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½çƒ‹ï¿½[ï¿½vï¿½ð”²‚ï¿½ï¿½ï¿½
+        nm_data = nm_data+1   ! ï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½ÌƒJï¿½Eï¿½ï¿½ï¿½g
       end do
       allocate( tide_data(nm_data) )
       nm_tide = nm_data
-      rewind(77)                ! ƒtƒ@ƒCƒ‹‚Ì‚Í‚¶‚ß‚É–ß‚éB
-!  ---- ƒf[ƒ^‚Ì“Ç‚Ýž‚Ý -----
+      rewind(77)                ! ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ì‚Í‚ï¿½ï¿½ß‚É–ß‚ï¿½B
+!  ---- ï¿½fï¿½[ï¿½^ï¿½Ì“Ç‚Ýï¿½ï¿½ï¿½ -----
       do i=1, nm_data
         read(77,*) tide_data(i)
       end do
@@ -56,9 +56,9 @@
 !  ---- count data number -----
       nm_data = 0
       do
-        read(77,*,iostat=ios)   ! ˆê‰ñ–Ú‚Ì“Ç‚Ýž‚Ý‚Å‚Íƒf[ƒ^‚Í“Ç‚ÝŽÌ‚Ä‚éB
-        if(ios==-1) exit        ! ƒtƒ@ƒCƒ‹‚ªI‚í‚Á‚½‚çƒ‹[ƒv‚ð”²‚¯‚é
-        nm_data = nm_data+1   ! ƒf[ƒ^”‚ÌƒJƒEƒ“ƒg
+        read(77,*,iostat=ios)   ! ï¿½ï¿½ï¿½Ú‚Ì“Ç‚Ýï¿½ï¿½Ý‚Å‚Íƒfï¿½[ï¿½^ï¿½Í“Ç‚ÝŽÌ‚Ä‚ï¿½B
+        if(ios==-1) exit        ! ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½çƒ‹ï¿½[ï¿½vï¿½ð”²‚ï¿½ï¿½ï¿½
+        nm_data = nm_data+1   ! ï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½ÌƒJï¿½Eï¿½ï¿½ï¿½g
       end do
       allocate( Pair_data (nm_data))
       allocate( Uwind_data(nm_data))
@@ -69,8 +69,8 @@
       allocate( swrad_data(nm_data))
       allocate( cloud_data(nm_data))
       nm_air = nm_data
-      rewind(77)                ! ƒtƒ@ƒCƒ‹‚Ì‚Í‚¶‚ß‚É–ß‚éB
-!  ---- ƒf[ƒ^‚Ì“Ç‚Ýž‚Ý -----
+      rewind(77)                ! ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ì‚Í‚ï¿½ï¿½ß‚É–ß‚ï¿½B
+!  ---- ï¿½fï¿½[ï¿½^ï¿½Ì“Ç‚Ýï¿½ï¿½ï¿½ -----
       do i=1, nm_data
         read(77,*) Pair_data (i), Uwind_data(i), Vwind_data(i),    &
     &              Tair_data (i), Qair_data (i), rain_data (i),    &
@@ -88,14 +88,14 @@
 !  ---- count data number -----
       nm_data = 0
       do
-        read(77,*,iostat=ios)   ! ˆê‰ñ–Ú‚Ì“Ç‚Ýž‚Ý‚Å‚Íƒf[ƒ^‚Í“Ç‚ÝŽÌ‚Ä‚éB
-        if(ios==-1) exit        ! ƒtƒ@ƒCƒ‹‚ªI‚í‚Á‚½‚çƒ‹[ƒv‚ð”²‚¯‚é
-        nm_data = nm_data+1   ! ƒf[ƒ^”‚ÌƒJƒEƒ“ƒg
+        read(77,*,iostat=ios)   ! ï¿½ï¿½ï¿½Ú‚Ì“Ç‚Ýï¿½ï¿½Ý‚Å‚Íƒfï¿½[ï¿½^ï¿½Í“Ç‚ÝŽÌ‚Ä‚ï¿½B
+        if(ios==-1) exit        ! ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½çƒ‹ï¿½[ï¿½vï¿½ð”²‚ï¿½ï¿½ï¿½
+        nm_data = nm_data+1   ! ï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½ÌƒJï¿½Eï¿½ï¿½ï¿½g
       end do
       allocate( dlwrad_data(nm_data))
       nm_dlwrad = nm_data
-      rewind(77)                ! ƒtƒ@ƒCƒ‹‚Ì‚Í‚¶‚ß‚É–ß‚éB
-!  ---- ƒf[ƒ^‚Ì“Ç‚Ýž‚Ý -----
+      rewind(77)                ! ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ì‚Í‚ï¿½ï¿½ß‚É–ß‚ï¿½B
+!  ---- ï¿½fï¿½[ï¿½^ï¿½Ì“Ç‚Ýï¿½ï¿½ï¿½ -----
       do i=1, nm_data
         read(77,*) dlwrad_data(i)
       end do
@@ -111,14 +111,14 @@
 !  ---- count data number -----
       nm_data = 0
       do
-        read(77,*,iostat=ios)   ! ˆê‰ñ–Ú‚Ì“Ç‚Ýž‚Ý‚Å‚Íƒf[ƒ^‚Í“Ç‚ÝŽÌ‚Ä‚éB
-        if(ios==-1) exit        ! ƒtƒ@ƒCƒ‹‚ªI‚í‚Á‚½‚çƒ‹[ƒv‚ð”²‚¯‚é
-        nm_data = nm_data+1   ! ƒf[ƒ^”‚ÌƒJƒEƒ“ƒg
+        read(77,*,iostat=ios)   ! ï¿½ï¿½ï¿½Ú‚Ì“Ç‚Ýï¿½ï¿½Ý‚Å‚Íƒfï¿½[ï¿½^ï¿½Í“Ç‚ÝŽÌ‚Ä‚ï¿½B
+        if(ios==-1) exit        ! ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½çƒ‹ï¿½[ï¿½vï¿½ð”²‚ï¿½ï¿½ï¿½
+        nm_data = nm_data+1   ! ï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½ÌƒJï¿½Eï¿½ï¿½ï¿½g
       end do
       allocate( Hs_data(nm_data), Tp_data(nm_data) )
       nm_wave = nm_data
-      rewind(77)                ! ƒtƒ@ƒCƒ‹‚Ì‚Í‚¶‚ß‚É–ß‚éB
-!  ---- ƒf[ƒ^‚Ì“Ç‚Ýž‚Ý -----
+      rewind(77)                ! ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ì‚Í‚ï¿½ï¿½ß‚É–ß‚ï¿½B
+!  ---- ï¿½fï¿½[ï¿½^ï¿½Ì“Ç‚Ýï¿½ï¿½ï¿½ -----
       do i=1, nm_data
         read(77,*) Hs_data(i), Tp_data(i)
       end do
@@ -132,14 +132,14 @@
 !  ---- count data number -----
       nm_data = 0
       do
-        read(77,*,iostat=ios)   ! ˆê‰ñ–Ú‚Ì“Ç‚Ýž‚Ý‚Å‚Íƒf[ƒ^‚Í“Ç‚ÝŽÌ‚Ä‚éB
-        if(ios==-1) exit        ! ƒtƒ@ƒCƒ‹‚ªI‚í‚Á‚½‚çƒ‹[ƒv‚ð”²‚¯‚é
-        nm_data = nm_data+1   ! ƒf[ƒ^”‚ÌƒJƒEƒ“ƒg
+        read(77,*,iostat=ios)   ! ï¿½ï¿½ï¿½Ú‚Ì“Ç‚Ýï¿½ï¿½Ý‚Å‚Íƒfï¿½[ï¿½^ï¿½Í“Ç‚ÝŽÌ‚Ä‚ï¿½B
+        if(ios==-1) exit        ! ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½Iï¿½ï¿½ï¿½ï¿½ï¿½ï¿½çƒ‹ï¿½[ï¿½vï¿½ð”²‚ï¿½ï¿½ï¿½
+        nm_data = nm_data+1   ! ï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½ÌƒJï¿½Eï¿½ï¿½ï¿½g
       end do
       allocate( offtemp_data(nm_data) )
       nm_offtemp = nm_data
-      rewind(77)                ! ƒtƒ@ƒCƒ‹‚Ì‚Í‚¶‚ß‚É–ß‚éB
-!  ---- ƒf[ƒ^‚Ì“Ç‚Ýž‚Ý -----
+      rewind(77)                ! ï¿½tï¿½@ï¿½Cï¿½ï¿½ï¿½Ì‚Í‚ï¿½ï¿½ß‚É–ß‚ï¿½B
+!  ---- ï¿½fï¿½[ï¿½^ï¿½Ì“Ç‚Ýï¿½ï¿½ï¿½ -----
       do i=1, nm_data
         read(77,*) offtemp_data(i)
       end do
@@ -296,9 +296,10 @@
 
 !        swrad=light_and_dark(time, 140.0d0, 10./60./24., 0.5/60./24.)   !light and dark method 10 min interval
 !        swrad=light_and_dark(time, 350.0d0, 30./60./24., 0.5/60./24.)   !light and dark method 1 hour interval
+        swrad=light_and_dark2(time, 1000.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
 
 !        swrad=short_radi(time, 0.0d0, 1.0d0, 24.0d0, 25.0d0, 50.0d0, 1) !shortwave radiation by Zillman equation
-        swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
+!        swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
 !        swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2)*0.25d0 !shortwave radiation around 3/21 by Zillman equation
 !        swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2)*0.5d0 !shortwave radiation around 3/21 by Zillman equation
       
@@ -600,6 +601,50 @@
       return
 
     end function light_and_dark
+
+    real(8) function light_and_dark2(time,PFD,interval1,interval2,transperi)
+! **********************************************************************
+! *                                                                    *
+! * FUNCTION    :  caliculate solar radiation (W/m2).                  *
+! *              time:       progress time (day)                       *
+! *              interval: interval of light & dark (day)              *
+! *              transperi: transition period between light & dark (day)*
+! *                                                                    *
+! **********************************************************************
+!
+      implicit none
+      
+      real(8), parameter :: pi = 3.141592654d0
+
+      real(8) :: time, PFD,interval1,interval2, transperi
+      real(8) :: Imax   !light intensity (W/m2)
+
+!            !convert photon flux density (umol m-2 s-1) to solar radiation (W m-2)
+      Imax = PFD/2.1d0/(1.0d0-0.07d0) ! for Takahashi et al. (2004) experiment
+
+!  Dark->light->Dark->light
+
+      if(mod(time,interval1+interval2)<=interval2) then
+        if(mod(time,interval1+interval2)<=transperi) then
+          light_and_dark2=                                         &
+     &          Imax/2.*(Cos(pi*(mod(time,interval1+interval2)-interval1) &
+     &                             /transperi)+1.)
+        else
+          light_and_dark2= 20.0d0/2.1d0/(1.0d0-0.07d0)
+        endif
+      else
+        if(mod(time,interval1+interval2)<=interval1+transperi) then
+          light_and_dark2=                                            &
+     &           Imax/2.*(-Cos(pi*mod(time,interval1+interval2)/transperi)+1.)
+        else
+          light_and_dark2=Imax
+
+        endif    
+      endif
+
+      return
+
+    end function light_and_dark2
       
   end module mod_input
 
