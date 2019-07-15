@@ -51,97 +51,96 @@ contains
 
   SUBROUTINE reef_ecosys         &
 !        input parameters
-                ( ng, i, j       &   ! ng: nested grid number; i,j: position
-                , N              &   ! Number of vertical grid (following ROMS vertical grid)
-                , isplitc        &   ! Internal loop counts of coral polyp model
-                , isplitsed      &   ! Internal loop counts of sediment ecosystem model
-                , dt             &   ! Time step (sec)
-                , dz             &   ! dz(N): vertical grid size (m)
-                , PFDsurf        &   ! Sea surface photon flux density (umol m-2 s-1)
-                , tau            &   ! bottom shear stress (N m-2)
-                , pCO2air        &   ! Air CO2 pertial pressure (uatm)
-                , U10            &   ! wind speed (m s-1)
+    ( ng, i, j       &   ! ng: nested grid number; i,j: position
+    , N              &   ! Number of vertical grid (following ROMS vertical grid)
+    , isplitc        &   ! Internal loop counts of coral polyp model
+    , isplitsed      &   ! Internal loop counts of sediment ecosystem model
+    , dt             &   ! Time step (sec)
+    , dz             &   ! dz(N): vertical grid size (m)
+    , PFDsurf        &   ! Sea surface photon flux density (umol m-2 s-1)
+    , tau            &   ! bottom shear stress (N m-2)
+    , pCO2air        &   ! Air CO2 pertial pressure (uatm)
+    , U10            &   ! wind speed (m s-1)
 #ifdef CORAL_POLYP
-                , p_coral        &   ! Coral coverage (0-1)
+    , p_coral        &   ! Coral coverage (0-1)
 #endif
 #ifdef SEAGRASS
-                , p_sgrass       &   ! seagrass coverage (0-1)
+    , p_sgrass       &   ! seagrass coverage (0-1)
 #endif
 #ifdef MACROALGAE
-                , p_algae        &   ! algal coverage (0-1)
+    , p_algae        &   ! algal coverage (0-1)
 #endif
 #ifdef SEDIMENT_ECOSYS
-                , p_sand          &   ! sediment coverage (0-1)
+    , p_sand         &   ! sediment coverage (0-1)
 #endif
-
-                , Tmp            &   ! Tmp(N): Temperature (oC)
-                , Sal            &   ! Sal(N): Salinity (PSU)
-                , DIC            &   ! DIC(N): Total dissolved inorganic carbon (DIC: umol kg-1)
-                , TA             &   ! TA (N): Total alkalinity (TA: umol kg-1)
-                , DOx            &   ! DOx(N): Dissolved oxygen (umol L-1)
+    , Tmp            &   ! Tmp(N): Temperature (oC)
+    , Sal            &   ! Sal(N): Salinity (PSU)
+    , DIC            &   ! DIC(N): Total dissolved inorganic carbon (DIC: umol kg-1)
+    , TA             &   ! TA (N): Total alkalinity (TA: umol kg-1)
+    , DOx            &   ! DOx(N): Dissolved oxygen (umol L-1)
 #if defined ORGANIC_MATTER
-                , DOC            &   ! DOC(N): Dissolved organic carbon (DOC: umol L-1)
-                , POC            &   ! POC(N): Particulate organic carbon (DOC: umol L-1)
-                , PHY1           &   ! PHY(N): phytoplankton (umol C L-1)
-                , PHY2           &   ! PHY(N): phytoplankton (umol C L-1)
-                , ZOO            &   ! ZOO(N): zooplankton (umol C L-1)
+    , DOC            &   ! DOC(N): Dissolved organic carbon (DOC: umol L-1)
+    , POC            &   ! POC(N): Particulate organic carbon (DOC: umol L-1)
+    , PHY1           &   ! PHY(N): phytoplankton (umol C L-1)
+    , PHY2           &   ! PHY(N): phytoplankton (umol C L-1)
+    , ZOO            &   ! ZOO(N): zooplankton (umol C L-1)
 #endif
 #if defined CARBON_ISOTOPE
-                , DI13C          &   ! DI13C(N): 13C of DIC (umol kg-1)
+    , DI13C          &   ! DI13C(N): 13C of DIC (umol kg-1)
 #endif
 #if defined NUTRIENTS            
-                , NO3            &   ! NO3(N): NO3 (umol L-1)
-                , NO2            &   ! NO2(N): NO2 (umol L-1)
-                , NH4            &   ! NH4(N): NH4 (umol L-1)
-                , PO4            &   ! PO4(N): PO4 (umol L-1)
+    , NO3            &   ! NO3(N): NO3 (umol L-1)
+    , NO2            &   ! NO2(N): NO2 (umol L-1)
+    , NH4            &   ! NH4(N): NH4 (umol L-1)
+    , PO4            &   ! PO4(N): PO4 (umol L-1)
 # if defined ORGANIC_MATTER
-                , DON            &   ! DON(N): Dissolved organic nitrogen (DON: umol L-1)
-                , PON            &   ! PON(N): Particulate organic nitrogen (PON: umol L-1)
-                , DOP            &   ! DOP(N): Dissolved organic phosporius (DOP: umol L-1)
-                , POP            &   ! POP(N): Particulate organic phosporius (POP: umol L-1)
+    , DON            &   ! DON(N): Dissolved organic nitrogen (DON: umol L-1)
+    , PON            &   ! PON(N): Particulate organic nitrogen (PON: umol L-1)
+    , DOP            &   ! DOP(N): Dissolved organic phosporius (DOP: umol L-1)
+    , POP            &   ! POP(N): Particulate organic phosporius (POP: umol L-1)
 # endif
 #endif
 #if defined COT_STARFISH         
-                , COTe           &   ! COTe(N): COT starfish egg (umol L-1)
-                , COTl           &   ! COTl(N): COT starfish larvae (umol L-1)
+    , COTe           &   ! COTe(N): COT starfish egg (umol L-1)
+    , COTl           &   ! COTl(N): COT starfish larvae (umol L-1)
 #endif
-!          output parameters
-                , dDIC_dt        &   ! dDIC_dt(N): dDIC/dt (umol kg-1 s-1)
-                , dTA_dt         &   ! dTA_dt (N): dTA/dt (umol kg-1 s-1)
-                , dDOx_dt        &   ! dDOx_dt(N): dDO/dt (umol L-1 s-1)
+!   output parameters
+    , dDIC_dt        &   ! dDIC_dt(N): dDIC/dt (umol kg-1 s-1)
+    , dTA_dt         &   ! dTA_dt (N): dTA/dt (umol kg-1 s-1)
+    , dDOx_dt        &   ! dDOx_dt(N): dDO/dt (umol L-1 s-1)
 #if defined ORGANIC_MATTER
-                , dDOC_dt        &   ! dDOC_dt(N): dDOC/dt (umol L-1 s-1)
-                , dPOC_dt        &   ! dPOC_dt(N): dPOC/dt (umol L-1 s-1)
-                , dPHY1_dt       &   ! dPHY_dt(N): dPHY/dt (umol C L-1 s-1)
-                , dPHY2_dt       &   ! dPHY_dt(N): dPHY/dt (umol C L-1 s-1)
-                , dZOO_dt        &   ! dZOO_dt(N): dZOO/dt (umol C L-1 s-1)
+    , dDOC_dt        &   ! dDOC_dt(N): dDOC/dt (umol L-1 s-1)
+    , dPOC_dt        &   ! dPOC_dt(N): dPOC/dt (umol L-1 s-1)
+    , dPHY1_dt       &   ! dPHY_dt(N): dPHY/dt (umol C L-1 s-1)
+    , dPHY2_dt       &   ! dPHY_dt(N): dPHY/dt (umol C L-1 s-1)
+    , dZOO_dt        &   ! dZOO_dt(N): dZOO/dt (umol C L-1 s-1)
 #endif
 #if defined CARBON_ISOTOPE
-                , dDI13C_dt      &   ! dDI13C_dt(N): dDI13C/dt (umol kg-1 s-1)
+    , dDI13C_dt      &   ! dDI13C_dt(N): dDI13C/dt (umol kg-1 s-1)
 #endif
 #if defined NUTRIENTS          
-                , dNO3_dt        &   ! dNO3_dt(N): dNO3/dt (umol L-1 s-1)
-                , dNO2_dt        &   ! dNO2_dt(N): dNO2/dt (umol L-1 s-1)
-                , dNH4_dt        &   ! dNH4_dt(N): dNH4/dt (umol L-1 s-1)
-                , dPO4_dt        &   ! dPO4_dt(N): dPO4/dt (umol L-1 s-1)
+    , dNO3_dt        &   ! dNO3_dt(N): dNO3/dt (umol L-1 s-1)
+    , dNO2_dt        &   ! dNO2_dt(N): dNO2/dt (umol L-1 s-1)
+    , dNH4_dt        &   ! dNH4_dt(N): dNH4/dt (umol L-1 s-1)
+    , dPO4_dt        &   ! dPO4_dt(N): dPO4/dt (umol L-1 s-1)
 # if defined ORGANIC_MATTER
-                , dDON_dt        &   ! dDON_dt(N): dDON/dt (umol L-1 s-1)
-                , dPON_dt        &   ! dPON_dt(N): dPON/dt (umol L-1 s-1)
-                , dDOP_dt        &   ! dDOP_dt(N): dDOP/dt (umol L-1 s-1)
-                , dPOP_dt        &   ! dPOP_dt(N): dPOP/dt (umol L-1 s-1)
+    , dDON_dt        &   ! dDON_dt(N): dDON/dt (umol L-1 s-1)
+    , dPON_dt        &   ! dPON_dt(N): dPON/dt (umol L-1 s-1)
+    , dDOP_dt        &   ! dDOP_dt(N): dDOP/dt (umol L-1 s-1)
+    , dPOP_dt        &   ! dPOP_dt(N): dPOP/dt (umol L-1 s-1)
 # endif
 #endif
 #if defined COT_STARFISH         
-                , dCOTe_dt       &   ! dCOTe/dt(N): (umol L-1 s-1)
-                , dCOTl_dt       &   ! dCOTl/dt(N): (umol L-1 s-1)
+    , dCOTe_dt       &   ! dCOTe/dt(N): (umol L-1 s-1)
+    , dCOTl_dt       &   ! dCOTl/dt(N): (umol L-1 s-1)
 #endif
-                , sspH           &   ! sea surface pH
-                , ssfCO2         &   ! sea surface fCO2 (uatm)
-                , ssWarg         &   ! sea surface aragonite saturation state
-                , ssCO2flux      &   ! sea surface CO2 flux (mmol m-2 s-1)
-                , ssO2flux       &   ! sea surface O2 flux (mmol m-2 s-1)
-                , PFDbott        &   ! Bottom photon flux density (umol m-2 s-1)
-                 )                    
+    , sspH           &   ! sea surface pH
+    , ssfCO2         &   ! sea surface fCO2 (uatm)
+    , ssWarg         &   ! sea surface aragonite saturation state
+    , ssCO2flux      &   ! sea surface CO2 flux (mmol m-2 s-1)
+    , ssO2flux       &   ! sea surface O2 flux (mmol m-2 s-1)
+    , PFDbott        &   ! Bottom photon flux density (umol m-2 s-1)
+    )                    
 !
 !-----------------------------------------------------------------------
 !                                                                       
@@ -505,66 +504,66 @@ contains
 ! Food web model.
 !-----------------------------------------------------------------------
 
-      CALL foodweb               &
-!        input parameters
-                ( ng, 1, i, j    &   ! ng: nested grid number; n: coral compartment; i,j: position
-                , dt             &   ! Time step (sec)
-                , PFD            &   ! Photon flux density (umol m-2 s-1)
-                , rho_sw         &   ! Density of seawater (g cm-3)
-                , Tmp(k)         &   ! Temperature (oC)
-                , Sal(k)         &   ! Salinity (PSU)
-                , DIC(k)         &   ! Total dissolved inorganic carbon (DIC: umol kg-1)
-                , TA (k)         &   ! Total alkalinity (TA: umol kg-1)
-                , DOx(k)         &   ! Dissolved oxygen (umol L-1)
-                , DOC(k)         &   ! Dissolved organic carbon (DOC: umol L-1)
-                , POC(k)         &   ! Particulate organic carbon (DOC: umol L-1)
-                , PHY1(k)        &   ! phytoplankton (umol C L-1)
-                , PHY2(k)        &   ! phytoplankton (umol C L-1)
-                , ZOO(k)         &   ! zooplankton (umol C L-1)
+      CALL foodweb       &
+!       input parameters
+        ( ng, 1, i, j    &   ! ng: nested grid number; n: coral compartment; i,j: position
+        , dt             &   ! Time step (sec)
+        , PFD            &   ! Photon flux density (umol m-2 s-1)
+        , rho_sw         &   ! Density of seawater (g cm-3)
+        , Tmp(k)         &   ! Temperature (oC)
+        , Sal(k)         &   ! Salinity (PSU)
+        , DIC(k)         &   ! Total dissolved inorganic carbon (DIC: umol kg-1)
+        , TA (k)         &   ! Total alkalinity (TA: umol kg-1)
+        , DOx(k)         &   ! Dissolved oxygen (umol L-1)
+        , DOC(k)         &   ! Dissolved organic carbon (DOC: umol L-1)
+        , POC(k)         &   ! Particulate organic carbon (DOC: umol L-1)
+        , PHY1(k)        &   ! phytoplankton (umol C L-1)
+        , PHY2(k)        &   ! phytoplankton (umol C L-1)
+        , ZOO(k)         &   ! zooplankton (umol C L-1)
 # if defined CARBON_ISOTOPE
-                , DI13C(k)       &   !13C of DIC (umol kg-1)
+        , DI13C(k)       &   !13C of DIC (umol kg-1)
 # endif
 # if defined NUTRIENTS         
-                , NO3(k)         &   ! NO3 (umol L-1)
-                , NO2(k)         &   ! NO2 (umol L-1)
-                , NH4(k)         &   ! NH4 (umol L-1)
-                , PO4(k)         &   ! PO4 (umol L-1)
-                , DON(k)         &   ! Dissolved organic nitrogen (DON: umol L-1)
-                , PON(k)         &   ! Particulate organic nitrogen (PON: umol L-1)
-                , DOP(k)         &   ! Dissolved organic phosporius (DOP: umol L-1)
-                , POP(k)         &   ! Particulate organic phosporius (POP: umol L-1)
+        , NO3(k)         &   ! NO3 (umol L-1)
+        , NO2(k)         &   ! NO2 (umol L-1)
+        , NH4(k)         &   ! NH4 (umol L-1)
+        , PO4(k)         &   ! PO4 (umol L-1)
+        , DON(k)         &   ! Dissolved organic nitrogen (DON: umol L-1)
+        , PON(k)         &   ! Particulate organic nitrogen (PON: umol L-1)
+        , DOP(k)         &   ! Dissolved organic phosporius (DOP: umol L-1)
+        , POP(k)         &   ! Particulate organic phosporius (POP: umol L-1)
 # endif
 #if defined COT_STARFISH
-                , COTe(k)        &   ! COT starfish egg (umol L-1)
-                , COTl(k)        &   ! COT starfish larvae (umol L-1)
+        , COTe(k)        &   ! COT starfish egg (umol L-1)
+        , COTl(k)        &   ! COT starfish larvae (umol L-1)
 #endif
-!          output parameters
-                , dDIC           &   ! dDIC/dt  (umol kg-1 s-1)  1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
-                , dTA            &   ! dTA/dt   (umol kg-1 s-1) 
-                , dDOx           &  ! dDOx/dt  (umol L-1 s-1) 
-                , dDOC           &   ! dDOC/dt  (umol L-1 s-1) 
-                , dPOC           &   ! dPOC/dt  (umol L-1 s-1) 
-                , dPHY1          &   ! dPHY/dt  (umol L-1 s-1)  
-                , dPHY2          &   ! dPHY/dt  (umol L-1 s-1)  
-                , dZOO           &   ! dZOO/dt  (umol L-1 s-1)  
+!       output parameters
+        , dDIC           &   ! dDIC/dt  (umol kg-1 s-1)  1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
+        , dTA            &   ! dTA/dt   (umol kg-1 s-1) 
+        , dDOx           &  ! dDOx/dt  (umol L-1 s-1) 
+        , dDOC           &   ! dDOC/dt  (umol L-1 s-1) 
+        , dPOC           &   ! dPOC/dt  (umol L-1 s-1) 
+        , dPHY1          &   ! dPHY/dt  (umol L-1 s-1)  
+        , dPHY2          &   ! dPHY/dt  (umol L-1 s-1)  
+        , dZOO           &   ! dZOO/dt  (umol L-1 s-1)  
 # if defined CARBON_ISOTOPE
-                , dDI13C         &   ! dDI13C/dt (umol kg-1 s-1)
+        , dDI13C         &   ! dDI13C/dt (umol kg-1 s-1)
 # endif
 # if defined NUTRIENTS
-                , dNO3           &   ! dNO3/dt (umol L-1 s-1)
-                , dNO2           &   ! dNO2/dt (umol L-1 s-1)
-                , dNH4           &   ! dNH4/dt (umol L-1 s-1)
-                , dPO4           &   ! dPO4/dt (umol L-1 s-1)
-                , dDON           &   ! dDON/dt (umol L-1 s-1)
-                , dPON           &   ! dPON/dt (umol L-1 s-1)
-                , dDOP           &   ! dDOP/dt (umol L-1 s-1)
-                , dPOP           &   ! dPOP/dt (umol L-1 s-1)
+        , dNO3           &   ! dNO3/dt (umol L-1 s-1)
+        , dNO2           &   ! dNO2/dt (umol L-1 s-1)
+        , dNH4           &   ! dNH4/dt (umol L-1 s-1)
+        , dPO4           &   ! dPO4/dt (umol L-1 s-1)
+        , dDON           &   ! dDON/dt (umol L-1 s-1)
+        , dPON           &   ! dPON/dt (umol L-1 s-1)
+        , dDOP           &   ! dDOP/dt (umol L-1 s-1)
+        , dPOP           &   ! dPOP/dt (umol L-1 s-1)
 # endif                                
 #if defined COT_STARFISH
-                , dCOTe          &   ! dCOTe/dt (umol L-1 s-1)
-                , dCOTl          &   ! dCOTl/dt (umol L-1 s-1)
+        , dCOTe          &   ! dCOTe/dt (umol L-1 s-1)
+        , dCOTl          &   ! dCOTl/dt (umol L-1 s-1)
 #endif
-                 )
+        )
 
 !------------ Vertical fluxes calculation ------------------------------
 !                                                                       
@@ -694,59 +693,59 @@ contains
         DO m=1,isplitc   !!! Loop for coral polyp model: dtc <= 0.05 sec
 
           CALL coral_polyp          &
-!          input parameters
-                  ( ng, icl, i, j   &   ! ng: nested grid number; n: coral compartment; i,j: position
-                  , dtc             &   ! Time step (sec)
-                  , PFDbott         &   ! Photon flux density (umol m-2 s-1)
-                  , rho_sw          &   ! Density of seawater (g cm-3)
-                  , Tmp(1)          &   ! Temperature (oC)
-                  , Sal(1)          &   ! Salinity (PSU)
-                  , DIC(1)          &   ! Total dissolved inorganic carbon (DIC: umol kg-1)
-                  , TA (1)          &   ! Total alkalinity (TA: umol kg-1)
-                  , DOx(1)          &   ! Dissolved oxygen (umol L-1)
+!           input parameters
+            ( ng, icl, i, j   &   ! ng: nested grid number; n: coral compartment; i,j: position
+            , dtc             &   ! Time step (sec)
+            , PFDbott         &   ! Photon flux density (umol m-2 s-1)
+            , rho_sw          &   ! Density of seawater (g cm-3)
+            , Tmp(1)          &   ! Temperature (oC)
+            , Sal(1)          &   ! Salinity (PSU)
+            , DIC(1)          &   ! Total dissolved inorganic carbon (DIC: umol kg-1)
+            , TA (1)          &   ! Total alkalinity (TA: umol kg-1)
+            , DOx(1)          &   ! Dissolved oxygen (umol L-1)
 # if defined CORAL_INGESTION
-                  , PHY(1)          &   ! phytoplankton (umol C L-1)
-                  , ZOO(1)          &   ! zooplankton (umol C L-1)
+            , PHY(1)          &   ! phytoplankton (umol C L-1)
+            , ZOO(1)          &   ! zooplankton (umol C L-1)
 # endif
 # if defined CORAL_CARBON_ISOTOPE
-                  , DI13C(1)        &   !13C of DIC (umol kg-1)
+            , DI13C(1)        &   !13C of DIC (umol kg-1)
 # endif
 # if defined CORAL_NUTRIENTS
-                  , NO3(1)          &   ! NO3 (umol L-1)
-                  , NO2(1)          &   ! NO2 (umol L-1)
-                  , NH4(1)          &   ! NH4 (umol L-1)
-                  , PO4(1)          &   ! PO4 (umol L-1)
+            , NO3(1)          &   ! NO3 (umol L-1)
+            , NO2(1)          &   ! NO2 (umol L-1)
+            , NH4(1)          &   ! NH4 (umol L-1)
+            , PO4(1)          &   ! PO4 (umol L-1)
 # endif
-                  , tau             &   ! bottom shear stress (N m-2)
-                  , 0.0d0           &   ! sedimentation rate (??)
-!          output parameters
-                  , Flux_DIC       &   ! DIC uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
-                  , Flux_TA        &   ! TA  uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
-                  , Flux_DO        &   ! DO  uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
+            , tau             &   ! bottom shear stress (N m-2)
+            , 0.0d0           &   ! sedimentation rate (??)
+!           output parameters
+            , Flux_DIC       &   ! DIC uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
+            , Flux_TA        &   ! TA  uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
+            , Flux_DO        &   ! DO  uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
 # if defined ORGANIC_MATTER
-                  , Flux_DOC       &   ! DOC uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
-                  , Flux_POC       &   ! POC uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
+            , Flux_DOC       &   ! DOC uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
+            , Flux_POC       &   ! POC uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
 # endif
 # if defined CORAL_INGESTION
-                  , Flux_PHY       &   ! Phytoplankton ingestion rate (nmol cm-2 s-1)  * direction of water column to coral is positive
-                  , Flux_ZOO       &   ! Zooplankton ingestion rate (nmol cm-2 s-1)  * direction of water column to coral is positive
+            , Flux_PHY       &   ! Phytoplankton ingestion rate (nmol cm-2 s-1)  * direction of water column to coral is positive
+            , Flux_ZOO       &   ! Zooplankton ingestion rate (nmol cm-2 s-1)  * direction of water column to coral is positive
 # endif
 # if defined CORAL_CARBON_ISOTOPE
-                  , Flux_DI13C     &   ! DI13C uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
+            , Flux_DI13C     &   ! DI13C uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
 # endif
 # if defined CORAL_NUTRIENTS
-                  , Flux_NO3       &   ! NO3 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
-                  , Flux_NO2       &   ! NO2 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
-                  , Flux_NH4       &   ! NH4 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
-                  , Flux_PO4       &   ! PO4 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
+            , Flux_NO3       &   ! NO3 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
+            , Flux_NO2       &   ! NO2 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
+            , Flux_NH4       &   ! NH4 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
+            , Flux_PO4       &   ! PO4 uptake rate (nmol cm-2 s-1)  * direction of water column to coral is positive
 #  if defined ORGANIC_MATTER
-                  , Flux_DON       &   ! DON uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
-                  , Flux_PON       &   ! PON uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
-                  , Flux_DOP       &   ! DOP uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
-                  , Flux_POP       &   ! POP uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
+            , Flux_DON       &   ! DON uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
+            , Flux_PON       &   ! PON uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
+            , Flux_DOP       &   ! DOP uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
+            , Flux_POP       &   ! POP uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
 #  endif
 # endif
-                  )
+            )
 
         END DO
 
@@ -794,30 +793,30 @@ contains
     IF(p_sgrass .gt. 0.0d0) THEN
 
       CALL seagrass              &
-!        input parameters
-                ( ng, 1, i, j    &   ! ng: nested grid number; n: seagrass compartment; i,j: position
-                , PFDbott        &   ! Photon flux density (umol m-2 s-1)
-                , rho_sw         &   ! Density of seawater (g cm-3)
-                , DIC(1)         &   ! DIC (umol kg-1)
-                , DOx(1)         &   ! DO  (umol L-1)
+!       input parameters
+        ( ng, 1, i, j    &   ! ng: nested grid number; n: seagrass compartment; i,j: position
+        , PFDbott        &   ! Photon flux density (umol m-2 s-1)
+        , rho_sw         &   ! Density of seawater (g cm-3)
+        , DIC(1)         &   ! DIC (umol kg-1)
+        , DOx(1)         &   ! DO  (umol L-1)
 # if defined NUTRIENTS         
-                , NH4(1)         &   ! NH4 concentration (umol L-1)
+        , NH4(1)         &   ! NH4 concentration (umol L-1)
 # endif
 # if defined CARBON_ISOTOPE
-                , DI13C(1)       &   ! 13C of DIC (umol kg-1)
+        , DI13C(1)       &   ! 13C of DIC (umol kg-1)
 # endif
-!          output parameters
-                , Flux_DIC      &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , Flux_DO       &   ! DO  uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+!       output parameters
+        , Flux_DIC      &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_DO       &   ! DO  uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 # if defined NUTRIENTS         
-                , Flux_NO3      &   ! NO3 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , Flux_NH4      &   ! NH4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , Flux_PO4      &   ! PO4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_NO3      &   ! NO3 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_NH4      &   ! NH4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_PO4      &   ! PO4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 # endif
 # if defined CARBON_ISOTOPE
-                , Flux_DI13C    &   ! DI13C uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_DI13C    &   ! DI13C uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 # endif
-                )
+        )
 
       ! 1 mmol m-2 s-1, 1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
       ! cff: convert [mmol m-2 s-1] to [umol L-1 s-1]
@@ -845,30 +844,30 @@ contains
 !
     IF(p_algae .gt. 0.0d0) THEN
       CALL macroalgae            &
-!        input parameters
-                ( ng, 1, i, j    &   ! ng: nested grid number; n: seagrass compartment; i,j: position
-                , PFDbott        &   ! Photon flux density (umol m-2 s-1)
-                , rho_sw         &   ! Density of seawater (g cm-3)
-                , DIC(1)         &   ! DIC (umol kg-1)
-                , DOx(1)         &   ! DO  (umol L-1)
+!       input parameters
+        ( ng, 1, i, j    &   ! ng: nested grid number; n: seagrass compartment; i,j: position
+        , PFDbott        &   ! Photon flux density (umol m-2 s-1)
+        , rho_sw         &   ! Density of seawater (g cm-3)
+        , DIC(1)         &   ! DIC (umol kg-1)
+        , DOx(1)         &   ! DO  (umol L-1)
 # if defined NUTRIENTS         
-                , NH4(1)         &   ! NH4 concentration (umol L-1)
+        , NH4(1)         &   ! NH4 concentration (umol L-1)
 # endif
 # if defined CARBON_ISOTOPE
-                , DI13C(1)       &   ! 13C of DIC (umol kg-1)
+        , DI13C(1)       &   ! 13C of DIC (umol kg-1)
 # endif
-!          output parameters
-                , Flux_DIC      &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , Flux_DO       &   ! DO  uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+!       output parameters
+        , Flux_DIC       &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_DO        &   ! DO  uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 # if defined NUTRIENTS         
-                , Flux_NO3      &   ! NO3 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , Flux_NH4      &   ! NH4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , Flux_PO4      &   ! PO4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_NO3       &   ! NO3 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_NH4       &   ! NH4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_PO4       &   ! PO4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 # endif
 # if defined CARBON_ISOTOPE
-                , Flux_DI13C    &   ! DI13C uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_DI13C     &   ! DI13C uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 # endif
-                )
+        )
 
       ! 1 mmol m-2 s-1, 1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
       ! cff: convert [mmol m-2 s-1] to [umol L-1 s-1]
@@ -897,33 +896,33 @@ contains
     IF(p_sand .gt. 0.0d0) THEN
 #ifdef SEDIMENT_EMPIRICAL
 !!!  Empirical sediment model
-        CALL sedecosys           &
-!        input parameters
-                ( ng, i, j       &   ! ng: nested grid number; i,j: position
-                , PFDbott        &   ! Photon flux density (umol m-2 s-1)
-                , rho_sw         &   ! Density of seawater (g cm-3)
-                , DIC(1)         &   ! DIC (umol kg-1)
-                , TA (1)         &   ! TA (umol kg-1)
-                , DOx(1)         &   ! DO (umol L-1)
+      CALL sedecosys     &
+!       input parameters
+        ( ng, i, j       &   ! ng: nested grid number; i,j: position
+        , PFDbott        &   ! Photon flux density (umol m-2 s-1)
+        , rho_sw         &   ! Density of seawater (g cm-3)
+        , DIC(1)         &   ! DIC (umol kg-1)
+        , TA (1)         &   ! TA (umol kg-1)
+        , DOx(1)         &   ! DO (umol L-1)
 # if defined NUTRIENTS         
-                , NH4(1)         &   ! NH4 concentration (umol L-1)
+        , NH4(1)         &   ! NH4 concentration (umol L-1)
 # endif
 # if defined CARBON_ISOTOPE
-                , DI13C(1)       &   ! 13C of DIC (umol kg-1)
+        , DI13C(1)       &   ! 13C of DIC (umol kg-1)
 # endif
-!        output parameters
-                , Flux_DIC       &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , Flux_TA        &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , Flux_DO        &   ! DO  uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+!       output parameters
+        , Flux_DIC       &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_TA        &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_DO        &   ! DO  uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 # if defined NUTRIENTS         
-                , Flux_NO3       &   ! NO3 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , Flux_NO2       &   ! NH4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , Flux_PO4       &   ! PO4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_NO3       &   ! NO3 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_NO2       &   ! NH4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_PO4       &   ! PO4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 # endif
 # if defined CARBON_ISOTOPE
-                , Flux_DI13C     &   ! DI13C uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+        , Flux_DI13C     &   ! DI13C uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 # endif
-                )
+        )
      
       ! 1 mmol m-2 s-1, 1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
       ! cff: convaert [mmol cm-2 s-1] to [umol L-1 s-1]
@@ -934,70 +933,70 @@ contains
 
       DO m=1,isplitsed   !!! Loop for coral polyp model: dtc <= 0.05 sec
 
-        CALL sedecosys           &
-!        input parameters
-                ( ng, i, j       &   ! ng: nested grid number; i,j: position
-                , dtsed          &   ! Time step (sec)
-                , PFDbott        &   ! Photon flux density (umol m-2 s-1)
-                , Tmp(1)         &   ! Tmp: Temperature (oC)
-                , Sal(1)         &   ! Sal: Salinity (PSU)
-                , DIC(1)         &   ! DIC: Total dissolved inorganic carbon (DIC: umol kg-1)
-                , TA (1)         &   ! TA : Total alkalinity (TA: umol kg-1)
-                , DOx(1)         &   ! DOx: Dissolved oxygen (umol L-1)
+        CALL sedecosys     &
+!         input parameters
+          ( ng, i, j       &   ! ng: nested grid number; i,j: position
+          , dtsed          &   ! Time step (sec)
+          , PFDbott        &   ! Photon flux density (umol m-2 s-1)
+          , Tmp(1)         &   ! Tmp: Temperature (oC)
+          , Sal(1)         &   ! Sal: Salinity (PSU)
+          , DIC(1)         &   ! DIC: Total dissolved inorganic carbon (DIC: umol kg-1)
+          , TA (1)         &   ! TA : Total alkalinity (TA: umol kg-1)
+          , DOx(1)         &   ! DOx: Dissolved oxygen (umol L-1)
 #  if defined ORGANIC_MATTER
-                , DOC(1)         &   ! DOC: Dissolved organic carbon (DOC: umol L-1)
-                , POC(1)         &   ! POC: Particulate organic carbon (DOC: umol L-1)
+          , DOC(1)         &   ! DOC: Dissolved organic carbon (DOC: umol L-1)
+          , POC(1)         &   ! POC: Particulate organic carbon (DOC: umol L-1)
 #  endif 
 #  if defined CARBON_ISOTOPE
-                , DI13C(1)       &   ! DI13C 13C of DIC (umol kg-1)
+          , DI13C(1)       &   ! DI13C 13C of DIC (umol kg-1)
 #  endif
 #  if defined NUTRIENTS            
-                , NO3(1)         &   ! NO3: NO3 (umol L-1)
-                , NO2(1)         &   ! NO2: NO2 (umol L-1)
-                , NH4(1)         &   ! NH4: NH4 (umol L-1)
-                , PO4(1)         &   ! PO4: PO4 (umol L-1)
+          , NO3(1)         &   ! NO3: NO3 (umol L-1)
+          , NO2(1)         &   ! NO2: NO2 (umol L-1)
+          , NH4(1)         &   ! NH4: NH4 (umol L-1)
+          , PO4(1)         &   ! PO4: PO4 (umol L-1)
 #   if defined ORGANIC_MATTER
-                , DON(1)         &   ! DON: Dissolved organic nitrogen (DON: umol L-1)
-                , PON(1)         &   ! PON: Particulate organic nitrogen (PON: umol L-1)
-                , DOP(1)         &   ! DOP: Dissolved organic phosporius (DOP: umol L-1)
-                , POP(1)         &   ! POP: Particulate organic phosporius (POP: umol L-1)
+          , DON(1)         &   ! DON: Dissolved organic nitrogen (DON: umol L-1)
+          , PON(1)         &   ! PON: Particulate organic nitrogen (PON: umol L-1)
+          , DOP(1)         &   ! DOP: Dissolved organic phosporius (DOP: umol L-1)
+          , POP(1)         &   ! POP: Particulate organic phosporius (POP: umol L-1)
 #   endif
 #  endif
 #  if defined ORGANIC_MATTER
-                , Fdep_POC*1.0d2  &   ! POC deposition flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+          , Fdep_POC*1.0d2  &   ! POC deposition flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
 #   if defined NUTRIENTS
-                , Fdep_PON*1.0d2  &   ! PON deposition flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
-                , Fdep_POP*1.0d2  &   ! POP deposition flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+          , Fdep_PON*1.0d2  &   ! PON deposition flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+          , Fdep_POP*1.0d2  &   ! POP deposition flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
 #   endif
 #  endif
-                , tau            &   ! bottom shear stress (N m-2)
-                , 0.0d0          &   ! sedimentation rate (??)
-!        output parameters
-                , Flux_Tmp       &   ! Temperature flux (K cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_Sal       &   ! Salinity  flux (cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_DIC       &   ! DIC flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_TA        &   ! TA  flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_DO        &   ! DO  flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+          , tau            &   ! bottom shear stress (N m-2)
+          , 0.0d0          &   ! sedimentation rate (??)
+!         output parameters
+          , Flux_Tmp       &   ! Temperature flux (K cm-2 s-1)  * direction of water column to sediment is positive
+          , Flux_Sal       &   ! Salinity  flux (cm-2 s-1)  * direction of water column to sediment is positive
+          , Flux_DIC       &   ! DIC flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+          , Flux_TA        &   ! TA  flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+          , Flux_DO        &   ! DO  flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
 #  if defined ORGANIC_MATTER
-                , Flux_DOC       &   ! DOC flux (nmol cm-2 s-1) * direction of water column to sediment is positive
-                , Flux_POC       &   ! POC flux (nmol cm-2 s-1) * direction of water column to sediment is positive
+          , Flux_DOC       &   ! DOC flux (nmol cm-2 s-1) * direction of water column to sediment is positive
+          , Flux_POC       &   ! POC flux (nmol cm-2 s-1) * direction of water column to sediment is positive
 #  endif
 #  if defined CARBON_ISOTOPE
-                , Flux_DI13C     &   ! DI13C flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+          , Flux_DI13C     &   ! DI13C flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
 #  endif
 #  if defined NUTRIENTS
-                , Flux_NO3       &   ! NO3 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_NO2       &   ! NO2 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_NH4       &   ! NH4 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_PO4       &   ! PO4 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+          , Flux_NO3       &   ! NO3 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+          , Flux_NO2       &   ! NO2 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+          , Flux_NH4       &   ! NH4 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+          , Flux_PO4       &   ! PO4 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
 #   if defined ORGANIC_MATTER
-                , Flux_DON       &   ! DON flux (nmol cm-2 s-1) * direction of water column to sediment is positive
-                , Flux_PON       &   ! PON flux (nmol cm-2 s-1) * direction of water column to sediment is positive
-                , Flux_DOP       &   ! DOP flux (nmol cm-2 s-1) * direction of water column to sediment is positive
-                , Flux_POP       &   ! POP flux (nmol cm-2 s-1) * direction of water column to sediment is positive
+          , Flux_DON       &   ! DON flux (nmol cm-2 s-1) * direction of water column to sediment is positive
+          , Flux_PON       &   ! PON flux (nmol cm-2 s-1) * direction of water column to sediment is positive
+          , Flux_DOP       &   ! DOP flux (nmol cm-2 s-1) * direction of water column to sediment is positive
+          , Flux_POP       &   ! POP flux (nmol cm-2 s-1) * direction of water column to sediment is positive
 #   endif
 #  endif
-                )
+          )
       END DO
       ! 1 nmol cm-2 s-1 = 0.01 mmol m-2 s-1, 1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
       ! cff: convaert [nmol cm-2 s-1] to [umol L-1 s-1]

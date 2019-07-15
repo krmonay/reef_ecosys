@@ -88,14 +88,14 @@ CONTAINS
 !  Mass balance of water column
 ! **********************************************************************
 
-  SUBROUTINE reef_hydro         &
-!          input parameters
-                (ng, i, j       &   ! ng: nested grid number; i,j: position
-                ,dt             &   ! Time step (sec)
-                ,Hs_o           &   ! Significant wave hight at offshore (m)
-                ,Ts             &   ! Significant Wave period (s)
-                ,el_o           &   ! Sea surface elevation at offshore (m)
-                 )
+  SUBROUTINE reef_hydro &
+!   input parameters
+    ( ng, i, j       & ! ng: nested grid number; i,j: position
+    , dt             & ! Time step (sec)
+    , Hs_o           & ! Significant wave hight at offshore (m)
+    , Ts             & ! Significant Wave period (s)
+    , el_o           & ! Sea surface elevation at offshore (m)
+    )
 !
 !-----------------------------------------------------------------------
 !                                                                       
@@ -143,36 +143,36 @@ CONTAINS
     d_i = REEF(ng)%el (i,j) + REEF(ng)%Drc(i,j)
     del = REEF(ng)%el (i,j) - el_o
 
-    CALL momentum_eq               &
-!        input parameters
-                (dt                &   ! Time step (sec)
-                ,REEF(ng)%Lrc(i,j) &   ! Distance (m)
-!                ,dx_o &   ! Distance (m)
-                ,Hs_o              &   ! Significant wave hight at offshore (m)
-                ,Ts                &   ! Significant Wave period (s)
-                ,d_o               &   ! Depth at offshore side edge (m)
-                ,d_i               &   ! Depth at inshore side edge (m)
-!                ,del               &   ! Differnce of elevation (m)
-!        input and output parameters
-                ,REEF(ng)%Qrc(i,j) &   ! Volume flux per unit width (m2 s-1) (o->i is positive, m s-1)
-                 )
+    CALL momentum_eq      &
+!     input parameters
+      ( dt                &   ! Time step (sec)
+      , REEF(ng)%Lrc(i,j) &   ! Distance (m)
+!      , dx_o &   ! Distance (m)
+      , Hs_o              &   ! Significant wave hight at offshore (m)
+      , Ts                &   ! Significant Wave period (s)
+      , d_o               &   ! Depth at offshore side edge (m)
+      , d_i               &   ! Depth at inshore side edge (m)
+!      , del               &   ! Differnce of elevation (m)
+!     input and output parameters
+      , REEF(ng)%Qrc(i,j) &   ! Volume flux per unit width (m2 s-1) (o->i is positive, m s-1)
+      )
     
     d_o = el_o + REEF(ng)%Dch(i,j)
     d_i = REEF(ng)%el (i,j) + REEF(ng)%Dch(i,j)
 
-    CALL momentum_eq               &
-!        input parameters
-                (dt                &   ! Time step (sec)
-                ,REEF(ng)%Lch(i,j) &   ! Distance (m)
-!                ,dx_o &   ! Distance (m)
-                ,Hs_o              &   ! Significant wave hight at offshore (m)
-                ,Ts                &   ! Significant Wave period (s)
-                ,d_o               &   ! Depth at offshore side edge (m)
-                ,d_i               &   ! Depth at inshore side edge (m)
-!                ,del               &   ! Differnce of elevation (m)
-!        input and output parameters
-                ,REEF(ng)%Qch(i,j) &   ! Volume flux per unit width (m2 s-1) (o->i is positive, m s-1)
-                 )
+    CALL momentum_eq      &
+!     input parameters
+      ( dt                &   ! Time step (sec)
+      , REEF(ng)%Lch(i,j) &   ! Distance (m)
+!      , dx_o &   ! Distance (m)
+      , Hs_o              &   ! Significant wave hight at offshore (m)
+      , Ts                &   ! Significant Wave period (s)
+      , d_o               &   ! Depth at offshore side edge (m)
+      , d_i               &   ! Depth at inshore side edge (m)
+!      , del               &   ! Differnce of elevation (m)
+!     input and output parameters
+      , REEF(ng)%Qch(i,j) &   ! Volume flux per unit width (m2 s-1) (o->i is positive, m s-1)
+      )
     
     ! Mass balance equation
     REEF(ng)%el(i,j) = REEF(ng)%el(i,j) + (                           &
@@ -187,19 +187,19 @@ CONTAINS
 !  Momentum equation
 ! **********************************************************************
 
-  SUBROUTINE momentum_eq             &
-!        input parameters
-                (dt             &   ! Time step (sec)
-                ,dx             &   ! Distance (m)
-                ,Hs_o           &   ! Significant wave hight at offshore (m)
-                ,Ts             &   ! Significant Wave period (s)
-                ,d_o            &   ! Depth at offshore side edge (m)
-                ,d_i            &   ! Depth at inshore side edge (m)
-!                ,del            &   ! Differnce of elevation (m)
+  SUBROUTINE momentum_eq &
+!   input parameters
+    ( dt             & ! Time step (sec)
+    , dx             & ! Distance (m)
+    , Hs_o           & ! Significant wave hight at offshore (m)
+    , Ts             & ! Significant Wave period (s)
+    , d_o            & ! Depth at offshore side edge (m)
+    , d_i            & ! Depth at inshore side edge (m)
+!    , del            & ! Differnce of elevation (m)
 
-!        input and output parameters
-                ,q              &   ! Volume flux per unit width (m2 s-1) (o->i is positive, m s-1)
-                 )
+!   input and output parameters
+    , q              & ! Volume flux per unit width (m2 s-1) (o->i is positive, m s-1)
+    )
 !-----------------------------------------------------------------------
 !
     implicit none
@@ -285,13 +285,13 @@ CONTAINS
 
   END SUBROUTINE momentum_eq
     
-  SUBROUTINE wavelength_from_T_h             &
-!        input parameters
-                (T              &   ! Wave period (s)
-                ,h              &   ! Depth (m)
-!        output parameters
-                ,L              &   ! Wave length
-                 )
+  SUBROUTINE wavelength_from_T_h &
+!   input parameters
+    ( T              & ! Wave period (s)
+    , h              & ! Depth (m)
+!   output parameters
+    , L              & ! Wave length
+    )
 !-----------------------------------------------------------------------
 !
     implicit none

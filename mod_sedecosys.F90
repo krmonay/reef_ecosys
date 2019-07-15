@@ -82,33 +82,33 @@ CONTAINS
 !!!  Main program of empirical sediment model
 !!! **********************************************************************
 
-  SUBROUTINE sedecosys           &
-!          input parameters
-                ( ng, i, j       &   ! ng: nested grid number; i,j: position
-                , PFD            &   ! Photon flux density (umol m-2 s-1)
-                , rho_sw         &   ! Density of seawater (g cm-3)
-                , DICamb         &   ! DIC (umol kg-1)
-                , TAamb          &   ! TA (umol kg-1)
-                , DOamb          &   ! DO (umol L-1)
+  SUBROUTINE sedecosys &
+!   input parameters
+    ( ng, i, j       &   ! ng: nested grid number; i,j: position
+    , PFD            &   ! Photon flux density (umol m-2 s-1)
+    , rho_sw         &   ! Density of seawater (g cm-3)
+    , DICamb         &   ! DIC (umol kg-1)
+    , TAamb          &   ! TA (umol kg-1)
+    , DOamb          &   ! DO (umol L-1)
 # if defined NUTRIENTS         
-                , NH4amb         &   ! NH4 concentration (umol L-1)
+    , NH4amb         &   ! NH4 concentration (umol L-1)
 # endif
 # if defined CARBON_ISOTOPE
-                , DI13Camb       &   ! 13C of DIC (umol kg-1)
+    , DI13Camb       &   ! 13C of DIC (umol kg-1)
 # endif
-!          output parameters
-                , DICuptake      &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , TAuptake       &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , DOuptake       &   ! DO  uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+!   output parameters
+    , DICuptake      &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+    , TAuptake       &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+    , DOuptake       &   ! DO  uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 # if defined NUTRIENTS         
-                , NO3uptake      &   ! NO3 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , NH4uptake      &   ! NH4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , PO4uptake      &   ! PO4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+    , NO3uptake      &   ! NO3 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+    , NH4uptake      &   ! NH4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+    , PO4uptake      &   ! PO4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 # endif
 # if defined CARBON_ISOTOPE
-                , DI13Cuptake    &   ! DI13C uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+    , DI13Cuptake    &   ! DI13C uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 # endif
-                 )
+    )
 
 !-----------------------------------------------------------------------
     USE mod_geochem
@@ -384,69 +384,69 @@ CONTAINS
 !!! **********************************************************************
 
   SUBROUTINE sedecosys           &
-!        input parameters
-                ( ng, i, j       &   ! ng: nested grid number; i,j: position
-                , dt             &   ! Time step (sec)
-                , PFD            &   ! Photon flux density (umol m-2 s-1)
-                , Tamb           &   ! Tmp: Temperature (oC)
-                , Samb           &   ! Sal: Salinity (PSU)
-                , DICamb         &   ! DIC: Total dissolved inorganic carbon (DIC: umol kg-1)
-                , TAamb          &   ! TA : Total alkalinity (TA: umol kg-1)
-                , DOamb          &   ! DOx: Dissolved oxygen (umol L-1)
+!   input parameters
+    ( ng, i, j       &   ! ng: nested grid number; i,j: position
+    , dt             &   ! Time step (sec)
+    , PFD            &   ! Photon flux density (umol m-2 s-1)
+    , Tamb           &   ! Tmp: Temperature (oC)
+    , Samb           &   ! Sal: Salinity (PSU)
+    , DICamb         &   ! DIC: Total dissolved inorganic carbon (DIC: umol kg-1)
+    , TAamb          &   ! TA : Total alkalinity (TA: umol kg-1)
+    , DOamb          &   ! DOx: Dissolved oxygen (umol L-1)
 # if defined ORGANIC_MATTER
-                , DOCamb         &   ! DOC: Dissolved organic carbon (DOC: umol L-1)
-                , POCamb         &   ! POC: Particulate organic carbon (DOC: umol L-1)
+    , DOCamb         &   ! DOC: Dissolved organic carbon (DOC: umol L-1)
+    , POCamb         &   ! POC: Particulate organic carbon (DOC: umol L-1)
 # endif
 # if defined CARBON_ISOTOPE
-                , DI13Camb       &   ! DI13C: 13C of DIC (umol kg-1)
+    , DI13Camb       &   ! DI13C: 13C of DIC (umol kg-1)
 # endif
 # if defined NUTRIENTS
-                , NO3amb         &   ! NO3: NO3 (umol L-1)
-                , NO2amb         &   ! NO2: NO2 (umol L-1)
-                , NH4amb         &   ! NH4: NH4 (umol L-1)
-                , PO4amb         &   ! PO4: PO4 (umol L-1)
+    , NO3amb         &   ! NO3: NO3 (umol L-1)
+    , NO2amb         &   ! NO2: NO2 (umol L-1)
+    , NH4amb         &   ! NH4: NH4 (umol L-1)
+    , PO4amb         &   ! PO4: PO4 (umol L-1)
 #  if defined ORGANIC_MATTER
-                , DONamb         &   ! DON: Dissolved organic nitrogen (DON: umol L-1)
-                , PONamb         &   ! PON: Particulate organic nitrogen (PON: umol L-1)
-                , DOPamb         &   ! DOP: Dissolved organic phosporius (DOP: umol L-1)
-                , POPamb         &   ! POP: Particulate organic phosporius (POP: umol L-1)
+    , DONamb         &   ! DON: Dissolved organic nitrogen (DON: umol L-1)
+    , PONamb         &   ! PON: Particulate organic nitrogen (PON: umol L-1)
+    , DOPamb         &   ! DOP: Dissolved organic phosporius (DOP: umol L-1)
+    , POPamb         &   ! POP: Particulate organic phosporius (POP: umol L-1)
 #  endif
 # endif
 # if defined ORGANIC_MATTER
-                , Fdep_POC       &   ! POC deposition flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+    , Fdep_POC       &   ! POC deposition flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
 #  if defined NUTRIENTS
-                , Fdep_PON       &   ! PON deposition flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
-                , Fdep_POP       &   ! POP deposition flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+    , Fdep_PON       &   ! PON deposition flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+    , Fdep_POP       &   ! POP deposition flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
 #  endif
 # endif
-                , tau_amb        &   ! bottom shear stress (N m-2)
-                , Fsed           &   ! sedimentation rate (??)
-!          output parameters
-                , Flux_Tmp       &   ! Temperature flux (K cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_Sal       &   ! Salinity  flux (cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_DIC       &   ! DIC flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_TA        &   ! TA  flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_DO        &   ! DO  flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+    , tau_amb        &   ! bottom shear stress (N m-2)
+    , Fsed           &   ! sedimentation rate (??)
+!   output parameters
+    , Flux_Tmp       &   ! Temperature flux (K cm-2 s-1)  * direction of water column to sediment is positive
+    , Flux_Sal       &   ! Salinity  flux (cm-2 s-1)  * direction of water column to sediment is positive
+    , Flux_DIC       &   ! DIC flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+    , Flux_TA        &   ! TA  flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+    , Flux_DO        &   ! DO  flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
 # if defined ORGANIC_MATTER
-                , Flux_DOC       &   ! DOC flux (nmol cm-2 s-1) * direction of water column to sediment is positive
-                , Flux_POC       &   ! POC flux (nmol cm-2 s-1) * direction of water column to sediment is positive
+    , Flux_DOC       &   ! DOC flux (nmol cm-2 s-1) * direction of water column to sediment is positive
+    , Flux_POC       &   ! POC flux (nmol cm-2 s-1) * direction of water column to sediment is positive
 # endif
 # if defined CARBON_ISOTOPE
-                , Flux_DI13C     &   ! DI13C flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+    , Flux_DI13C     &   ! DI13C flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
 # endif
 # if defined NUTRIENTS
-                , Flux_NO3       &   ! NO3 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_NO2       &   ! NO2 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_NH4       &   ! NH4 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
-                , Flux_PO4       &   ! PO4 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+    , Flux_NO3       &   ! NO3 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+    , Flux_NO2       &   ! NO2 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+    , Flux_NH4       &   ! NH4 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
+    , Flux_PO4       &   ! PO4 flux (nmol cm-2 s-1)  * direction of water column to sediment is positive
 #  if defined ORGANIC_MATTER
-                , Flux_DON       &   ! DON flux (nmol cm-2 s-1) * direction of water column to sediment is positive
-                , Flux_PON       &   ! PON flux (nmol cm-2 s-1) * direction of water column to sediment is positive
-                , Flux_DOP       &   ! DOP flux (nmol cm-2 s-1) * direction of water column to sediment is positive
-                , Flux_POP       &   ! POP flux (nmol cm-2 s-1) * direction of water column to sediment is positive
+    , Flux_DON       &   ! DON flux (nmol cm-2 s-1) * direction of water column to sediment is positive
+    , Flux_PON       &   ! PON flux (nmol cm-2 s-1) * direction of water column to sediment is positive
+    , Flux_DOP       &   ! DOP flux (nmol cm-2 s-1) * direction of water column to sediment is positive
+    , Flux_POP       &   ! POP flux (nmol cm-2 s-1) * direction of water column to sediment is positive
 #  endif
 # endif
-                 )
+    )
 
 !
 !-----------------------------------------------------------------------

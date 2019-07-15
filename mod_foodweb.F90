@@ -14,66 +14,66 @@ CONTAINS
 !!!  Main program of foodweb model (Modified from Yamamoto et al. under review)
 !!! **********************************************************************
 
-  SUBROUTINE foodweb            &
-!        input parameters
-                ( ng, n, i, j    &   ! ng: nested grid number; n: coral compartment; i,j: position
-                , dt             &   ! Time step (sec)
-                , PFD            &   ! Photon flux density (umol m-2 s-1)
-                , rho_sw         &   ! Density of seawater (g cm-3)
-                , Tmp            &   ! Temperature (oC)
-                , Sal            &   ! Salinity (PSU)
-                , DIC            &   ! Total dissolved inorganic carbon (DIC: umol kg-1)
-                , TA             &   ! Total alkalinity (TA: umol kg-1)
-                , DOx            &   ! Dissolved oxygen (umol L-1)
-                , DOC            &   ! Dissolved organic carbon (DOC: umol L-1)
-                , POC            &   ! Particulate organic carbon (DOC: umol L-1)
-                , PHY1           &   ! phytoplankton (umol C L-1)dinoflagellate
-                , PHY2           &   ! phytoplankton (umol C L-1)diatom
-                , ZOO            &   ! zooplankton (umol C L-1)
+  SUBROUTINE foodweb &
+!   input parameters
+    ( ng, n, i, j    &   ! ng: nested grid number; n: coral compartment; i,j: position
+    , dt             &   ! Time step (sec)
+    , PFD            &   ! Photon flux density (umol m-2 s-1)
+    , rho_sw         &   ! Density of seawater (g cm-3)
+    , Tmp            &   ! Temperature (oC)
+    , Sal            &   ! Salinity (PSU)
+    , DIC            &   ! Total dissolved inorganic carbon (DIC: umol kg-1)
+    , TA             &   ! Total alkalinity (TA: umol kg-1)
+    , DOx            &   ! Dissolved oxygen (umol L-1)
+    , DOC            &   ! Dissolved organic carbon (DOC: umol L-1)
+    , POC            &   ! Particulate organic carbon (DOC: umol L-1)
+    , PHY1           &   ! phytoplankton (umol C L-1)dinoflagellate
+    , PHY2           &   ! phytoplankton (umol C L-1)diatom
+    , ZOO            &   ! zooplankton (umol C L-1)
 #if defined CARBON_ISOTOPE
-                , DI13C          &   !13C of DIC (umol kg-1)
+    , DI13C          &   !13C of DIC (umol kg-1)
 #endif
 #if defined NUTRIENTS         
-                , NO3            &   ! NO3 (umol L-1)
-                , NO2            &   ! NO2 (umol L-1)
-                , NH4            &   ! NH4 (umol L-1)
-                , PO4            &   ! PO4 (umol L-1)
-                , DON            &   ! Dissolved organic nitrogen (DON: umol L-1)
-                , PON            &   ! Particulate organic nitrogen (PON: umol L-1)
-                , DOP            &   ! Dissolved organic phosporius (DOP: umol L-1)
-                , POP            &   ! Particulate organic phosporius (POP: umol L-1)
+    , NO3            &   ! NO3 (umol L-1)
+    , NO2            &   ! NO2 (umol L-1)
+    , NH4            &   ! NH4 (umol L-1)
+    , PO4            &   ! PO4 (umol L-1)
+    , DON            &   ! Dissolved organic nitrogen (DON: umol L-1)
+    , PON            &   ! Particulate organic nitrogen (PON: umol L-1)
+    , DOP            &   ! Dissolved organic phosporius (DOP: umol L-1)
+    , POP            &   ! Particulate organic phosporius (POP: umol L-1)
 #endif
 #if defined COT_STARFISH         
-                , COTe           &   ! COT starfish egg (umol L-1)
-                , COTl           &   ! COT starfish larvae (umol L-1)
+    , COTe           &   ! COT starfish egg (umol L-1)
+    , COTl           &   ! COT starfish larvae (umol L-1)
 #endif
-!        output parameters
-                , dDIC_dt        &   ! dDIC/dt  (umol kg-1 s-1)  1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
-                , dTA_dt         &   ! dTA/dt   (umol kg-1 s-1) 
-                , dDOx_dt        &  ! dDOx/dt  (umol L-1 s-1) 
-                , dDOC_dt        &   ! dDOC/dt  (umol L-1 s-1) 
-                , dPOC_dt        &   ! dPOC/dt  (umol L-1 s-1) 
-                , dPHY1_dt       &   ! dPHY/dt  (umol L-1 s-1)  
-                , dPHY2_dt       &   ! dPHY/dt  (umol L-1 s-1)  
-                , dZOO_dt        &   ! dZOO/dt  (umol L-1 s-1)  
+!   output parameters
+    , dDIC_dt        &   ! dDIC/dt  (umol kg-1 s-1)  1 mmol m-3 = 1 umol L-1 = 1/1.024 umol kg-1
+    , dTA_dt         &   ! dTA/dt   (umol kg-1 s-1) 
+    , dDOx_dt        &  ! dDOx/dt  (umol L-1 s-1) 
+    , dDOC_dt        &   ! dDOC/dt  (umol L-1 s-1) 
+    , dPOC_dt        &   ! dPOC/dt  (umol L-1 s-1) 
+    , dPHY1_dt       &   ! dPHY/dt  (umol L-1 s-1)  
+    , dPHY2_dt       &   ! dPHY/dt  (umol L-1 s-1)  
+    , dZOO_dt        &   ! dZOO/dt  (umol L-1 s-1)  
 #if defined CARBON_ISOTOPE
-                , dDI13C_dt      &   ! dDI13C/dt (umol kg-1 s-1)
+    , dDI13C_dt      &   ! dDI13C/dt (umol kg-1 s-1)
 #endif
 #if defined NUTRIENTS
-                , dNO3_dt        &   ! dNO3/dt (umol L-1 s-1)
-                , dNO2_dt        &   ! dNO2/dt (umol L-1 s-1)
-                , dNH4_dt        &   ! dNH4/dt (umol L-1 s-1)
-                , dPO4_dt        &   ! dPO4/dt (umol L-1 s-1)
-                , dDON_dt        &   ! dDON/dt (umol L-1 s-1)
-                , dPON_dt        &   ! dPON/dt (umol L-1 s-1)
-                , dDOP_dt        &   ! dDOP/dt (umol L-1 s-1)
-                , dPOP_dt        &   ! dPOP/dt (umol L-1 s-1)
+    , dNO3_dt        &   ! dNO3/dt (umol L-1 s-1)
+    , dNO2_dt        &   ! dNO2/dt (umol L-1 s-1)
+    , dNH4_dt        &   ! dNH4/dt (umol L-1 s-1)
+    , dPO4_dt        &   ! dPO4/dt (umol L-1 s-1)
+    , dDON_dt        &   ! dDON/dt (umol L-1 s-1)
+    , dPON_dt        &   ! dPON/dt (umol L-1 s-1)
+    , dDOP_dt        &   ! dDOP/dt (umol L-1 s-1)
+    , dPOP_dt        &   ! dPOP/dt (umol L-1 s-1)
 #endif                                
 #if defined COT_STARFISH         
-                , dCOTe_dt       &   ! dCOTe/dt (umol L-1 s-1)
-                , dCOTl_dt       &   ! dCOTl/dt (umol L-1 s-1)
+    , dCOTe_dt       &   ! dCOTe/dt (umol L-1 s-1)
+    , dCOTl_dt       &   ! dCOTl/dt (umol L-1 s-1)
 #endif
-                )
+    )
 
 !-----------------------------------------------------------------------
 !

@@ -45,26 +45,26 @@ CONTAINS
 ! **********************************************************************
 
   SUBROUTINE heat_mass_balance  &
-!        input parameters
-                ( ng, i, j       &   ! ng: nested grid number; i,j: position
-                , N              &   ! Number of vertical grid (following ROMS vertical grid)
-                , dt             &   ! Time step (sec)
-                , dz             &   ! dz(N): vertical grid size (m)
-                , ssradi         &   ! Surface shortwave radiation (W m-2)
-                , tair           &   ! air temperature (oC)
-                , pair           &   ! atm pressure (hPa)
-                , Hum            &   ! relative humidity (%)
-                , u10            &   ! wind speed (m s-1)
-                , fvol_pre       &   ! Precipitation volume flux (m s-1)
+!   input parameters
+    ( ng, i, j       &   ! ng: nested grid number; i,j: position
+    , N              &   ! Number of vertical grid (following ROMS vertical grid)
+    , dt             &   ! Time step (sec)
+    , dz             &   ! dz(N): vertical grid size (m)
+    , ssradi         &   ! Surface shortwave radiation (W m-2)
+    , tair           &   ! air temperature (oC)
+    , pair           &   ! atm pressure (hPa)
+    , Hum            &   ! relative humidity (%)
+    , u10            &   ! wind speed (m s-1)
+    , fvol_pre       &   ! Precipitation volume flux (m s-1)
 #ifdef LONGWAVE_IN
-                , dw_lwradi      &   ! Downward longwave radiation (W m-2)
+    , dw_lwradi      &   ! Downward longwave radiation (W m-2)
 #endif
-                , Tmp            &   ! Tmp(N): Temperature (oC)
-                , Sal            &   ! Sal(N): Salinity (PSU)
+    , Tmp            &   ! Tmp(N): Temperature (oC)
+    , Sal            &   ! Sal(N): Salinity (PSU)
 
-!        output parameters
-                , dTmp_dt        &   ! dTmp_dt(N): dTmp/dt (K s-1)
-                )
+!   output parameters
+    , dTmp_dt        &   ! dTmp_dt(N): dTmp/dt (K s-1)
+    )
 !
 !-----------------------------------------------------------------------
 !                                                                       

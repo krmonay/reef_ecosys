@@ -83,30 +83,30 @@ CONTAINS
 !!! **********************************************************************
 
   SUBROUTINE macroalgae          &
-!        input parameters
-                ( ng, n, i, j    &   ! ng: nested grid number; n: seagrass compartment; i,j: position
-                , PFD            &   ! Photon flux density (umol m-2 s-1)
-                , rho_sw         &   ! Density of seawater (g cm-3)
-                , DICamb         &   ! DIC (umol kg-1)
-                , DOamb          &   ! DO (umol L-1)
+!   input parameters
+    ( ng, n, i, j    &   ! ng: nested grid number; n: seagrass compartment; i,j: position
+    , PFD            &   ! Photon flux density (umol m-2 s-1)
+    , rho_sw         &   ! Density of seawater (g cm-3)
+    , DICamb         &   ! DIC (umol kg-1)
+    , DOamb          &   ! DO (umol L-1)
 #if defined NUTRIENTS         
-                , NH4amb         &   ! NH4 concentration (umol L-1)
+    , NH4amb         &   ! NH4 concentration (umol L-1)
 #endif
 #if defined CARBON_ISOTOPE
-                , DI13Camb       &   ! 13C of DIC (umol kg-1)
+    , DI13Camb       &   ! 13C of DIC (umol kg-1)
 #endif
-!        output parameters
-                , DICuptake      &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , DOuptake       &   ! DO  uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+!   output parameters
+    , DICuptake      &   ! DIC uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+    , DOuptake       &   ! DO  uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 #if defined NUTRIENTS         
-                , NO3uptake      &   ! NO3 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , NH4uptake      &   ! NH4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
-                , PO4uptake      &   ! PO4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+    , NO3uptake      &   ! NO3 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+    , NH4uptake      &   ! NH4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+    , PO4uptake      &   ! PO4 uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 #endif
 #if defined CARBON_ISOTOPE
-                , DI13Cuptake    &   ! DI13C uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
+    , DI13Cuptake    &   ! DI13C uptake rate (mmol m-2 s-1)  * direction of water column to coral is positive
 #endif
-                )
+    )
 
 !-----------------------------------------------------------------------
     USE mod_geochem
