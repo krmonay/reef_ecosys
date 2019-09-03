@@ -2,7 +2,7 @@
 
 zph1_file = '.././output/eco5-zphot1_his.csv';
 
-xmin=1; xmax=3;
+xmin=0; xmax=7;
 PFDmax =2000;
 
 zh1 = readtable(zph1_file,'Delimiter',',', 'ReadVariableNames', true);

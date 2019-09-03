@@ -4,7 +4,7 @@ zh1_file = '.././output/eco5-zoo1_his.csv';
 ch1_file = '.././output/eco5-crl1_his.csv';
 % zh1_file = '.././output/eco5-zoo2_his.csv';
 
-xmin=0; xmax=14;
+xmin=0; xmax=7;
 PFDmax =2000;
 
 zh1 = readtable(zh1_file,'Delimiter',',', 'ReadVariableNames', true);

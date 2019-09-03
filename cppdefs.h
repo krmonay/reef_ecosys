@@ -2,7 +2,7 @@
 /*#define USE_HEAT*/
 /*#define LONGWAVE_IN*/
 
-/*#define REEF_HYDRO*/
+/*#define REEF_FLOW*/
 
 
 /*----- CPP defines for coral module ----------------*/

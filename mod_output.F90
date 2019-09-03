@@ -222,11 +222,11 @@ END SUBROUTINE files_close
 #endif
 #if defined COT_STARFISH
         , 'COT, ','COTl '                                             &
-# endif
-#if defined REEF_HYDRO
+#endif
+#if defined REEF_FLOW
         , 'Q_rc, ', 'Q_ch, '                                          &
         , 'el_reef, '                                                 &
-# endif
+#endif
         , 'dz, ', 'el'
       
 
@@ -256,8 +256,8 @@ END SUBROUTINE files_close
 #if defined CARBON_ISOTOPE
     USE mod_geochem
 #endif
-#if defined REEF_HYDRO
-      USE mod_reef_hydro
+#if defined REEF_FLOW
+      USE mod_reef_flow
 #endif
       
     implicit none
@@ -291,11 +291,11 @@ END SUBROUTINE files_close
 #endif
 #if defined COT_STARFISH
            ,C(1,1,1,1,iCOTe),',',C(1,1,1,1,iCOTl),','              &
-# endif
-#if defined REEF_HYDRO
+#endif
+#if defined REEF_FLOW
            ,REEF(1)%Qrc(1,1),',', REEF(1)%Qch(1,1),','             &
            ,REEF(1)%el (1,1),','                                   &
-# endif
+#endif
            ,dz(1,1,1),',',tide 
 
 
@@ -383,7 +383,7 @@ END SUBROUTINE files_close
 
 END SUBROUTINE write_crl_ave_lavel
 
-#  if defined CORAL_ZOOXANTHELLAE
+# if defined CORAL_ZOOXANTHELLAE
   SUBROUTINE write_zox_his_lavel(fid)
   
     USE mod_param
@@ -454,19 +454,19 @@ END SUBROUTINE write_crl_ave_lavel
     integer, intent(in) :: fid
     
     write(fid,*) 'time,', 'PFDbott,'                                 &
-#ifdef CORAL_POLYP
+# ifdef CORAL_POLYP
         ,'coral1_Pg, ', 'coral1_R, ', 'coral1_Pn, ', 'coral1_G, '    &
         ,'coral2_Pg, ', 'coral2_R, ', 'coral2_Pn, ', 'coral2_G, '    &
-#endif
-#ifdef SEAGRASS
+# endif
+# ifdef SEAGRASS
         ,'sgrass_Pg, ', 'sgrass_R, ', 'sgrass_Pn, '                  &
-#endif
-#ifdef MACROALGAE
+# endif
+# ifdef MACROALGAE
         ,'algae_Pg, ' , 'algae_R, ' , 'algae_Pn, '                   &
-#endif
-#ifdef SEDIMENT_ECOSYS
+# endif
+# ifdef SEDIMENT_ECOSYS
         ,'sedeco_Pg, ', 'sedeco_R, ', 'sedeco_Pn, ', 'sedeco_G, '    &
-#endif
+# endif
         ,'dDIC_dt,','dTA_dt,','dDO_dt,'                              &
 # if defined ORGANIC_MATTER
         ,'dDOC_dt,','dPOC_dt,'                                       &

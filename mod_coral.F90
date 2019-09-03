@@ -468,7 +468,9 @@ CONTAINS
     real(8), parameter :: k_dam(Ncl)   = (/ 1.0d-5, 1.0d-5 /)   ! Reaction rate constant (s-1): !!!!!!! Tuning
     real(8), parameter :: a_dam(Ncl)   = (/ 2.0d3,  2.0d3  /)   ! Constant ((nmol cm-2 s-1) -1): !!!!!!! Tuning
     real(8), parameter :: k_Zelm(Ncl)  = (/ 0.2d0,  0.2d0 /)   ! Reaction rate constant (cell cm-2 s-1): !!!!!!! Tuning
-    real(8), parameter :: F_cROS(Ncl)  = (/ 3.0d-1, 3.0d-1 /)   ! ROS production rate by coral (nmol cm-2 s-1): !!!!!!! Tuning
+!    real(8), parameter :: F_cROS(Ncl)  = (/ 3.0d-1, 3.0d-1 /)   ! ROS production rate by coral (nmol cm-2 s-1): !!!!!!! Tuning
+    real(8), parameter :: a_cROS(Ncl)  = (/ 3.0d-2, 3.0d-2 /)   ! ROS production rate by coral (nmol cm-2 s-1): !!!!!!! Tuning
+    real(8), parameter :: b_cROS(Ncl)  = (/ 5.0d-4, 5.0d-4 /)   ! ROS production rate by coral (nmol cm-2 s-1): !!!!!!! Tuning
 
 #endif
 #if defined CORAL_CARBON_ISOTOPE
@@ -570,6 +572,7 @@ CONTAINS
     real(8) :: F_zROS
     real(8) :: F_detox
     real(8) :: F_dam
+    real(8) :: F_cROS
     real(8) :: Damage
 # if defined CORAL_NUTRIENTS
     real(8) :: F_Nsec
@@ -778,7 +781,8 @@ CONTAINS
     PFDsurf=PFD!*exp(-lamb*dsed)
 
 #if defined CORAL_ZOOXANTHELLAE
-
+!-------- ROS release rate by mitochondria in coral  (nmol cm-2 s-1) ----------------------------
+    F_cROS = a_cROS(n)*Tamb + b_cROS(n)
 !-------- ROS detox rate (nmol cm-2 s-1) ----------------------------
 
 !    F_detox=V_detox(n)*CORAL(ng)%ROS(n,i,j)/(K_ROS(n)+CORAL(ng)%ROS(n,i,j))
@@ -1237,7 +1241,7 @@ CONTAINS
 
     CORAL(ng)%ROS(n,i,j)=CORAL(ng)%ROS(n,i,j)        &
              +( F_zROS                               &
-               +F_cROS(n)                            &
+               +F_cROS                               &
                -F_detox                              &
                -F_dam                                &
 !               -F_ONOO                               &
@@ -2003,16 +2007,16 @@ CONTAINS
     real(8), parameter :: K_HCO3 = 71.0d0 ! Half saturation constant (uM) Goreau et al. (1996)
     real(8), parameter :: K_CO2 = 1.0d0   ! Half saturation constant (uM) !!! Tuning
     real(8), parameter :: e2ROS = 2.0d0   ! mol of e- required to make mol ROS (mol e- mol RO-1) O2 + 2e- + 2H+ -> H2O2 
-    real(8), parameter :: f_RO = 0.5d0    ! ROS fraction from zoox. to host. !!!Assumed
+    real(8), parameter :: f_RO = 1.0d0    ! ROS fraction from zoox. to host. !!!Assumed
     real(8), parameter :: ko = 1.04d3     ! Relaxation rate of QAr to QAo (s-1) : tau = 960 us; Suggett et al. (2008)
-    real(8), parameter :: ki = 6.11d-8    ! Rate constant of photoinhibition (s-1 (umol m-2 s-1)-1): Tyystjarvi & Aro (1996)
-    real(8), parameter :: ka = 1.5d-4     ! Repair rate of QAi to QAo (s-1) estimated from Takahashi et al. (2009)
+    real(8), parameter :: ki = 1.0d-7    ! 6.11d-8    ! Rate constant of photoinhibition (s-1 (umol m-2 s-1)-1): Tyystjarvi & Aro (1996)
+    real(8), parameter :: ka = 1.0d-2     ! Repair rate of QAi to QAa (s-1) estimated from Takahashi et al. (2009)
     real(8), parameter :: Ti2a = 32.1d0   ! (oC) estimated from Takahashi et al. (2004) A. digitifera
     real(8), parameter :: ai2a = 0.806d0  ! (K-1) estimated from Takahashi et al. (2004) A. digitifera
 !    real(8), parameter :: Ti2a = 35.6d0   ! (oC) estimated from Takahashi et al. (2004) Stylophora pistillata
 !    real(8), parameter :: ai2a = 0.6d0    ! (K-1) estimated from Takahashi et al. (2004) Stylophora pistillata
-    real(8), parameter :: ROSi2a = 10.0d0   ! (oC) estimated from Takahashi et al. (2004) A. digitifera
-    real(8), parameter :: arosi2a = 0.806d0 ! (K-1) estimated from Takahashi et al. (2004) A. digitifera
+    real(8), parameter :: ROSi2a = 30.0d0   ! (uM) estimated from Takahashi et al. (2004) A. digitifera
+    real(8), parameter :: arosi2a = 1.0d0 ! (uM-1) estimated from Takahashi et al. (2004) A. digitifera
 
 !---------------------------------------------------------------------
     real(8) :: QAa       ! Active RCII (pmol RCII cell-1)

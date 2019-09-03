@@ -6,7 +6,7 @@
 
 !!!**** box model MODULE ************************************
 
-MODULE mod_reef_hydro
+MODULE mod_reef_flow
   implicit none
   TYPE T_REEF
     real(8), pointer :: Wir(:,:)
@@ -32,7 +32,7 @@ CONTAINS
 !!!  set initial conditions for reef hydrodynamics
 !!! **********************************************************************
 
-  SUBROUTINE initialize_reef_hydro(ng, Ngrids, LBi, UBi, LBj, UBj)
+  SUBROUTINE initialize_reef_flow(ng, Ngrids, LBi, UBi, LBj, UBj)
 
     implicit none
 ! input parameters
@@ -81,14 +81,14 @@ CONTAINS
     enddo
 
     RETURN
-  END SUBROUTINE initialize_reef_hydro
+  END SUBROUTINE initialize_reef_flow
 
 
 ! **********************************************************************
 !  Mass balance of water column
 ! **********************************************************************
 
-  SUBROUTINE reef_hydro &
+  SUBROUTINE reef_flow &
 !   input parameters
     ( ng, i, j       & ! ng: nested grid number; i,j: position
     , dt             & ! Time step (sec)
@@ -181,7 +181,7 @@ CONTAINS
                        )/REEF(ng)%Air(i,j) * dt
     write(98,*) el_o, REEF(ng)%el (i,j),REEF(ng)%Qrc(i,j),REEF(ng)%Qch(i,j)
 
-  END SUBROUTINE reef_hydro
+  END SUBROUTINE reef_flow
     
 ! **********************************************************************
 !  Momentum equation
@@ -323,6 +323,6 @@ CONTAINS
 
   END SUBROUTINE wavelength_from_T_h
 
-END MODULE mod_reef_hydro
+END MODULE mod_reef_flow
 
 

@@ -294,6 +294,11 @@ contains
 
 !      swrad=light_and_dark(time, 140.0d0, 10./60./24., 0.5/60./24.)   !light and dark method 10 min interval
 !      swrad=light_and_dark(time, 350.0d0, 30./60./24., 0.5/60./24.)   !light and dark method 1 hour interval
+
+!      swrad=light_and_dark2(time, 0.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
+!      swrad=light_and_dark2(time, 100.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
+!      swrad=light_and_dark2(time, 250.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
+!      swrad=light_and_dark2(time, 500.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
       swrad=light_and_dark2(time, 1000.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
 
 !      swrad=short_radi(time, 0.0d0, 1.0d0, 24.0d0, 25.0d0, 50.0d0, 1) !shortwave radiation by Zillman equation
@@ -349,7 +354,7 @@ contains
     rain = rain/3600000.0d0 ! mm h-1 -> m s-1
     cloud= lin_interpol(time,cloud_data,dt_air,nm_air)   !data from file
 #endif
-#if defined REEF_HYDRO
+#if defined REEF_FLOW
     Hs = lin_interpol(time,Hs_data ,dt_wave,nm_wave)   !data from file
     Tp = lin_interpol(time,Tp_data, dt_wave,nm_wave)   !data from file
     
