@@ -60,6 +60,7 @@ MODULE mod_coral
     real(8), pointer :: QAo(:,:,:)
     real(8), pointer :: QAr(:,:,:)
     real(8), pointer :: QAi(:,:,:)
+    real(8), pointer :: Rep(:,:,:)
   END TYPE T_PHOT
 #endif
 
@@ -174,6 +175,7 @@ CONTAINS
     allocate( ZPHOT(ng)%QAo(Ncl,LBi:UBi,LBj:UBj)  )
     allocate( ZPHOT(ng)%QAr(Ncl,LBi:UBi,LBj:UBj)  )
     allocate( ZPHOT(ng)%QAi(Ncl,LBi:UBi,LBj:UBj)  )
+    allocate( ZPHOT(ng)%Rep(Ncl,LBi:UBi,LBj:UBj)  )
 # endif
 #endif
 
@@ -251,6 +253,7 @@ CONTAINS
           ZPHOT(ng)%QAo(n,i,j) = 2.3d-6*0.6 ! (pmolRCII/cell) Gustafsson et al. 2014
           ZPHOT(ng)%QAr(n,i,j) = 2.3d-6*0.1 ! (pmolRCII/cell) Gustafsson et al. 2014
           ZPHOT(ng)%QAi(n,i,j) = 2.3d-6*0.3 ! (pmolRCII/cell) Gustafsson et al. 2014
+          ZPHOT(ng)%Rep(n,i,j) = 0.9d0 ! Repair status 0-1 (No dimension)
 # endif
 #endif
         enddo
@@ -464,14 +467,12 @@ CONTAINS
 !    real(8), parameter :: K_ROS(Ncl)   = (/ 10.0d0, 10.0d0 /)     !!! umol L !!! To Be Confirmed
 !    real(8), parameter :: V_detox(Ncl) = (/ 2.0d0, 2.0d0 /)   ! 
     real(8), parameter :: k_detox(Ncl) = (/ 3.0d7, 3.0d7 /)     ! Rate constant of specific catalase activity (M-1 s-1): Ogura (1955), Mueller et al., (1997)
-    real(8), parameter :: CAT(Ncl)     = (/ 1.0d-9, 1.0d-9 /)   ! Catalase concentration (M): !!!!!!! Tuning
-    real(8), parameter :: k_dam(Ncl)   = (/ 1.0d-5, 1.0d-5 /)   ! Reaction rate constant (s-1): !!!!!!! Tuning
+    real(8), parameter :: CAT(Ncl)     = (/ 1.0d-10, 1.0d-10 /)   ! Catalase concentration (M): !!!!!!! Tuning
+    real(8), parameter :: k_dam(Ncl)   = (/ 0.0d-5, 0.0d-5 /)   ! Reaction rate constant (s-1): !!!!!!! Tuning
     real(8), parameter :: a_dam(Ncl)   = (/ 2.0d3,  2.0d3  /)   ! Constant ((nmol cm-2 s-1) -1): !!!!!!! Tuning
     real(8), parameter :: k_Zelm(Ncl)  = (/ 0.2d0,  0.2d0 /)   ! Reaction rate constant (cell cm-2 s-1): !!!!!!! Tuning
 !    real(8), parameter :: F_cROS(Ncl)  = (/ 3.0d-1, 3.0d-1 /)   ! ROS production rate by coral (nmol cm-2 s-1): !!!!!!! Tuning
-    real(8), parameter :: a_cROS(Ncl)  = (/ 3.0d-2, 3.0d-2 /)   ! ROS production rate by coral (nmol cm-2 s-1): !!!!!!! Tuning
-    real(8), parameter :: b_cROS(Ncl)  = (/ 5.0d-4, 5.0d-4 /)   ! ROS production rate by coral (nmol cm-2 s-1): !!!!!!! Tuning
-
+    real(8), parameter :: a_cROS(Ncl)  = (/ 2.0d-2, 2.0d-2 /)   ! ROS production rate by coral (nmol cm-2 s-1): !!!!!!! Tuning
 #endif
 #if defined CORAL_CARBON_ISOTOPE
 !----- for carbon isotope ------------------------
@@ -782,7 +783,8 @@ CONTAINS
 
 #if defined CORAL_ZOOXANTHELLAE
 !-------- ROS release rate by mitochondria in coral  (nmol cm-2 s-1) ----------------------------
-    F_cROS = a_cROS(n)*Tamb + b_cROS(n)
+!    F_cROS = a_cROS(n)*Tamb + b_cROS(n)
+    F_cROS = a_cROS(n)*CORAL(ng)%R(n,i,j)
 !-------- ROS detox rate (nmol cm-2 s-1) ----------------------------
 
 !    F_detox=V_detox(n)*CORAL(ng)%ROS(n,i,j)/(K_ROS(n)+CORAL(ng)%ROS(n,i,j))
@@ -2009,14 +2011,19 @@ CONTAINS
     real(8), parameter :: e2ROS = 2.0d0   ! mol of e- required to make mol ROS (mol e- mol RO-1) O2 + 2e- + 2H+ -> H2O2 
     real(8), parameter :: f_RO = 1.0d0    ! ROS fraction from zoox. to host. !!!Assumed
     real(8), parameter :: ko = 1.04d3     ! Relaxation rate of QAr to QAo (s-1) : tau = 960 us; Suggett et al. (2008)
-    real(8), parameter :: ki = 1.0d-7    ! 6.11d-8    ! Rate constant of photoinhibition (s-1 (umol m-2 s-1)-1): Tyystjarvi & Aro (1996)
-    real(8), parameter :: ka = 1.0d-2     ! Repair rate of QAi to QAa (s-1) estimated from Takahashi et al. (2009)
+    real(8), parameter :: ki = 2.5d-7     ! Rate constant of photoinhibition (s-1 (umol m-2 s-1)-1)
+                                          !      Tyystjarvi & Aro (1996): 6.11d-8 (s-1 (umol m-2 s-1)-1);
+                                          !      Nishiyama et al. (2004): 1.7d-7  (s-1 (umol m-2 s-1)-1)
+    real(8), parameter :: di = 1.7d-4     ! Natural decay from QAa to QAi (s-1)  !!!Assumed
+    real(8), parameter :: ka = 4.0d-4     ! Repair rate of QAi to QAa (s-1) estimated from Takahashi et al. (2009)
     real(8), parameter :: Ti2a = 32.1d0   ! (oC) estimated from Takahashi et al. (2004) A. digitifera
     real(8), parameter :: ai2a = 0.806d0  ! (K-1) estimated from Takahashi et al. (2004) A. digitifera
 !    real(8), parameter :: Ti2a = 35.6d0   ! (oC) estimated from Takahashi et al. (2004) Stylophora pistillata
 !    real(8), parameter :: ai2a = 0.6d0    ! (K-1) estimated from Takahashi et al. (2004) Stylophora pistillata
     real(8), parameter :: ROSi2a = 30.0d0   ! (uM) estimated from Takahashi et al. (2004) A. digitifera
     real(8), parameter :: arosi2a = 1.0d0 ! (uM-1) estimated from Takahashi et al. (2004) A. digitifera
+    real(8), parameter :: krep = 5.0d-6 ! (s-1) estimated from Takahashi et al. (2004) A. digitifera
+    real(8), parameter :: kdam = 1.0d-6 ! (uM-1 s-1) estimated from Takahashi et al. (2004) A. digitifera
 
 !---------------------------------------------------------------------
     real(8) :: QAa       ! Active RCII (pmol RCII cell-1)
@@ -2065,15 +2072,20 @@ CONTAINS
     F_zROS = f_RO*J_ee/e2ROS
     
 !---- Photoinihibition rate of QAa to QAi  (pmol RCII cell-1 s-1) ---
-    Ja2i = ki * PFDsurf * QAa
-!    Ja2i = 0.0d0
+!    Ja2i = ( ki*PFDsurf + di ) * QAa
+    Ja2i = di * QAa  ! No photidamage case
+    !    Ja2i = 0.0d0
 
 !---- Repair rate of QAi to QAo  (pmol RCII cell-1 s-1) --- !!!!!!!!!!!!!!!!! Need update
 !    Ji2a = ka * (ZPHOT(ng)%QAi(n,i,j)-0.3d0*QAt) /(1.0d0+exp(-ai2a*(Ti2a-Tamb)))  !!! Temperature dependent repair
 !    Ji2a = ka * (ZPHOT(ng)%QAi(n,i,j)-0.3d0*QAt)   !!! No temperature dependence
 !    Ji2a = ka * ZPHOT(ng)%QAi(n,i,j)/max(ROS, 1.0d0)  !!! ROS concentration dependent repair
-    Ji2a = ka * ZPHOT(ng)%QAi(n,i,j)/(1.0d0+exp(-arosi2a*(ROSi2a-ROS)))  !!! T  !!! ROS concentration dependent repair
-!    Ji2a = ka * ZPHOT(ng)%QAi(n,i,j)  !!! ROS concentration dependent repair
+!    Ji2a = ka * ZPHOT(ng)%QAi(n,i,j)/(1.0d0+exp(-arosi2a*(ROSi2a-ROS)))  !!! T  !!! ROS concentration dependent repair
+
+    Ji2a = ka * ZPHOT(ng)%QAi(n,i,j) * ZPHOT(ng)%Rep(n,i,j)  !!! T  !!! ROS concentration dependent repair
+!    Ji2a = ka * ZPHOT(ng)%QAi(n,i,j) * 0.9 !!! No photidamage case/No repair delay case
+
+    !    Ji2a = ka * ZPHOT(ng)%QAi(n,i,j)  !!! ROS concentration dependent repair
 
 !--------Time step progressing ------------------------
 
@@ -2093,7 +2105,15 @@ CONTAINS
 
 !-----Oxidizes RCII -----------------
     ZPHOT(ng)%QAo(n,i,j)=QAa-ZPHOT(ng)%QAr(n,i,j)
-      
+
+!-----Status that repair from QAi to QAa  -----------------
+    ZPHOT(ng)%Rep(n,i,j) = ZPHOT(ng)%Rep(n,i,j) &
+        +(   krep *(1.0d0-ZPHOT(ng)%Rep(n,i,j)) &
+!        +(   krep                               &
+            - kdam*ROS*ZPHOT(ng)%Rep(n,i,j)      &
+        )*dt
+    ZPHOT(ng)%Rep(n,i,j)=min(ZPHOT(ng)%Rep(n,i,j), 1.0d0)
+
 !------------------------------------------------------------------------
 ! Print section (for debug)
 
@@ -2111,7 +2131,7 @@ CONTAINS
        ,J_ea,',',J_ep_in,',',J_ep,',',J_ee,',',J_ep_max,','     &
        ,Ji2a,',',Ja2i,',',kr,',',ko,',',F_zROS,','              &
        ,Pg,',',J_ep_in*c2e,',',J_ep_max*c2e,','                 &
-       ,RubisCO
+       ,RubisCO,',', ZPHOT(ng)%Rep(n,i,j)
 
       dsec(n)=dsec(n)+OUTPUT_INTERVAL*60.0d0
       

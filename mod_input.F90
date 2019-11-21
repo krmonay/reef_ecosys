@@ -301,6 +301,8 @@ contains
 !      swrad=light_and_dark2(time, 500.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
       swrad=light_and_dark2(time, 1000.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
 
+!      swrad=light_and_dark3(time, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
+
 !      swrad=short_radi(time, 0.0d0, 1.0d0, 24.0d0, 25.0d0, 50.0d0, 1) !shortwave radiation by Zillman equation
 !      swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
 !      swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2)*0.25d0 !shortwave radiation around 3/21 by Zillman equation
@@ -640,6 +642,65 @@ contains
     return
 
   end function light_and_dark2
+
+  real(8) function light_and_dark3(time,interval1,interval2,transperi)
+! **********************************************************************
+! *                                                                    *
+! * FUNCTION    :  caliculate solar radiation (W/m2).                  *
+! *              time:       progress time (day)                       *
+! *              interval: interval of light & dark (day)              *
+! *              transperi: transition period between light & dark (day)*
+! *                                                                    *
+! **********************************************************************
+!
+    implicit none
+    
+    real(8), parameter :: pi = 3.141592654d0
+
+    real(8) :: time, interval1,interval2, transperi
+    real(8) :: Imax   !light intensity (W/m2)
+    real(8) :: PFD
+
+!            !convert photon flux density (umol m-2 s-1) to solar radiation (W m-2)
+    if (time <= 1.1d0) then
+      PFD = 0.0d0
+    else if (time <= 2.1d0) then
+      PFD = 0.0d0
+    else if (time <= 3.1d0) then
+      PFD = 100.0d0
+    else if (time <= 4.1d0) then
+      PFD = 250.0d0
+    else if (time <= 5.1d0) then
+      PFD = 500.0d0
+    else
+      PFD = 1000.0d0
+    endif
+    
+    Imax = PFD/2.1d0/(1.0d0-0.07d0) ! for Takahashi et al. (2004) experiment
+
+!  Dark->light->Dark->light
+
+    if(mod(time,interval1+interval2)<=interval2) then
+      if(mod(time,interval1+interval2)<=transperi) then
+        light_and_dark3=                                         &
+              Imax/2.*(Cos(pi*(mod(time,interval1+interval2)-interval1) &
+                                 /transperi)+1.)
+      else
+        light_and_dark3= 20.0d0/2.1d0/(1.0d0-0.07d0)
+      endif
+    else
+      if(mod(time,interval1+interval2)<=interval1+transperi) then
+        light_and_dark3=                                            &
+               Imax/2.*(-Cos(pi*mod(time,interval1+interval2)/transperi)+1.)
+      else
+        light_and_dark3=Imax
+
+      endif    
+    endif
+
+    return
+
+  end function light_and_dark3
       
 end module mod_input
 

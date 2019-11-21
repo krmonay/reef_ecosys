@@ -123,7 +123,7 @@ PROGRAM ecosys_test
 
 !  do istep=1, int(60.*60./dt)+1       ! 1 hour
 !  do istep=1, int(24.*60.*60./dt) * 14 +1      ! 5 days
-  do istep=1, int(24.*60.*60./dt) * 7 +1      ! 7 days
+  do istep=1, int(24.*60.*60./dt) * 2 +1      ! 7 days
 !  do istep=1, int(24.*60.*60./dt) * 9 +1      ! 9 days
 !  do istep=1, int(24.*60.*60./dt) * 120 +1      ! 30 days
 !  do istep=1, int(24.*60.*60./dt) *365*3 +1      ! 3 year

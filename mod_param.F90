@@ -257,10 +257,10 @@ contains
         do k=1,N
         
 !          dz(i,j,k)=0.3d0 !(m)
-          dz(i,j,k)=0.3d0 !(m)
+          dz(i,j,k)=0.01d0 !(m)
         
 !          C(i,j,k,1,iTemp) = 28.0d0   !27.0d0 32.0d0
-          C(i,j,k,1,iTemp) = 32.0d0   !27.0d0 32.0d0
+          C(i,j,k,1,iTemp) = 32.0d0   !32.0d0 32.0d0
           
           C(i,j,k,1,iSalt) = 34.0d0
 !          C(i,j,k,1,iSalt) = 35.9d0

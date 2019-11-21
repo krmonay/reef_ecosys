@@ -431,7 +431,7 @@ END SUBROUTINE write_crl_ave_lavel
        ,'Fv/Fm,','Yield,'                                 &
        ,'J_ea,','J_ep_in,','J_ep,','J_ee,','J_ep_max,'    &
        ,'Ji2a,','Ja2i,','kr,','ko,','F_ROS,'              &
-       ,'Pg,','Pgcal,','Pgmax,','Ra'
+       ,'Pg,','Pgcal,','Pgmax,','Ra, ','Repair'
      
     RETURN
 

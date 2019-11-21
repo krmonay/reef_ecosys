@@ -41,11 +41,12 @@ yyaxis left
 hold on
 plot(zh1.time, zh1.Fv_Fm,'b');
 plot(zh1.time, zh1.Ra,'-r');
+plot(zh1.time, zh1.Repair,'-g');
 ax = gca; ax.YColor = 'k';
-axis([xmin xmax  0 1.2])
-ylabel('Fv/Fm')
+axis([xmin xmax  0 1.0])
+ylabel('Fv/Fm, Rubisco act., reapir')
 ax = gca; ax.YColor = 'k';
-legend('Fv/Fm','Ra','E', 'Location','southoutside','Orientation','horizontal')
+legend('Fv/Fm','Ra','Repair','E', 'Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,3);

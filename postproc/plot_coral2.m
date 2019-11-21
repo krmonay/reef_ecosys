@@ -9,7 +9,7 @@ evn_file = '.././output/eco5-ch1_his.csv';
 ch1_file = '.././output/eco5-crl1_his.csv';
 % ch1_file = '.././output/eco5-crl2_his.csv';
 
-xmin=0; ymin=5;
+xmin=0; ymin=7;
 PFDmax =2000;
 
 ch1 = readtable(ch1_file,'Delimiter',',', 'ReadVariableNames', true);
