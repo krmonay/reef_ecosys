@@ -1,5 +1,5 @@
 
-!!!=== vCopyright (c) 2012-2019 Takashi NAKAMURA  =====
+!!!=== vCopyright (c) 2012-2020 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 

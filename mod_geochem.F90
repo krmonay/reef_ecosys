@@ -1,5 +1,5 @@
 
-!!!=== Copyright (c) 2012-2019 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2020 Takashi NAKAMURA  =====
 
 module mod_geochem
 
@@ -1551,6 +1551,114 @@ contains
 
 !-----------------------------------------------------------------------
 
+!!!***********************************************************************
+!!!   Empirical vertical profiles of biogeochemical parameters
+!!!                                   developed by Faisal AMRI
+!!!*********************************************************************** 
+
+  !--- Dissolved Inorganic Carbon (DIC) ----------------
+
+  real(8) function DIC_Profile(t_oC)
+    implicit none
+    real(8), intent(in) :: t_oC   ! Temperatureture (oC)
+    
+    DIC_Profile = 2312.116d0+(10.68979d0*t_oC)                &
+      - (3.50371d0*(t_oC**2)) + (0.162252d0*(t_oC**3))        &
+      - (0.00242d0*(t_oC**4))    
+
+  end function DIC_Profile
+
+!--- Total Alikalinity (TA) ------------------------------
+
+  real(8) function TA_Profile(t_oC)
+    implicit none
+    real(8), intent(in) :: t_oC   ! Temperatureture (oC)
+    
+    TA_Profile = 2444.733d0-(22.2978d0*t_oC)                  &
+      + (0.884354d0*(t_oC**2)) + (0.001281d0*(t_oC**3))       &
+      - (0.00046d0*(t_oC**4))    
+
+  end function TA_Profile
+
+!--- Dissolved Oxygen (DO) ------------------------------
+
+  real(8) function DO_Profile(t_oC)
+    implicit none
+    real(8), intent(in) :: t_oC   ! Temperatureture (oC)
+    
+    DO_Profile = 245.8469d0 - (52.0103d0*t_oC)                &
+      + (6.461959d0*(t_oC**2)) - (0.27842d0*(t_oC**3))        &
+      + (0.003842d0*(t_oC**4))   
+
+  end function DO_Profile
+
+!--- Phytoplankton1 -------------------------------------
+
+  real(8) function PHY1_Profile(d)
+    implicit none
+    real(8), intent(in) :: d   ! elevation (m) = -depth
+
+    IF(( d .GE. -100.0d0) .AND. ( d .LE. -150.0d0) ) THEN
+      PHY1_Profile = 0.0d0
+    ELSE IF(( d .LT. -100.0d0) .AND. ( d .GT. -150.0d0)) THEN
+      PHY1_Profile = 0.8d0
+    END IF
+
+  end function PHY1_Profile
+
+!--- Phytoplankton1 -------------------------------------
+
+  real(8) function PHY2_Profile(d)
+    implicit none
+    real(8), intent(in) :: d   ! elevation (m) = -depth  
+ 
+    IF(( d .GE. -100.0d0) .AND. ( d .LE. -150.0d0) ) THEN
+      PHY2_Profile = 0.0d0
+    ELSE IF(( d .LT. -100.0d0) .AND. ( d .GT. -150.0d0)) THEN
+      PHY2_Profile = 0.8d0
+    END IF
+
+  end function PHY2_Profile
+
+!--- Zooplankton -------------------------------------
+
+  real(8) function ZOO_Profile(d)
+    implicit none
+    real(8), intent(in) :: d   ! elevation (m) = -depth  
+ 
+    IF(( d .GE. -400.0d0) .AND. ( d .LE. 0.0d0 )) THEN
+      ZOO_Profile = 2.5d0+(d/200.0d0)    ! umolC L-1
+    ELSE IF( d .LT. -400.0d0) THEN
+      ZOO_Profile = 0.0d08                            ! umolC L-1
+    END IF
+
+  end function ZOO_Profile
+
+!--- NO3 -------------------------------------
+
+  real(8) function NO3_Profile( DIC )
+    implicit none
+    real(8), intent(in) :: DIC   ! DIC concentration (umol kg-1) 
+ 
+    NO3_Profile = ( DIC - 1968.4d0 )/9.2d0
+    IF( NO3_Profile .LE. 0.0d0 )THEN
+      NO3_Profile = 0.0d0
+    END IF
+
+  end function NO3_Profile
+
+!--- PO4 -------------------------------------
+
+  real(8) function PO4_Profile( NO3 )
+    implicit none
+    real(8), intent(in) :: NO3   ! DIC concentration (umol kg-1) 
+ 
+    PO4_Profile = ( NO3 + 0.7764d0 )/14.36d0       
+    IF ( PO4_Profile .LE. 0.0d0 )THEN
+      PO4_Profile = 0.0d0
+    END IF
+
+  end function PO4_Profile
 
 !!!*********************************************************************
 

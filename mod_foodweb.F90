@@ -1,5 +1,6 @@
 
-!!!=== Copyright (c) 2012-2019 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2020 Takashi NAKAMURA  =====
+!!!      modified by Shinya AMANO, Faisal AMRI
 
 #include "cppdefs.h"
 
@@ -141,80 +142,92 @@ CONTAINS
 !!!------------Set parameters  ----------------------------------
 
 !------- Phytoplankton parameters ------------------------
-    real(8), parameter :: k_Pphy1 =  0.3d0/86400.0d0     ! (s-1)          PHY maximum photosynthesis rate at 0 oC (0.4d0 d-1; Kishi et al., 2007)0.3
-    real(8), parameter :: b_Pphy1 =  0.0693d0             ! (degC-1)       Temperature coefficient for PHY photosynthesis (0.063; Kawamiya et al., 1995)
+! PHY1 Parameter
+    real(8), parameter :: k_Pphy1 =  0.4d0/86400.0d0     ! (s-1)          PHY maximum photosynthesis rate at 0 oC (0.4d0 d-1; Kishi et al., 2007)0.3
+    real(8), parameter :: b_Pphy1 =  0.0693d0            ! (degC-1)       Temperature coefficient for PHY photosynthesis (0.063; Kawamiya et al., 1995)
     real(8), parameter :: Iphy1   = 48.83d0*1.82d0       ! (umol m-2 s-1) PHY optimum light intensity (48.83d0 J m2 s-1; Kawamiya et al., 1995)
     real(8), parameter :: k_Rphy1 =  0.03d0/86400.0d0    ! (s-1)          PHY respiration rate at 0 oC (Kawamiya et al., 1995)
     real(8), parameter :: b_Rphy1 =  0.0519d0            ! (degC-1)       Temperature coefficient for PHY respiration rate (0.03d0 d-1; Kawamiya et al., 1995)
-    real(8), parameter :: k_Mphy1 =  0.00562d0/86400.0d0 ! (L umol-1 s-1)   PHY mortality rate at 0 oC (0.00562d0 umol-1 d-1; 0.0585L/umolN/day?0.0088; Kishi et al., 2001)0.0066
+    real(8), parameter :: k_Mphy1 =  0.00562d0/86400.0d0 ! (L umol-1 s-1) PHY mortality rate at 0 oC (0.00562d0 umol-1 d-1; 0.0585L/umolN/day?0.0088; Kishi et al., 2001)0.0066
     real(8), parameter :: b_Mphy1 =  0.069d0             ! (degC-1)       Temperature coefficient for PHY mortality (Kawamiya et al., 1995)
     real(8), parameter :: k_Ephy1 =  0.135d0             ! (no dim.)      PHY ratio of extracellular excretion to production 0.135(Kawamiya et al., 1995)
-    real(8), parameter :: k_Pphy2 =  0.6d0/86400.0d0     ! (s-1)          PHY maximum photosynthesis rate at 0 oC (0.8d0 d-1; Kishi et al., 2007)0.6
-    real(8), parameter :: b_Pphy2 =  0.0693d0             ! (degC-1)       Temperature coefficient for PHY photosynthesis (0.063; Kawamiya et al., 1995)
+
+! PHY2 Parameter
+    real(8), parameter :: k_Pphy2 =  0.8d0/86400.0d0     ! (s-1)          PHY maximum photosynthesis rate at 0 oC (0.8d0 d-1; Kishi et al., 2007)0.6
+    real(8), parameter :: b_Pphy2 =  0.0693d0            ! (degC-1)       Temperature coefficient for PHY photosynthesis (0.063; Kawamiya et al., 1995)
     real(8), parameter :: Iphy2   = 48.83d0*1.82d0       ! (umol m-2 s-1) PHY optimum light intensity (48.83d0 J m2 s-1; Kawamiya et al., 1995)
     real(8), parameter :: k_Rphy2 =  0.03d0/86400.0d0    ! (s-1)          PHY respiration rate at 0 oC (Kawamiya et al., 1995)
     real(8), parameter :: b_Rphy2 =  0.0519d0            ! (degC-1)       Temperature coefficient for PHY respiration rate (0.03d0 d-1; Kawamiya et al., 1995)
-    real(8), parameter :: k_Mphy2 =  0.00281d0/86400.0d0 ! (L umol-1 s-1)   PHY mortality rate at 0 oC (0.00281d0 umol-1 d-1; 0.029L/umolN/day?0.0063; Kishi et al., 2001)0.003
+    real(8), parameter :: k_Mphy2 =  0.00562d0/86400.0d0 ! (L umol-1 s-1) PHY mortality rate at 0 oC (0.00281d0 umol-1 d-1; 0.029L/umolN/day?0.0063; Kishi et al., 2001)0.003
     real(8), parameter :: b_Mphy2 =  0.069d0             ! (degC-1)       Temperature coefficient for PHY mortality (Kawamiya et al., 1995)
     real(8), parameter :: k_Ephy2 =  0.135d0             ! (no dim.)      PHY ratio of extracellular excretion to production (Kawamiya et al., 1995)
-#if defined NUTRIENTS         
-    real(8), parameter :: Kphy1_NH4 = 1.5d0   ! (s-1)0.2         
+#if defined NUTRIENTS
+! PHY1 Nutrient Assimilation Parameter         
+    real(8), parameter :: Kphy1_NH4 = 0.2d0   ! (s-1)1.5         
     real(8), parameter :: Kphy1_NO3 = 0.1d0   ! (s-1)0.1         
-    real(8), parameter :: Kphy1_PO4 = 0.01d0   ! (s-1)0.01         
-    real(8), parameter :: Kphy2_NH4 = 4.5d0   ! (s-1)     1.0d0   (Kawamiya et al., 2000) 
-    real(8), parameter :: Kphy2_NO3 = 0.3d0   ! (s-1)     0.03d0  (Kawamiya et al., 2000)  
-    real(8), parameter :: Kphy2_PO4 = 0.03d0   ! (s-1)         
-    real(8), parameter :: psi1 =  0.5d0    !(L umolC-1)   (1.5L umolN-1; Kishi et al., 2007)  0.01     0.226
-    real(8), parameter :: psi2 =  0.5d0    !(L umolC-1)   (1.5L umolN-1; Kishi et al., 2007)  0.01     0.226
+    real(8), parameter :: Kphy1_PO4 = 0.01d0  ! (s-1)0.01 
+
+! PHY2 Nutrient Assimilation Parameter
+    real(8), parameter :: Kphy2_NH4 = 0.2d0   ! (s-1)     4.5d0   (Kawamiya et al., 2000) 
+    real(8), parameter :: Kphy2_NO3 = 0.1d0   ! (s-1)     0.3d0  (Kawamiya et al., 2000)  
+    real(8), parameter :: Kphy2_PO4 = 0.01d0  ! (s-1)  
+
+    real(8), parameter :: psi1 =  0.01d0    !(L umolC-1)   (1.5L umolN-1; Kishi et al., 2007)  0.01  0.226  0.5
+    real(8), parameter :: psi2 =  0.01d0    !(L umolC-1)   (1.5L umolN-1; Kishi et al., 2007)  0.01  0.226  0.5
 
 #endif
 !------- Zooplankton parameters ------------------------
-    real(8), parameter :: k_Gphy12zoo = 0.24d0/86400.0d0 ! (s-1)          Maximum grazing rate of PHY by ZOO at 0 oC (0.3d0 d-1; Kawamiya et al., 1995)0.16
+    real(8), parameter :: k_Gphy12zoo = 0.30d0/86400.0d0 ! (s-1)          Maximum grazing rate of PHY1 by ZOO at 0 oC (0.3d0 d-1; Kawamiya et al., 1995)0.16
     real(8), parameter :: b_Gphy12zoo = 0.0693d0         ! (degC-1)       Temperature coefficient for ZOO grazing (0.063d0degC-1;Kawamiya et al., 1995)
-    real(8), parameter :: e_Gphy12zoo = 0.25d0           ! (no dim.)      Assimilation efficiency of ZOO (0.7:Kawamiya et al., 1995)
-    real(8), parameter :: k_Gphy22zoo = 0.17d0/86400.0d0 ! (s-1)          Maximum grazing rate of PHY by ZOO at 0 oC (0.3d0 d-1; Kawamiya et al., 1995)0.12
-    real(8), parameter :: b_Gphy22zoo = 0.063d0         ! (degC-1)       Temperature coefficient for ZOO grazing (Kawamiya et al., 1995)
-    real(8), parameter :: e_Gphy22zoo = 0.25d0           ! (no dim.)      Assimilation efficiency of ZOO (0.7:Kawamiya et al., 1995)
-    real(8), parameter :: k_Rzoo = 0.005d0/86400.0d0 		!!! (s-1)          ZOO respiration rate at 0  oC  																					!!!(Tuning)
-    real(8), parameter :: b_Rzoo = 0.0693d0          	  ! (degC-1)       Temperature coefficient for ZOO respiration rate (Kawamiya et al., 1995)
-    real(8), parameter :: k_Mzoo = 0.0176d0/86400.0d0 	 	!! (L umol-1 s-1)   ZOO mortality rate at 0 oC 3.0d0/86400.0d0(0.0088d0 umol-1 d-1; Kawamiya et al., 1995)
-    real(8), parameter :: b_Mzoo = 0.0693d0            	! (degC-1)       Temperature coefficient for ZOO mortality (Kawamiya et al., 1995)
-    real(8), parameter :: lam1 = 0.211d0            			! ((umol C L-1)-1)       zooplankton Ivlev constant for PHY1 (1.4L/umolN.0.211; Kishi et al., 2007)
-    real(8), parameter :: lam2 = 0.211d0           				! ((umol C L-1)-1)       zooplankton Ivlev constant for PHY2 (1.4L/umolN; Kishi et al., 2007)
+    real(8), parameter :: e_Gphy12zoo = 0.70d0           ! (no dim.)      Assimilation efficiency of ZOO (0.7:Kawamiya et al., 1995)
+    real(8), parameter :: k_Gphy22zoo = 0.30d0/86400.0d0 ! (s-1)          Maximum grazing rate of PHY2 by ZOO at 0 oC (0.3d0 d-1; Kawamiya et al., 1995)0.12
+    real(8), parameter :: b_Gphy22zoo = 0.0693d0         ! (degC-1)       Temperature coefficient for ZOO grazing (Kawamiya et al., 1995)
+    real(8), parameter :: e_Gphy22zoo = 0.70d0           ! (no dim.)      Assimilation efficiency of ZOO (0.7:Kawamiya et al., 1995)
+    real(8), parameter :: k_Rzoo = 0.005d0/86400.0d0     ! (s-1)          ZOO respiration rate at 0  oC  																					!!!(Tuning)
+    real(8), parameter :: b_Rzoo = 0.0693d0              ! (degC-1)       Temperature coefficient for ZOO respiration rate (Kawamiya et al., 1995)
+    real(8), parameter :: k_Mzoo = 0.0176d0/86400.0d0    ! (L umol-1 s-1)   ZOO mortality rate at 0 oC 3.0d0/86400.0d0(0.0088d0 umol-1 d-1; Kawamiya et al., 1995)
+    real(8), parameter :: b_Mzoo = 0.0693d0              ! (degC-1)       Temperature coefficient for ZOO mortality (Kawamiya et al., 1995)
+    real(8), parameter :: lam1 = 0.211d0                 ! ((umol C L-1)-1)       zooplankton Ivlev constant for PHY1 (1.4L/umolN.0.211; Kishi et al., 2007)
+    real(8), parameter :: lam2 = 0.211d0           	     ! ((umol C L-1)-1)       zooplankton Ivlev constant for PHY2 (1.4L/umolN; Kishi et al., 2007)
     real(8), parameter :: t_Gphy12zoo = 0.265d0          ! (umol C L-1)       PHY1 threshold value for grazing by ZOO (0.04umolN/L0.265; Kishi et al., 2007)
     real(8), parameter :: t_Gphy22zoo = 0.265d0          ! (umol C L-1)       PHY2 threshold value for grazing by ZOO (0.04umolN/L; Kishi et al., 2007)
-!------- Microbial loop parameters --------------------
+!------- Microbial loop parameters  -------
     real(8), parameter :: k_Gdoc2zoo = 0.0d0          ! (s-1)          Maximum grazing rate of DOC by ZOO at 0 oC (0.3d0 d-1; Kawamiya et al., 1995)
     real(8), parameter :: b_Gdoc2zoo = 0.0d0          ! (degC-1)       Temperature coefficient of DOC grazing by ZOO (Kawamiya et al., 1995)
     real(8), parameter :: k_Gpoc2zoo = 0.0d0          ! (s-1)          Maximum grazing rate of POC by ZOO at 0 oC (0.3d0 d-1; Kawamiya et al., 1995)
     real(8), parameter :: b_Gpoc2zoo = 0.0d0          ! (degC-1)       Temperature coefficient of DOC grazing by ZOO (Kawamiya et al., 1995)
 !------- Decomposition parameters --------------------
-    real(8), parameter :: k_Ddoc = 0.03d0/86400.0d0   ! (s-1)          Decomposition rate of DOC at 0 oC (0.3d0 d-1; Kishi et al., 2001)
+    real(8), parameter :: k_Ddoc = 0.3d0/86400.0d0    ! (s-1)          Decomposition rate of DOC at 0 oC (0.3d0 d-1; Kishi et al., 2001)
     real(8), parameter :: b_Ddoc = 0.0693d0           ! (degC-1)       Temperature coefficient for decomposition of DOC (Kishi et al., 2001)
-    real(8), parameter :: k_Dpoc = 0.01d0/86400.0d0   ! (s-1)          Decomposition rate of POC at 0 oC (0.3d0 d-1; Kishi et al., 2001)
+    real(8), parameter :: k_Dpoc = 0.3d0/86400.0d0    ! (s-1)          Decomposition rate of POC at 0 oC (0.3d0 d-1; Kishi et al., 2001)
     real(8), parameter :: b_Dpoc = 0.0693d0           ! (degC-1)       Temperature coefficient for decomposition of POC (Kishi et al., 2001)
     real(8), parameter :: k_Ddon = 0.02d0/86400.0d0   ! (s-1)          Decomposition rate of DON at 0 oC (0.02d0 d-1; Kishi et al., 2007)
     real(8), parameter :: b_Ddon = 0.0693d0           ! (degC-1)       Temperature coefficient for decomposition of DON (Kishi et al., 2007)
-    real(8), parameter :: k_Dpon = 0.1d0/86400.0d0   ! (s-1)          Decomposition rate of PON at 0 oC (0.1d0 d-1; Kishi et al., 2007)
+    real(8), parameter :: k_Dpon = 0.1d0/86400.0d0    ! (s-1)          Decomposition rate of PON at 0 oC (0.1d0 d-1; Kishi et al., 2007)
     real(8), parameter :: b_Dpon = 0.0693d0           ! (degC-1)       Temperature coefficient for decomposition of POC (Kishi et al., 2007)
     real(8), parameter :: k_Ddop = 0.02d0/86400.0d0   ! (s-1)          Decomposition rate of DOP at 0 oC 
     real(8), parameter :: b_Ddop = 0.0693d0           ! (degC-1)       Temperature coefficient for decomposition of DOP 
-    real(8), parameter :: k_Dpop = 0.1d0/86400.0d0   ! (s-1)          Decomposition rate of POP at 0 oC 
+    real(8), parameter :: k_Dpop = 0.1d0/86400.0d0    ! (s-1)          Decomposition rate of POP at 0 oC 
     real(8), parameter :: b_Dpop = 0.0693d0           ! (degC-1)       Temperature coefficient for decomposition of POP 
 !------- Physical parameters --------------------
 #if defined NUTRIENTS
-    real(8), parameter :: k_Nit = 0.03/86400.0d0   						! (s-1)          Nitrification rate at 0 oC (0.03d0 d-1; Kishi et al., 2007)
+    real(8), parameter :: k_Nit = 0.03/86400.0d0   	 ! (s-1)          Nitrification rate at 0 oC (0.03d0 d-1; Kishi et al., 2007)
     real(8), parameter :: b_Nit = 0.0693d0           ! (degC-1)       Temperature coefficient for nitrification (Kishi et al., 2007)
 #endif
 !------- Physical parameters --------------------
-#if defined NUTRIENTS         
-    real(8), parameter :: rCNphy1 = 106.0d0/16.0d0   ! (no dim.) PHY1 C:N ratio (Redfield ratio)
-    real(8), parameter :: rCPphy1 = 106.0d0/1.0d0    ! (no dim.) PHY1 C:P ratio (Redfield ratio)
-    real(8), parameter :: rCNphy2 = 106.0d0/16.0d0   ! (no dim.) PHY2 C:N ratio (Redfield ratio)
-    real(8), parameter :: rCPphy2 = 106.0d0/1.0d0    ! (no dim.) PHY2 C:P ratio (Redfield ratio)
-    real(8), parameter :: rCNzoo = 106.0d0/16.0d0   ! (no dim.) ZOO C:N ratio (Redfield ratio)
-    real(8), parameter :: rCPzoo = 106.0d0/1.0d0    ! (no dim.) ZOO C:P ratio (Redfield ratio)
-		real(8), parameter :: rNH4 = 0.3d0    					! (no dim.)  PHY NH4:Nitrogen ratio 
+#if defined NUTRIENTS   
+
+! Redfield Ratio (1934) C:N:P -> C:N=6.6  C:P=106    N:P=16
+! Martiny et al  (2014) C:N:P -> C:N=7.4  C:P=163    N:P=22
+! GLODAP Data           C:N:P -> C:N=9.2  C:P=131.9  N:P=14.4
+
+    real(8), parameter :: rCNphy1 = 9.2d0      ! (no dim.) PHY1 C:N ratio
+    real(8), parameter :: rCPphy1 = 131.9d0    ! (no dim.) PHY1 C:P ratio
+    real(8), parameter :: rCNphy2 = 9.2d0      ! (no dim.) PHY2 C:N ratio
+    real(8), parameter :: rCPphy2 = 131.9d0    ! (no dim.) PHY2 C:P ratio
+    real(8), parameter :: rCNzoo = 9.2d0       ! (no dim.) ZOO  C:N ratio
+    real(8), parameter :: rCPzoo = 131.9d0     ! (no dim.) ZOO  C:P ratio
+    real(8), parameter :: rNH4 = 0.3d0         ! (no dim.)  PHY NH4:Nitrogen ratio 
 #endif                                
 
 !------- Local variables --------------------
