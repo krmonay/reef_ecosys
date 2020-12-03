@@ -540,13 +540,13 @@ CONTAINS
       dDI13C_dt = dDI13C_dt - Ap(k)*rCCp(k)*a_calc*rDI13C
 #endif
 #if defined NUTRIENTS
-      dNO3_dt = dNO3_dt - Ap(k)*Vp_NO3(k)*(Vp_NH4(k)+Vp_NO3(k))/rCNp(k)
-      dNH4_dt = dNH4_dt - Ap(k)*Vp_NH4(k)*(Vp_NH4(k)+Vp_NO3(k))/rCNp(k)
+      dNO3_dt = dNO3_dt - Ap(k)*Vp_NO3(k)/(Vp_NH4(k)+Vp_NO3(k))/rCNp(k)
+      dNH4_dt = dNH4_dt - Ap(k)*Vp_NH4(k)/(Vp_NH4(k)+Vp_NO3(k))/rCNp(k)
       dPO4_dt = dPO4_dt - Ap(k)/rCPp(k)
 
-      dDOx_dt = dDOx_dt + 2.0d0 * Ap(k)*Vp_NO3(k)*(Vp_NH4(k)+Vp_NO3(k))/rCNp(k)   !!!*********************
-      dTA_dt = dTA_dt + 1.0d0 * Ap(k)*Vp_NO3(k)*(Vp_NH4(k)+Vp_NO3(k))/rCNp(k)  &  ! increase of alkalinity by 1 mole when nitrate or nitrite is the N source
-                      - 1.0d0 * Ap(k)*Vp_NH4(k)*(Vp_NH4(k)+Vp_NO3(k))/rCNp(k)  &  ! decrease of alkalinity by 1 mole when ammonia is used
+      dDOx_dt = dDOx_dt + 2.0d0 * Ap(k)*Vp_NO3(k)/(Vp_NH4(k)+Vp_NO3(k))/rCNp(k)   !!!*********************
+      dTA_dt = dTA_dt + 1.0d0 * Ap(k)*Vp_NO3(k)/(Vp_NH4(k)+Vp_NO3(k))/rCNp(k)  &  ! increase of alkalinity by 1 mole when nitrate or nitrite is the N source
+                      - 1.0d0 * Ap(k)*Vp_NH4(k)/(Vp_NH4(k)+Vp_NO3(k))/rCNp(k)  &  ! decrease of alkalinity by 1 mole when ammonia is used
                       + 2.0d0 * Ap(k)/rCPp(k)  ! increases alkalinity by 2 mole per mole HPO42-
 #endif
 
