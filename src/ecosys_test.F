@@ -1,5 +1,5 @@
 
-!!!=== Copyright (c) 2012-2019 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2020 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -215,25 +215,43 @@ PROGRAM ecosys_test
               ,C(1,1,:,1,iTAlk)     &   ! TA (N): Total alkalinity (TA: umol kg-1)
               ,C(1,1,:,1,iOxyg)     &   ! DOx(N): Dissolved oxygen (umol L-1)
 #if defined ORGANIC_MATTER
-              ,C(1,1,:,1,iDOC_)     &   ! DOC(N): Dissolved organic carbon (DOC: umol L-1)
-              ,C(1,1,:,1,iPOC_)     &   ! POC(N): Particulate organic carbon (POC: umol L-1)
-              ,C(1,1,:,1,iPhyt1)     &   ! PHY(N): phytoplankton (umol C L-1)
-              ,C(1,1,:,1,iPhyt2)     &   ! PHY(N): phytoplankton (umol C L-1)
-              ,C(1,1,:,1,iZoop)     &   ! ZOO(N): zooplankton (umol C L-1)
+              ,C(1,1,:,1,iDOC(:))     &   ! DOC(N): Dissolved organic carbon (DOC: umol L-1)
+              ,C(1,1,:,1,iPOC(:))     &   ! POC(N): Particulate organic carbon (POC: umol L-1)
+              ,C(1,1,:,1,iPhyt(:))     &   ! PHY(N): phytoplankton (umol C L-1)
+              ,C(1,1,:,1,iZoop(:))     &   ! ZOO(N): zooplankton (umol C L-1)
+              ,C(1,1,:,1,iPIC(:))   &   ! PIC(N): Particulate inorganic carbon (PIC: umol L-1), coccolith (CaCO3)
 #endif
 #if defined CARBON_ISOTOPE
               ,C(1,1,:,1,iT13C)     &   ! DI13C(N): 13C of DIC (umol kg-1)
+# if defined ORGANIC_MATTER
+              ,C(1,1,:,1,iDO13C(:))     &   ! DO13C (N): 13C of Labile Dissolved organic carbon (LDOC: umol L-1)
+              ,C(1,1,:,1,iPO13C(:))     &   ! PO13C (N): 13C of Particulate organic carbon (POC: umol L-1)
+              ,C(1,1,:,1,iPhyt13C(:))   &   ! PHY13C(N): 13C of phytoplankton1 (umol C L-1), dinoflagellate
+              ,C(1,1,:,1,iZoop13C(:))   &   ! ZOO13C(N): 13C of zooplankton (umol C L-1)
+              ,C(1,1,:,1,iPI13C(:))     &   ! PI13C (N): 13C of Particulate inorganic carbon (PIC: umol L-1), coccolith (CaCO3)
+# endif
 #endif
 #if defined NUTRIENTS         
               ,C(1,1,:,1,iNO3_)     &   ! NO3(N): NO3 (umol L-1)
-              ,C(1,1,:,1,iNO2_)     &   ! NO2(N): NO2 (umol L-1)
+!              ,C(1,1,:,1,iNO2_)     &   ! NO2(N): NO2 (umol L-1)
               ,C(1,1,:,1,iNH4_)     &   ! NH4(N): NH4 (umol L-1)
               ,C(1,1,:,1,iPO4_)     &   ! PO4(N): PO4 (umol L-1)
 # if defined ORGANIC_MATTER
-              ,C(1,1,:,1,iDON_)     &   ! DON(N): Dissolved organic nitrogen (DON: umol L-1)
-              ,C(1,1,:,1,iPON_)     &   ! PON(N): Particulate organic nitrogen (PON: umol L-1)
-              ,C(1,1,:,1,iDOP_)     &   ! DOP(N): Dissolved organic phosporius (DOP: umol L-1)
-              ,C(1,1,:,1,iPOP_)     &   ! POP(N): Particulate organic phosporius (POP: umol L-1)
+              ,C(1,1,:,1,iDON(:))     &   ! DON(N): Dissolved organic nitrogen (DON: umol L-1)
+              ,C(1,1,:,1,iPON(:))     &   ! PON(N): Particulate organic nitrogen (PON: umol L-1)
+              ,C(1,1,:,1,iDOP(:))     &   ! DOP(N): Dissolved organic phosporius (DOP: umol L-1)
+              ,C(1,1,:,1,iPOP(:))     &   ! POP(N): Particulate organic phosporius (POP: umol L-1)
+# endif
+# if defined NITROGEN_ISOTOPE
+             ,C(1,1,:,1,i15NO3)     &   ! NO3_15N(N): 15N of NO3 (umol L-1)
+!             ,C(1,1,:,1,i15NO2)     &   ! NO2_15N(N): 15N of NO2 (umol L-1)
+             ,C(1,1,:,1,i15NH4)     &   ! NH4_15N(N): 15N of NH4 (umol L-1)
+#  if defined ORGANIC_MATTER
+             ,C(1,1,:,1,iDO15N(:))     &   ! DO15N (N): 15N of Labile Dissolved organic nitrogen (LDON: umol L-1)
+             ,C(1,1,:,1,iPO15N(:))     &   ! PO15N (N): 15N of Particulate organic nitrogen (PON: umol L-1)
+             ,C(1,1,:,1,iPhyt15N(:))   &   ! PHY15N(N): 15N of phytoplankton1 (umol C L-1), dinoflagellate
+             ,C(1,1,:,1,iZoop15N(:))   &   ! ZOO15N(N): 15N of zooplankton (umol C L-1)
+#  endif
 # endif
 #endif
 #if defined COT_STARFISH         
@@ -245,25 +263,43 @@ PROGRAM ecosys_test
               ,dC_dt(1,1,:,iTAlk)   &   ! dTA_dt (N): dTA/dt (umol kg-1 s-1)
               ,dC_dt(1,1,:,iOxyg)   &   ! dDOx_dt(N): dDO/dt (umol L-1 s-1)
 #if defined ORGANIC_MATTER
-              ,dC_dt(1,1,:,iDOC_)   &   ! dDOC_dt(N): dDOC/dt (umol L-1 s-1)
-              ,dC_dt(1,1,:,iPOC_)   &   ! dPOC_dt(N): dPOC/dt (umol L-1 s-1)
-              ,dC_dt(1,1,:,iPhyt1)   &   ! dPHY_dt(N): dPHY/dt (umol C L-1 s-1)
-              ,dC_dt(1,1,:,iPhyt2)   &   ! dPHY_dt(N): dPHY/dt (umol C L-1 s-1)
-              ,dC_dt(1,1,:,iZoop)   &   ! dZOO_dt(N): dZOO/dt (umol C L-1 s-1)
+              ,dC_dt(1,1,:,iDOC(1):iDOC(N_dom))      &   ! dDOC_dt(N): dDOC/dt (umol L-1 s-1)
+              ,dC_dt(1,1,:,iPOC(1):iPOC(N_pom))      &   ! dPOC_dt(N): dPOC/dt (umol L-1 s-1)
+              ,dC_dt(1,1,:,iPhyt(1):iPhyt(N_phyt))   &   ! dPHY_dt(N): dPHY/dt (umol C L-1 s-1)
+              ,dC_dt(1,1,:,iZoop(1):iZoop(N_zoop))   &   ! dZOO_dt(N): dZOO/dt (umol C L-1 s-1)
+              ,dC_dt(1,1,:,iPIC(1):iPIC(N_pim))      &   ! dPIC_dt(N): dPIC/dt (umol L-1 s-1)
 #endif
 #if defined CARBON_ISOTOPE
               ,dC_dt(1,1,:,iT13C)   &   ! dDI13C_dt(N): dDI13C/dt (umol kg-1 s-1)
+# if defined ORGANIC_MATTER     
+              ,dC_dt(1,1,:,iDO13C(1):iDO13C(N_dom))    &   ! dDO13C_dt (N): dDO13C/dt  (umol L-1 s-1) 
+              ,dC_dt(1,1,:,iPO13C(1):iPO13C(N_pom))    &   ! dPO13C_dt (N): dPO13C/dt  (umol L-1 s-1) 
+              ,dC_dt(1,1,:,iPhyt13C(1):iPhyt13C(N_phyt))  &   ! dPHY13C_dt(N): dPHY13C/dt  (umol L-1 s-1)  
+              ,dC_dt(1,1,:,iZoop13C(1):iZoop13C(N_zoop))  &   ! dZOO13C_dt(N): dZOO13C/dt  (umol L-1 s-1)  
+              ,dC_dt(1,1,:,iPI13C(1):iPI13C(N_pim))    &   ! dPI13C_dt (N): dPI13C/dt  (umol L-1 s-1)  
+# endif
 #endif
 #if defined NUTRIENTS 
               ,dC_dt(1,1,:,iNO3_)   &   ! dNO3_dt(N): dNO3/dt (umol L-1 s-1)
-              ,dC_dt(1,1,:,iNO2_)   &   ! dNO2_dt(N): dNO2/dt (umol L-1 s-1)
+!              ,dC_dt(1,1,:,iNO2_)   &   ! dNO2_dt(N): dNO2/dt (umol L-1 s-1)
               ,dC_dt(1,1,:,iNH4_)   &   ! dNH4_dt(N): dNH4/dt (umol L-1 s-1)
               ,dC_dt(1,1,:,iPO4_)   &   ! dPO4_dt(N): dPO4/dt (umol L-1 s-1)
 # if defined ORGANIC_MATTER
-              ,dC_dt(1,1,:,iDON_)   &   ! dDON_dt(N): dDON/dt (umol L-1 s-1)
-              ,dC_dt(1,1,:,iPON_)   &   ! dPON_dt(N): dPON/dt (umol L-1 s-1)
-              ,dC_dt(1,1,:,iDOP_)   &   ! dDOP_dt(N): dDOP/dt (umol L-1 s-1)
-              ,dC_dt(1,1,:,iPOP_)   &   ! dPOP_dt(N): dPOP/dt (umol L-1 s-1)
+              ,dC_dt(1,1,:,iDON(1):iDON(N_dom))      &   ! dDON_dt(N): dDON/dt (umol L-1 s-1)
+              ,dC_dt(1,1,:,iPON(1):iPON(N_pom))      &   ! dPON_dt(N): dPON/dt (umol L-1 s-1)
+              ,dC_dt(1,1,:,iDOP(1):iDOP(N_dom))      &   ! dDOP_dt(N): dDOP/dt (umol L-1 s-1)
+              ,dC_dt(1,1,:,iPOP(1):iPOP(N_pom))      &   ! dPOP_dt(N): dPOP/dt (umol L-1 s-1)
+# endif
+# if defined NITROGEN_ISOTOPE
+              ,C_dt(1,1,:,i15NO3)        &   ! dNO3_15N_dt(N): dNO3_15N/dt (umol L-1 s-1)
+!              ,C_dt(1,1,:,i15NO2)        &   ! dNO2_15N_dt(N): dNO2_15N/dt (umol L-1 s-1)
+              ,C_dt(1,1,:,i15NH4)        &   ! dNH4_15N_dt(N): dNH4_15N/dt (umol L-1 s-1)
+#  if defined ORGANIC_MATTER
+              ,C_dt(1,1,:,iDO15N(1):iDO15N(N_dom))     &   ! dDO15N_dt (N): dDO15N/dt  (umol L-1 s-1) 
+              ,C_dt(1,1,:,iPO15N(1):iPO15N(N_pom))     &   ! dPO15N_dt (N): dPO15N/dt  (umol L-1 s-1) 
+              ,C_dt(1,1,:,iPhyt15N(1):iPhyt15N(N_phyt))   &   ! dPHY15N_dt(N): dPHY1_15N/dt  (umol L-1 s-1)  
+              ,C_dt(1,1,:,iZoop15N(1):iZoop15N(N_zoop))   &   ! dZOO15N_dt(N): dZOO_15N/dt  (umol L-1 s-1)  
+#  endif
 # endif
 #endif
 #if defined COT_STARFISH         

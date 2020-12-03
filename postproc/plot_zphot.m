@@ -1,6 +1,6 @@
 % === Copyright (c) 2017 Takashi NAKAMURA  =====
 
-zph1_file = '.././output/eco5-zphot1_his.csv';
+zph1_file = '../Projects/coral/output/eco5-zphot1_his.csv';
 
 xmin=0; xmax=7;
 PFDmax =2000;
@@ -57,12 +57,12 @@ ylabel('E (umol m^-^2 s^-^1)')
 axis([xmin xmax  0 PFDmax])
 yyaxis left
 hold on
-plot(zh1.time, zh1.Yield,'b');
+plot(zh1.time, zh1.Y_II_,'b');
 axis([xmin xmax  0 1.2])
 hold on
 ylabel('Y(II)')
 ax = gca; ax.YColor = 'k';
-legend('Yield','E', 'Location','southoutside','Orientation','horizontal')
+legend('Y(II)','E', 'Location','southoutside','Orientation','horizontal')
 
 hold off
 subplot(4,2,4);

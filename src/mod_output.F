@@ -119,7 +119,7 @@ contains
     open(59,file='./output/eco5-sedpH_his.txt')!!!!!!!!!!!!!!!!!!!for debug
     open(60,file='./output/eco5-sedWarg_his.txt')!!!!!!!!!!!!!!!!!!!for debug
     open(61,file='./output/eco5-sedNH4_his.txt')!!!!!!!!!!!!!!!!!!!for debug
-    open(62,file='./output/eco5-sedNO2_his.txt')!!!!!!!!!!!!!!!!!!!for debug
+!    open(62,file='./output/eco5-sedNO2_his.txt')!!!!!!!!!!!!!!!!!!!for debug
     open(63,file='./output/eco5-sedNO3_his.txt')!!!!!!!!!!!!!!!!!!!for debug
     open(64,file='./output/eco5-sedPO4_his.txt')!!!!!!!!!!!!!!!!!!!for debug
     open(65,file='./output/eco5-sedDOC_his.txt')!!!!!!!!!!!!!!!!!!!for debug
@@ -205,29 +205,27 @@ END SUBROUTINE files_close
     
     integer, intent(in) :: fid
     
-    write(fid,*) 'time, ', 'PFDsurf, '                               &
-        , 'Temp, ','Salt, ','TA, ','DIC, ','DO, '                     &
+    write(fid,'(*(g0:,", "))') 'time', 'PFDsurf'                            &
+        ,'Temp','Salt','TA','DIC','DO'                                     &
 #if defined ORGANIC_MATTER
-        , 'DOC, ','POC, '     &
-        , 'Phyt1, ','Phyt2, ','Zoop, '                                &
+        ,'DOC1','DOC2','POC1','POC2','Phyt1','Phyt2','Phyt3','Zoop','PIC'  &
 #endif
 #if defined NUTRIENTS            
-        , 'NO3, ','NO2, ','NH4, ','PO4, '                             &
+        ,'NO3','NH4','PO4'                                                 &
 # if defined ORGANIC_MATTER
-        , 'DON, ','PON, ','DOP, ','POP, '                             &
+        ,'DON1','DON2','PON1','PON2','DOP1','DOP2','POP1','POP2'           &
 # endif
 #endif
 #if defined CARBON_ISOTOPE
-        , 'd13C_DIC, '                                                &
+        ,'d13C_DIC'                                                        &
 #endif
 #if defined COT_STARFISH
-        , 'COT, ','COTl '                                             &
+        ,'COT','COTl'                                                      &
 #endif
 #if defined REEF_FLOW
-        , 'Q_rc, ', 'Q_ch, '                                          &
-        , 'el_reef, '                                                 &
+        ,'Q_rc', 'Q_ch','el_reef'                                          &
 #endif
-        , 'dz, ', 'el'
+        ,'dz', 'el'
       
 
     RETURN
@@ -269,34 +267,34 @@ END SUBROUTINE files_close
     d13C_DIC=d13C_fromR13C(C(1,1,1,1,iT13C)/C(1,1,1,1,iTIC_))
 #endif
         
-    write(fid,*) time,',', PFDsurf,','                              &
-           ,C(1,1,1,1,iTemp),',',C(1,1,1,1,iSalt),','              &
-           ,C(1,1,1,1,iTAlk),',',C(1,1,1,1,iTIC_),','              &
-           ,C(1,1,1,1,iOxyg),','                                   &
+    write(fid,'(*(g0:,", "))') time, PFDsurf                                &
+           , C(1,1,1,1,iTemp), C(1,1,1,1,iSalt)                            &
+           , C(1,1,1,1,iTAlk), C(1,1,1,1,iTIC_), C(1,1,1,1,iOxyg)          &
 #if defined ORGANIC_MATTER
-           ,C(1,1,1,1,iDOC_), ',',C(1,1,1,1,iPOC_),','             &
-           ,C(1,1,1,1,iPhyt1),',',C(1,1,1,1,iPhyt2),','            &
-           ,C(1,1,1,1,iZoop), ','                                  &
+           , C(1,1,1,1,iDOC(1)), C(1,1,1,1,iDOC(2))                        &
+           , C(1,1,1,1,iPOC(1)), C(1,1,1,1,iPOC(2))                        &
+           , C(1,1,1,1,iPhyt(1)), C(1,1,1,1,iPhyt(2)), C(1,1,1,1,iPhyt(3)) &
+           , C(1,1,1,1,iZoop(1)), C(1,1,1,1,iPIC(1))                       &
 #endif
 #if defined NUTRIENTS            
-           ,C(1,1,1,1,iNO3_),',',C(1,1,1,1,iNO2_),','              &
-           ,C(1,1,1,1,iNH4_),',',C(1,1,1,1,iPO4_),','              &
+           , C(1,1,1,1,iNO3_), C(1,1,1,1,iNH4_), C(1,1,1,1,iPO4_)          &
 # if defined ORGANIC_MATTER
-           ,C(1,1,1,1,iDON_),',',C(1,1,1,1,iPON_),','              &
-           ,C(1,1,1,1,iDOP_),',',C(1,1,1,1,iPOP_),','              &
+           , C(1,1,1,1,iDON(1)), C(1,1,1,1,iDON(2))                        &
+           , C(1,1,1,1,iPON(1)), C(1,1,1,1,iPON(2))                        &
+           , C(1,1,1,1,iDOP(1)), C(1,1,1,1,iDOP(2))                        &
+           , C(1,1,1,1,iPOP(1)), C(1,1,1,1,iPOP(2))                        &
 # endif
 #endif
 #if defined CARBON_ISOTOPE
-           ,d13C_DIC,','                                           &
+           , d13C_DIC                                                      &
 #endif
 #if defined COT_STARFISH
-           ,C(1,1,1,1,iCOTe),',',C(1,1,1,1,iCOTl),','              &
+           , C(1,1,1,1,iCOTe), C(1,1,1,1,iCOTl)                            &
 #endif
 #if defined REEF_FLOW
-           ,REEF(1)%Qrc(1,1),',', REEF(1)%Qch(1,1),','             &
-           ,REEF(1)%el (1,1),','                                   &
+           , REEF(1)%Qrc(1,1), REEF(1)%Qch(1,1), REEF(1)%el (1,1)          &
 #endif
-           ,dz(1,1,1),',',tide 
+           , dz(1,1,1), tide 
 
 
     RETURN
@@ -316,37 +314,37 @@ END SUBROUTINE files_close
     
     integer, intent(in) :: fid
     
-    write(fid,*) 'time,', 'PFD,'                                &
-       ,'Pg,', 'R,', 'Pn,', 'G,','QC,'                          &
-       ,'TAcal,',  'TAcoe,',  'TAamb,'                          &
-       ,'DICcal,', 'DICcoe,', 'DICamb,'                         &
-       ,'DOcoe,', 'DOamb,'                                      &
-       ,'pHcal,','pHcoe, ','pHamb,','Wacal,','Waamb,'           &
-       ,'fCO2cal,','fCO2coe,','fCO2amb,'                        &
-       ,'CO2aqcal,','HCO3cal,','CO3cal,'                        &
-       ,'CO2aqcoe,','HCO3coe,','CO3coe,'                        &
+    write(fid,'(*(g0:,", "))') 'time', 'PFD'                  &
+       ,'Pg', 'R', 'Pn', 'G','QC'                            &
+       ,'TAcal',  'TAcoe',  'TAamb'                          &
+       ,'DICcal', 'DICcoe', 'DICamb'                         &
+       ,'DOcoe', 'DOamb'                                     &
+       ,'pHcal','pHcoe','pHamb','Wacal','Waamb'              &
+       ,'fCO2cal','fCO2coe','fCO2amb'                        &
+       ,'CO2aqcal','HCO3cal','CO3cal'                        &
+       ,'CO2aqcoe','HCO3coe','CO3coe'                        &
 # if defined CORAL_CARBON_ISOTOPE
-       ,'d13C_DICamb,','d13C_DICcoe,','d13C_QC,','d13C_DICcal,' &
-       ,'d13C_arg,','d13C_argxGn,'                              &
-       ,'d13C_CO2aqcal,','d13C_HCO3cal,','d13C_CO3cal,'         &
-       ,'d13C_CO2aqcoe,','d13C_HCO3coe,','d13C_CO3coe,'         &
-       ,'c13CO2aqcal,','cH13CO3cal,','c13CO3cal,'               &
-       ,'c13CO2aqcoe,','cH13CO3coe,','c13CO3coe,'               &
+       ,'d13C_DICamb','d13C_DICcoe','d13C_QC','d13C_DICcal'  &
+       ,'d13C_arg','d13C_argxGn'                             &
+       ,'d13C_CO2aqcal','d13C_HCO3cal','d13C_CO3cal'         &
+       ,'d13C_CO2aqcoe','d13C_HCO3coe','d13C_CO3coe'         &
+       ,'c13CO2aqcal','cH13CO3cal','c13CO3cal'               &
+       ,'c13CO2aqcoe','cH13CO3coe','c13CO3coe'               &
 # endif
 # if defined CORAL_ZOOXANTHELLAE
-       ,'ROS,','F_ROS,','F_detox,','F_dam,'                     &
+       ,'ROS','F_ROS','F_detox','F_dam'                      &
 # endif
 # if defined CORAL_BORON_ISOTOPE
-       ,'d11Barg,'                                              &
+       ,'d11Barg'                                            &
 # endif
 # if defined ORGANIC_MATTER
-       ,'DOCuptake,'                                            &
+       ,'DOCuptake'                                          &
 # endif
 # if defined CORAL_INGESTION
-       ,'ZOOuptake,'                                            &
+       ,'ZOOuptake'                                          &
 # endif
 # if defined CORAL_SIZE_DYNAMICS
-       ,'growth,','mort,','Damage,','F_Cgrowth,'                &
+       ,'growth','mort','Damage','F_Cgrowth'                 &
 # endif
        ,'E_ca'
 
@@ -363,21 +361,21 @@ END SUBROUTINE files_close
     
     integer, intent(in) :: fid
     
-      write(fid,*) 'day,'         &
-       ,'S_PFD_dt,'               &   !Photon flux density (mol m-2 d-1)
+      write(fid,'(*(g0:,", "))') 'day'  &
+       ,'S_PFD_dt'                     &   ! Photon flux density (mol m-2 d-1)
 # if defined CORAL_CARBON_ISOTOPE
-!       ,'S_d13CargxGn_dt,'        &
-       ,'d13Carg,'                &   !d13C
-       ,'S_d13C_QC_dt,'           &   ! 1 day avaraged value of d13C_QC
+!       ,'S_d13CargxGn_dt'              &
+       ,'d13Carg'                      &   ! d13C
+       ,'S_d13C_QC_dt'                 &   ! 1 day avaraged value of d13C_QC
 # endif
 # if defined CORAL_BORON_ISOTOPE
-       ,'d11Barg,'   & 
+       ,'d11Barg'                      & 
 # endif
-       ,'S_Gn_dt,'                &   !Calcification rate (umol cm-2 d-1)
-       ,'S_Pg_dt,'                &   !Gross photosynthesis rate (umol cm-2 d-1)
-       ,'S_R_dt,'                 &   !Respiration rate (umol cm-2 d-1)
-       ,'S_QC_dt,'                &   ! 1 day avaraged value of QC
-       ,'S_Pn_dt'                     !Net photosynthesis rate (umol cm-2 d-1)
+       ,'S_Gn_dt'                      &   ! Calcification rate (umol cm-2 d-1)
+       ,'S_Pg_dt'                      &   ! Gross photosynthesis rate (umol cm-2 d-1)
+       ,'S_R_dt'                       &   ! Respiration rate (umol cm-2 d-1)
+       ,'S_QC_dt'                      &   ! 1 day avaraged value of QC
+       ,'S_Pn_dt'                          ! Net photosynthesis rate (umol cm-2 d-1)
 
     RETURN
 
@@ -392,24 +390,24 @@ END SUBROUTINE write_crl_ave_lavel
     
     integer, intent(in) :: fid
     
-    write(fid,*)                                &
-       'time,', 'PFD,'                          &
-       ,'Pg,', 'R,'                             &
-       ,'dens,','QC,'                           &
-       ,'ROS,'                                  &
-       ,'C_repro,','Repro,','Morta,','F_ROS,'   &
-       ,'F_Csec,'                               &
+    write(fid,'(*(g0:,", "))')                 &
+       'time', 'PFD'                          &
+       ,'Pg', 'R'                             &
+       ,'dens','QC'                           &
+       ,'ROS'                                 &
+       ,'C_repro','Repro','Morta','F_ROS'     &
+       ,'F_Csec'                              &
 #  if defined CORAL_NUTRIENTS
-       ,'QN,','QP,'                             &
-       ,'N_repro,','P_repro,'                   &
-       ,'NO3,','NO2,'                           &
-       ,'NH4,','F_ONOO,'                        &
-       ,'NO3_trans,','NO2_trans,','NH4_trans,'  &
-       ,'NO3_reduc,','NO2_reduc,'               &
-       ,'N_assim,','N_dissim,'                  &
-       ,'PO4,','PO4_trans,','P_assim,'          &
+       ,'QN','QP'                             &
+       ,'N_repro','P_repro'                   &
+       ,'NO3'                                 &
+       ,'NH4','F_ONOO'                        &
+       ,'NO3_trans','NH4_trans'               &
+       ,'NO3_reduc'                           &
+       ,'N_assim','N_dissim'                  &
+       ,'PO4','PO4_trans','P_assim'           &
 #  endif
-       ,'F_Zexpul,','Repro_x_dens,'             &
+       ,'F_Zexpul','Repro_x_dens'             &
        ,'Morta_x_dens'
 
     RETURN
@@ -424,14 +422,13 @@ END SUBROUTINE write_crl_ave_lavel
     
     integer, intent(in) :: fid
     
-    write(fid,*)                                          &
-        'time,','PFD,','Tamb,'                            &
-       ,'QAo,','QAr,'                                     &
-       ,'QAi,','QAt,','QAa,'                              &
-       ,'Fv/Fm,','Yield,'                                 &
-       ,'J_ea,','J_ep_in,','J_ep,','J_ee,','J_ep_max,'    &
-       ,'Ji2a,','Ja2i,','kr,','ko,','F_ROS,'              &
-       ,'Pg,','Pgcal,','Pgmax,','Ra, ','Repair'
+    write(fid,'(*(g0:,", "))')                        &
+        'time','PFD','Tamb'                          &
+       ,'QAo','QAr','QAi','QAt','QAa'                &
+       ,'Fv/Fm','Y(II)'                              &
+       ,'J_ea','J_ep_in','J_ep','J_ee','J_ep_max'    &
+       ,'Ji2a','Ja2i','kr','ko','F_ROS'              &
+       ,'Pg','Pgcal','Pgmax','Ra','Repair'
      
     RETURN
 
@@ -453,36 +450,36 @@ END SUBROUTINE write_crl_ave_lavel
     
     integer, intent(in) :: fid
     
-    write(fid,*) 'time,', 'PFDbott,'                                 &
+    write(fid,'(*(g0:,", "))') 'time', 'PFDbott'              &
 # ifdef CORAL_POLYP
-        ,'coral1_Pg, ', 'coral1_R, ', 'coral1_Pn, ', 'coral1_G, '    &
-        ,'coral2_Pg, ', 'coral2_R, ', 'coral2_Pn, ', 'coral2_G, '    &
+        ,'coral1_Pg', 'coral1_R', 'coral1_Pn', 'coral1_G'    &
+        ,'coral2_Pg', 'coral2_R', 'coral2_Pn', 'coral2_G'    &
 # endif
 # ifdef SEAGRASS
-        ,'sgrass_Pg, ', 'sgrass_R, ', 'sgrass_Pn, '                  &
+        ,'sgrass_Pg', 'sgrass_R', 'sgrass_Pn'                &
 # endif
 # ifdef MACROALGAE
-        ,'algae_Pg, ' , 'algae_R, ' , 'algae_Pn, '                   &
+        ,'algae_Pg' , 'algae_R' , 'algae_Pn'                 &
 # endif
 # ifdef SEDIMENT_ECOSYS
-        ,'sedeco_Pg, ', 'sedeco_R, ', 'sedeco_Pn, ', 'sedeco_G, '    &
+        ,'sedeco_Pg', 'sedeco_R', 'sedeco_Pn', 'sedeco_G'    &
 # endif
-        ,'dDIC_dt,','dTA_dt,','dDO_dt,'                              &
+        ,'dDIC_dt','dTA_dt','dDO_dt'                         &
 # if defined ORGANIC_MATTER
-        ,'dDOC_dt,','dPOC_dt,'                                       &
+        ,'dDOC_dt','dPOC_dt'                                 &
 # endif
 # if defined CARBON_ISOTOPE
-        ,'dDI13C_dt,'                                                &
+        ,'dDI13C_dt'                                         &
 # endif
 # if defined NUTRIENTS
-        ,'dNO3_dt,','dNO2_dt,','dNH4_dt,'                            &
-        ,dPO4_dt(1),','                                              &
+        ,'dNO3_dt','dNH4_dt'                                 &
+        ,'dPO4_dt'                                           &
 #  if defined ORGANIC_MATTER
-        ,'dDON_dt,','dPON_dt,','dDOP_dt,','dPOP_dt,'                 &
+        ,'dDON_dt','dPON_dt','dDOP_dt','dPOP_dt'             &
 #  endif
 # endif
-        ,'pH, ', 'fCO2, ', 'Warg, '                                  &
-        ,'U10, ', 'CO2flux, ' , 'O2flux'
+        ,'pH', 'fCO2', 'Warg'                                &
+        ,'U10', 'CO2flux' , 'O2flux'
 
     RETURN
 

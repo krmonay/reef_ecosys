@@ -29,7 +29,8 @@
 *.app
 
 # Output Files
-output/*
+*.csv
+*.xlsx
 !.gitkeep
 
 # Backup Files
