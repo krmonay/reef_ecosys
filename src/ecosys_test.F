@@ -36,7 +36,7 @@ PROGRAM ecosys_test
 
   integer :: i,j,k,id, Nid
   integer :: istep, iprint
-  integer :: nSetting, nheat
+  integer :: nheat
   
   integer :: ipcl =1       ! Step of the protocol for setting 5 (Incubation chamber condition simulated Nakamura & Nakamori (2009) experiments)
   integer :: inight = 1 ! Timer for setting 6
@@ -53,21 +53,17 @@ PROGRAM ecosys_test
   real(8) :: h1,h2
   real(8) :: fvol_rc, fvol_ch
 
+  real(8) :: Tmax, time0
+  integer :: nSetting
+
+  namelist/ecosys_config/Tmax, time0
+  namelist/ecosys_config/nSetting
+
+  read (*, nml=ecosys_config)
+
 !----- Open output files -------------------------
 
   CALL files_open
-
-      
-! Setting of condition (nsetting)
-!
-!     nSetting = 1: Stable condition
-!                2: Closed chamber condition
-!                3: Constant flow condition
-!                4: Reef simulation condition
-!                5: Incubation chamber simulation of Nakamura & Nakamori (2009) experiments
-!                6: Flume simulation of Comeau et al. (2016) experiments
-      
-      nSetting = 1  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       
 !----- Set initial conditions -------------------------
 
@@ -94,7 +90,7 @@ PROGRAM ecosys_test
 !  call Coral_iniSizeDis
 !  call Coral_Size2Cover
 
-  time=0.
+  time=time0
   
   istep=0
   iprint=0
@@ -121,12 +117,7 @@ PROGRAM ecosys_test
 
 !----- Main loop -------------------------------------------
 
-!  do istep=1, int(60.*60./dt)+1       ! 1 hour
-!  do istep=1, int(24.*60.*60./dt) * 14 +1      ! 5 days
-  do istep=1, int(24.*60.*60./dt) * 2 +1      ! 7 days
-!  do istep=1, int(24.*60.*60./dt) * 9 +1      ! 9 days
-!  do istep=1, int(24.*60.*60./dt) * 120 +1      ! 30 days
-!  do istep=1, int(24.*60.*60./dt) *365*3 +1      ! 3 year
+  do istep=1, int(24.*60.*60./dt * Tmax)  +1
 
 !------ Set environmental parameters ----------------------------
 
@@ -215,14 +206,17 @@ PROGRAM ecosys_test
               ,C(1,1,:,1,iTAlk)     &   ! TA (N): Total alkalinity (TA: umol kg-1)
               ,C(1,1,:,1,iOxyg)     &   ! DOx(N): Dissolved oxygen (umol L-1)
 #if defined ORGANIC_MATTER
-              ,C(1,1,:,1,iDOC(:))     &   ! DOC(N): Dissolved organic carbon (DOC: umol L-1)
-              ,C(1,1,:,1,iPOC(:))     &   ! POC(N): Particulate organic carbon (POC: umol L-1)
-              ,C(1,1,:,1,iPhyt(:))     &   ! PHY(N): phytoplankton (umol C L-1)
-              ,C(1,1,:,1,iZoop(:))     &   ! ZOO(N): zooplankton (umol C L-1)
-              ,C(1,1,:,1,iPIC(:))   &   ! PIC(N): Particulate inorganic carbon (PIC: umol L-1), coccolith (CaCO3)
+              ,C(1,1,:,1,iDOC(:))       &   ! DOC(N): Dissolved organic carbon (DOC: umol L-1)
+              ,C(1,1,:,1,iPOC(:))       &   ! POC(N): Particulate organic carbon (POC: umol L-1)
+              ,C(1,1,:,1,iPhyt(:))      &   ! PHY(N): phytoplankton (umol C L-1)
+              ,C(1,1,:,1,iZoop(:))      &   ! ZOO(N): zooplankton (umol C L-1)
+              ,C(1,1,:,1,iPIC(:))       &   ! PIC(N): Particulate inorganic carbon (PIC: umol L-1), coccolith (CaCO3)
+# if defined FOODWEB_TESTMODE
+              ,C(1,1,:,1,iDeadPhyt(:))  &   ! DeadPHY(Nphy): Dead phytoplankton (umol C L-1)
+# endif
 #endif
 #if defined CARBON_ISOTOPE
-              ,C(1,1,:,1,iT13C)     &   ! DI13C(N): 13C of DIC (umol kg-1)
+              ,C(1,1,:,1,iT13C)         &   ! DI13C(N): 13C of DIC (umol kg-1)
 # if defined ORGANIC_MATTER
               ,C(1,1,:,1,iDO13C(:))     &   ! DO13C (N): 13C of Labile Dissolved organic carbon (LDOC: umol L-1)
               ,C(1,1,:,1,iPO13C(:))     &   ! PO13C (N): 13C of Particulate organic carbon (POC: umol L-1)
@@ -268,6 +262,9 @@ PROGRAM ecosys_test
               ,dC_dt(1,1,:,iPhyt(1):iPhyt(N_phyt))   &   ! dPHY_dt(N): dPHY/dt (umol C L-1 s-1)
               ,dC_dt(1,1,:,iZoop(1):iZoop(N_zoop))   &   ! dZOO_dt(N): dZOO/dt (umol C L-1 s-1)
               ,dC_dt(1,1,:,iPIC(1):iPIC(N_pim))      &   ! dPIC_dt(N): dPIC/dt (umol L-1 s-1)
+# if defined FOODWEB_TESTMODE
+              ,dC_dt(1,1,:,iDeadPhyt(1):iDeadPhyt(N_phyt))   &   ! dDeadPHY/dt  (umol L-1 s-1)
+# endif
 #endif
 #if defined CARBON_ISOTOPE
               ,dC_dt(1,1,:,iT13C)   &   ! dDI13C_dt(N): dDI13C/dt (umol kg-1 s-1)

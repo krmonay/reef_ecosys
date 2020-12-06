@@ -22,10 +22,10 @@
 #  define CARBON_TRACE
 # endif
 
-# define CORAL_POLYP  /* USE coral module */
-# define SEAGRASS     /* USE seagrass module */
-# define MACROALGAE        /* USE algae module  */
-# define SEDIMENT_ECOSYS        /* USE sedecosys module  */
+/*# define CORAL_POLYP*/  /* USE coral module */
+/*# define SEAGRASS*/     /* USE seagrass module */
+/*# define MACROALGAE*/        /* USE algae module  */
+/*# define SEDIMENT_ECOSYS*/        /* USE sedecosys module  */
 # if defined SEDIMENT_ECOSYS
 #  define SEDIMENT_EMPIRICAL     /* USE empirical sediment module  */
 # endif
@@ -68,7 +68,9 @@
 #if defined SEDIMENT_ECOSYS
 /*# define SEDIMENT_TESTMODE*/
 #endif
-
+#if defined FOODWEB 
+# define FOODWEB_TESTMODE
+#endif
 /*** Chamber experiments option ***/
 /*#define CHAMBER_SITE4*/
 

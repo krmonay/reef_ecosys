@@ -59,6 +59,9 @@ CONTAINS
     , PHY            &   ! PHY(Nphy): phytoplankton (umol C L-1)
     , ZOO            &   ! ZOO(Nzoo): zooplankton (umol C L-1)
     , PIC            &   ! PIC(Npim): Particulate inorganic carbon (PIC: umol L-1), coccolith (CaCO3)
+#if defined FOODWEB_TESTMODE
+    , DeadPHY        &   ! DeadPHY(Nphy): Dead phytoplankton (umol C L-1)
+#endif
 #if defined CARBON_ISOTOPE
     , DI13C          &   ! 13C of DIC (umol kg-1)
     , DO13C          &   ! 13C of Labile Dissolved organic carbon (DOC: umol L-1)
@@ -98,7 +101,10 @@ CONTAINS
     , dPOC_dt        &   ! dPOC/dt  (umol L-1 s-1) 
     , dPHY_dt        &   ! dPHY1/dt  (umol L-1 s-1)  
     , dZOO_dt        &   ! dZOO/dt  (umol L-1 s-1)  
-    , dPIC_dt        &   ! dPIC/dt  (umol L-1 s-1)  
+    , dPIC_dt        &   ! dPIC/dt  (umol L-1 s-1)
+#if defined FOODWEB_TESTMODE
+    , dDeadPHY_dt    &   ! dDeadPHY/dt  (umol L-1 s-1)
+#endif
 #if defined CARBON_ISOTOPE
     , dDI13C_dt      &   ! dDI13C/dt (umol kg-1 s-1)
     , dDO13C_dt      &   ! dDO13C/dt  (umol L-1 s-1) 
@@ -153,6 +159,9 @@ CONTAINS
     real(8), intent(in) :: PHY(Nphy)      ! phytoplankton1 (umol C L-1), dinoflagellate
     real(8), intent(in) :: ZOO(Nzoo)      ! zooplankton (umol C L-1)
     real(8), intent(in) :: PIC(Npim)      ! Particulate inorganic carbon (PIC: umol L-1), coccolith (CaCO3)
+#if defined FOODWEB_TESTMODE
+    real(8), intent(in) :: DeadPHY(Nphy)  ! DeadPHY(Nphy): Dead phytoplankton (umol C L-1)
+#endif
 #if defined CARBON_ISOTOPE
     real(8), intent(in) :: DI13C          ! 13C of DIC (umol kg-1)
     real(8), intent(in) :: DO13C(Ndom)    ! 13C of Labile Dissolved organic carbon (DOC: umol L-1)
@@ -192,7 +201,10 @@ CONTAINS
     real(8), intent(out) :: dPOC_dt(Npom) ! dPOC/dt  (umol L-1 s-1) 
     real(8), intent(out) :: dPHY_dt(Nphy) ! dPHY1/dt  (umol L-1 s-1)  
     real(8), intent(out) :: dZOO_dt(Nzoo) ! dZOO/dt  (umol L-1 s-1)  
-    real(8), intent(out) :: dPIC_dt(Npim) ! dPIC/dt  (umol L-1 s-1)  
+    real(8), intent(out) :: dPIC_dt(Npim) ! dPIC/dt  (umol L-1 s-1) 
+#if defined FOODWEB_TESTMODE
+    real(8), intent(out) :: dDeadPHY_dt(Nphy)  ! dDeadPHY/dt  (umol L-1 s-1)
+#endif
 #if defined CARBON_ISOTOPE
     real(8), intent(out) :: dDI13C_dt        ! dDI13C/dt (umol kg-1 s-1)
     real(8), intent(out) :: dDO13C_dt(Ndom)  ! dDO13C/dt  (umol L-1 s-1) 
@@ -229,7 +241,7 @@ CONTAINS
 
 !------- Phytoplankton parameters ------------------------
 !  Maximum photosynthetic rate at 0 oC ( s-1) (0.4d0 d-1; Kishi et al., 2007)0.3
-    real(8), parameter :: k_Pp(Nphy) = [ 3.5d-6,   7.0d-6,   3.5d-7   ]  ! (s-1)
+    real(8), parameter :: k_Pp(Nphy) = [ 3.5d-6,   1.0d-5,   3.5d-6   ]  ! (s-1)
 !  Temperature coefficient for PHY photosynthesis (0.063; Kawamiya et al., 1995)          
     real(8), parameter :: b_Pp(Nphy) = [ 0.0693d0, 0.0693d0, 0.0693d0 ]  ! (degC-1) 
 !  Optimum light intensity (48.83d0 J m2 s-1; Kawamiya et al., 1995)     
@@ -243,12 +255,12 @@ CONTAINS
 !  Temperature coefficient for PHY mortality (Kawamiya et al., 1995)
     real(8), parameter :: b_Mp(Nphy) = [ 0.069d0,  0.069d0,  0.069d0  ] ! (degC-1)   
 !  PHY ratio of extracellular excretion to production 0.135(Kawamiya et al., 1995)    
-    real(8), parameter :: k_Ep(Nphy) = [ 0.135d0,  0.3d0,    0.135d0  ] ! (no dim.) 
-    real(8), parameter :: rLDOMphy = 0.95d0  ! (Labile DOM)/(Total DOM) of phytoplankton excreted DOM (no dim.) 
+    real(8), parameter :: k_Ep(Nphy) = [ 0.135d0,  0.135d0,  0.135d0  ] ! (no dim.) 
+    real(8), parameter :: rLDOMphy = 0.99d0  ! (Labile DOM)/(Total DOM) of phytoplankton excreted DOM (no dim.) 
 #if defined NUTRIENTS
 !  PHY Nutrient Assimilation Parameter         
-    real(8), parameter :: Kp_NH4(Nphy) = [ 1.5d0,  4.5d0,  1.5d0  ] ! (umol L-1)1.5         
-    real(8), parameter :: Kp_NO3(Nphy) = [ 0.1d0,  0.3d0,  0.1d0  ] ! (umol L-1)0.1         
+    real(8), parameter :: Kp_NH4(Nphy) = [ 1.5d0,  0.5d0,  1.5d0  ] ! (umol L-1)1.5         
+    real(8), parameter :: Kp_NO3(Nphy) = [ 0.1d0,  2.0d0,  0.1d0  ] ! (umol L-1)0.1         
     real(8), parameter :: Kp_PO4(Nphy) = [ 0.01d0, 0.03d0, 0.01d0 ] ! (umol L-1)0.01 
     ! (1.5L umolN-1; Kishi et al., 2007)  0.01  0.226  0.5
     real(8), parameter :: psi(Nphy) =    [ 0.5d0,  0.5d0,  0.5d0  ] !(L umolC-1)   
@@ -274,13 +286,13 @@ CONTAINS
     real(8), parameter :: e_Gdoc2z(Ndom,Nzoo) = reshape( [ 0.010d0,   0.010d0  ], [Ndom,Nzoo] )   
     real(8), parameter :: e_Gpoc2z(Npom,Nzoo) = reshape( [ 0.10d0,    0.10d0   ], [Ndom,Nzoo] ) ! (no dim.)      Assimilation efficiency of ZOO (0.7:Kawamiya et al., 1995)
 !------- Decomposition parameters --------------------
-    real(8), parameter :: k_Ddoc(Ndom) = [ 3.0d-6,   1.0d-11   ]    ! (s-1)    Decomposition rate of DOC at 0 oC (0.3d0 d-1; Kishi et al., 2001)
-    real(8), parameter :: k_Ddon(Ndom) = [ 2.0d-6,   1.0d-11   ]    ! (s-1)    Decomposition rate of DON at 0 oC (0.02d0 d-1; Kishi et al., 2007)
-    real(8), parameter :: k_Ddop(Ndom) = [ 2.0d-6,   1.0d-11   ]    ! (s-1)    Decomposition rate of DOP at 0 oC 
+    real(8), parameter :: k_Ddoc(Ndom) = [ 3.0d-7,   1.0d-11   ]    ! (s-1)    Decomposition rate of DOC at 0 oC (0.3d0 d-1; Kishi et al., 2001)
+    real(8), parameter :: k_Ddon(Ndom) = [ 2.0d-7,   1.0d-11   ]    ! (s-1)    Decomposition rate of DON at 0 oC (0.02d0 d-1; Kishi et al., 2007)
+    real(8), parameter :: k_Ddop(Ndom) = [ 2.0d-7,   1.0d-11   ]    ! (s-1)    Decomposition rate of DOP at 0 oC 
   
-    real(8), parameter :: k_Dpoc(Npom) = [ 3.0d-6,   1.0d-10   ]    ! (s-1)    Decomposition rate of POC at 0 oC (0.3d0 d-1; Kishi et al., 2001)
-    real(8), parameter :: k_Dpon(Npom) = [ 1.0d-6,   1.0d-10   ]    ! (s-1)    Decomposition rate of PON at 0 oC (0.1d0 d-1; Kishi et al., 2007)
-    real(8), parameter :: k_Dpop(Npom) = [ 1.0d-6,   1.0d-10   ]    ! (s-1)    Decomposition rate of POP at 0 oC 
+    real(8), parameter :: k_Dpoc(Npom) = [ 3.0d-7,   1.0d-10   ]    ! (s-1)    Decomposition rate of POC at 0 oC (0.3d0 d-1; Kishi et al., 2001)
+    real(8), parameter :: k_Dpon(Npom) = [ 1.0d-7,   1.0d-10   ]    ! (s-1)    Decomposition rate of PON at 0 oC (0.1d0 d-1; Kishi et al., 2007)
+    real(8), parameter :: k_Dpop(Npom) = [ 1.0d-7,   1.0d-10   ]    ! (s-1)    Decomposition rate of POP at 0 oC 
 
     real(8), parameter :: b_Ddoc(Ndom) = [ 0.0693d0, 0.0693d0 ]    ! (degC-1) Temperature coefficient for decomposition of DOC (Kishi et al., 2001)
     real(8), parameter :: b_Ddon(Ndom) = [ 0.0693d0, 0.0693d0 ]    ! (degC-1) Temperature coefficient for decomposition of DON (Kishi et al., 2007)
@@ -378,6 +390,9 @@ CONTAINS
     dPHY_dt(:) = 0.0d0
     dZOO_dt(:) = 0.0d0
     dPIC_dt(:) = 0.0d0
+#if defined FOODWEB_TESTMODE
+    dDeadPHY_dt(:) = 0.0d0
+#endif
 #if defined CARBON_ISOTOPE
     dDI13C_dt = 0.0d0
     dDO13C_dt(:)  = 0.0d0
@@ -481,13 +496,6 @@ CONTAINS
       ENDIF
       Pp(k) = MAX( Pp(k), 0.0d0 )  !!! Error handling
 
-!     === Mass barance ===
-
-      dDIC_dt = dDIC_dt - Pp(k)
-      dDOx_dt = dDOx_dt + Pp(k)  !!!!!!**************
-#if defined CARBON_ISOTOPE
-      dDI13C_dt = dDI13C_dt - Pp(k)*a_phot*rDI13C
-#endif
 !----- Assimilation rate (umolC L-1 s-1) -----------------
 
 #if defined NUTRIENTS
@@ -527,10 +535,11 @@ CONTAINS
 
       dPHY_dt(k) = dPHY_dt(k) + Ap(k)
       dTA_dt = dTA_dt - Ap(k)*rCCp(k)*2.0d0  ! calcification
-      dDIC_dt = dDIC_dt - Ap(k)*rCCp(k)      ! calcification
+      dDIC_dt = dDIC_dt - Ap(k) - Ap(k)*rCCp(k)      ! calcification
+      dDOx_dt = dDOx_dt + Ap(k)  !!!!!!**************
 #if defined CARBON_ISOTOPE
       dPHY13C_dt(k) = dPHY13C_dt(k) + Ap(k)*a_phot*rDI13C
-      dDI13C_dt = dDI13C_dt - Ap(k)*rCCp(k)*a_calc*rDI13C
+      dDI13C_dt = dDI13C_dt - Ap(k)*a_phot*rDI13C - Ap(k)*rCCp(k)*a_calc*rDI13C
 #endif
 #if defined NUTRIENTS
       dNO3_dt = dNO3_dt - Ap(k)*Vp_NO3(k)/(Vp_NH4(k)+Vp_NO3(k))/rCNp(k)
@@ -546,13 +555,18 @@ CONTAINS
 !----- Excretion rate (umolC L-1 s-1) -----------------
 
 #if defined NUTRIENTS
-      Ep(k) = Pp(k) - Ap(k)
+      Ep(k) = (Pp(k) - Ap(k))*k_Ep(k) 
 #else
       Ep(k) = k_Ep(k) * Pp(k)
 #endif
 
 !     === Mass barance ===
 
+      dDIC_dt = dDIC_dt - Ep(k)
+      dDOx_dt = dDOx_dt + Ep(k)  !!!!!!**************
+#if defined CARBON_ISOTOPE
+      dDI13C_dt = dDI13C_dt - Ep(k)*a_phot*rDI13C
+#endif
       dDOC_dt(iLbl) = dDOC_dt(iLbl) + Ep(k)*rLDOMphy  !!!!!!**************
       dDOC_dt(iRfr) = dDOC_dt(iRfr) + Ep(k)*(1.0d0-rLDOMphy)  !!!!!!**************
 #if defined CARBON_ISOTOPE
@@ -561,10 +575,10 @@ CONTAINS
       dDO13C_dt(iRfr) = dDO13C_dt(iRfr) + Ep(k)*(1.0d0-rLDOMphy)*a_phot*rDI13C
 #endif
 #if defined NUTRIENTS
-      dDON_dt(iLbl) = dDON_dt(iLbl) + Ep(k)*rLDOMphy/rCNp(k)  !!!!!!**************
-      dDOP_dt(iLbl) = dDOP_dt(iLbl) + Ep(k)*rLDOMphy/rCPp(k)  !!!!!!**************
-      dDON_dt(iRfr) = dDON_dt(iRfr) + Ep(k)*(1.0d0-rLDOMphy)/rCNp(k)  !!!!!!**************
-      dDOP_dt(iRfr) = dDOP_dt(iRfr) + Ep(k)*(1.0d0-rLDOMphy)/rCPp(k)  !!!!!!**************
+!      dDON_dt(iLbl) = dDON_dt(iLbl) + Ep(k)*rLDOMphy/rCNp(k)  !!!!!!**************
+!      dDOP_dt(iLbl) = dDOP_dt(iLbl) + Ep(k)*rLDOMphy/rCPp(k)  !!!!!!**************
+!      dDON_dt(iRfr) = dDON_dt(iRfr) + Ep(k)*(1.0d0-rLDOMphy)/rCNp(k)  !!!!!!**************
+!      dDOP_dt(iRfr) = dDOP_dt(iRfr) + Ep(k)*(1.0d0-rLDOMphy)/rCPp(k)  !!!!!!**************
 #endif
 
 !----- Respiration rate (umolC L-1 s-1) -----------------
@@ -601,6 +615,9 @@ CONTAINS
       dPHY_dt(k) = dPHY_dt(k) - Mp(k)
       dPOC_dt(iDtr) = dPOC_dt(iDtr) + Mp(k)
       dPIC_dt(iCaCO3) = dPIC_dt(iCaCO3) + Mp(k)*rCCp(k)
+#if defined FOODWEB_TESTMODE
+      dDeadPHY_dt(k) = dDeadPHY_dt(k) + Mp(k)
+#endif
 #if defined CARBON_ISOTOPE
       dPHY13C_dt(k) = dPHY13C_dt(k) - Mp(k)*rPHY13C(k)
       dPO13C_dt(iDtr) = dPO13C_dt(iDtr) + Mp(k)*rPHY13C(k)
@@ -821,7 +838,7 @@ CONTAINS
 
     DO k=1, Ndom
       DO m=1, Npom
-        Dp2doc(m,k) = k_Dp2doc(m,k) * exp(b_Dp2doc(m,k)*Tmp) * MAX(POC(k),0.0d0)
+        Dp2doc(m,k) = k_Dp2doc(m,k) * exp(b_Dp2doc(m,k)*Tmp) * MAX(POC(m),0.0d0)
         IF(DOx <= 0.0d0) THEN !-----For Error handling
           Dp2doc(m,k) = 0.0d0
         ENDIF
@@ -836,13 +853,13 @@ CONTAINS
         dPO13C_dt(m) = dPO13C_dt(m) - Dp2doc(m,k)*rPO13C(m)
 #endif     
 #if defined NUTRIENTS
-        Dp2don(m,k) = k_Dp2don(m,k) * exp(b_Dp2don(m,k)*Tmp) * MAX(PON(k),0.0d0)
+        Dp2don(m,k) = k_Dp2don(m,k) * exp(b_Dp2don(m,k)*Tmp) * MAX(PON(m),0.0d0)
         IF(DOx <= 0.0d0) THEN !-----For Error handling
           Dp2don(m,k) = 0.0d0
         ENDIF
         Dp2don(m,k) = MAX( Dp2don(m,k), 0.0d0 )  !!! Error handling
 
-        Dp2dop(m,k) = k_Dp2dop(m,k) * exp(b_Dp2dop(m,k)*Tmp) * POP(k)
+        Dp2dop(m,k) = k_Dp2dop(m,k) * exp(b_Dp2dop(m,k)*Tmp) * MAX(POP(m),0.0d0)
         IF(DOx <= 0.0d0) THEN !-----For Error handling
           Dp2dop(m,k) = 0.0d0
         ENDIF

@@ -33,14 +33,13 @@ contains
 !  ---- count data number -----
     nm_data = 0
     do
-      read(77,*,iostat=ios)   ! ���ڂ̓ǂݍ��݂ł̓f�[�^�͓ǂݎ̂Ă�B
-      if(ios==-1) exit        ! �t�@�C�����I������烋�[�v�𔲂���
-      nm_data = nm_data+1   ! �f�[�^���̃J�E���g
+      read(77,*,iostat=ios) 
+      if(ios==-1) exit
+      nm_data = nm_data+1
     end do
     allocate( tide_data(nm_data) )
     nm_tide = nm_data
-    rewind(77)                ! �t�@�C���̂͂��߂ɖ߂�B
-!  ---- �f�[�^�̓ǂݍ��� -----
+    rewind(77)
     do i=1, nm_data
       read(77,*) tide_data(i)
     end do
@@ -54,9 +53,9 @@ contains
 !  ---- count data number -----
     nm_data = 0
     do
-      read(77,*,iostat=ios)   ! ���ڂ̓ǂݍ��݂ł̓f�[�^�͓ǂݎ̂Ă�B
-      if(ios==-1) exit        ! �t�@�C�����I������烋�[�v�𔲂���
-      nm_data = nm_data+1   ! �f�[�^���̃J�E���g
+      read(77,*,iostat=ios) 
+      if(ios==-1) exit
+      nm_data = nm_data+1
     end do
     allocate( Pair_data (nm_data))
     allocate( Uwind_data(nm_data))
@@ -67,8 +66,8 @@ contains
     allocate( swrad_data(nm_data))
     allocate( cloud_data(nm_data))
     nm_air = nm_data
-    rewind(77)                ! �t�@�C���̂͂��߂ɖ߂�B
-!  ---- �f�[�^�̓ǂݍ��� -----
+    rewind(77)
+
     do i=1, nm_data
       read(77,*) Pair_data (i), Uwind_data(i), Vwind_data(i),    &
                  Tair_data (i), Qair_data (i), rain_data (i),    &
@@ -86,14 +85,14 @@ contains
 !  ---- count data number -----
     nm_data = 0
     do
-      read(77,*,iostat=ios)   ! ���ڂ̓ǂݍ��݂ł̓f�[�^�͓ǂݎ̂Ă�B
-      if(ios==-1) exit        ! �t�@�C�����I������烋�[�v�𔲂���
-      nm_data = nm_data+1   ! �f�[�^���̃J�E���g
+      read(77,*,iostat=ios)
+      if(ios==-1) exit
+      nm_data = nm_data+1
     end do
     allocate( dlwrad_data(nm_data))
     nm_dlwrad = nm_data
-    rewind(77)                ! �t�@�C���̂͂��߂ɖ߂�B
-!  ---- �f�[�^�̓ǂݍ��� -----
+    rewind(77)
+
     do i=1, nm_data
       read(77,*) dlwrad_data(i)
     end do
@@ -109,14 +108,14 @@ contains
 !  ---- count data number -----
     nm_data = 0
     do
-      read(77,*,iostat=ios)   ! ���ڂ̓ǂݍ��݂ł̓f�[�^�͓ǂݎ̂Ă�B
-      if(ios==-1) exit        ! �t�@�C�����I������烋�[�v�𔲂���
-      nm_data = nm_data+1   ! �f�[�^���̃J�E���g
+      read(77,*,iostat=ios)
+      if(ios==-1) exit
+      nm_data = nm_data+1
     end do
     allocate( Hs_data(nm_data), Tp_data(nm_data) )
     nm_wave = nm_data
-    rewind(77)                ! �t�@�C���̂͂��߂ɖ߂�B
-!  ---- �f�[�^�̓ǂݍ��� -----
+    rewind(77)
+
     do i=1, nm_data
       read(77,*) Hs_data(i), Tp_data(i)
     end do
@@ -130,14 +129,14 @@ contains
 !  ---- count data number -----
     nm_data = 0
     do
-      read(77,*,iostat=ios)   ! ���ڂ̓ǂݍ��݂ł̓f�[�^�͓ǂݎ̂Ă�B
-      if(ios==-1) exit        ! �t�@�C�����I������烋�[�v�𔲂���
-      nm_data = nm_data+1   ! �f�[�^���̃J�E���g
+      read(77,*,iostat=ios) 
+      if(ios==-1) exit 
+      nm_data = nm_data+1
     end do
     allocate( offtemp_data(nm_data) )
     nm_offtemp = nm_data
-    rewind(77)                ! �t�@�C���̂͂��߂ɖ߂�B
-!  ---- �f�[�^�̓ǂݍ��� -----
+    rewind(77)
+
     do i=1, nm_data
       read(77,*) offtemp_data(i)
     end do
@@ -299,12 +298,12 @@ contains
 !      swrad=light_and_dark2(time, 100.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
 !      swrad=light_and_dark2(time, 250.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
 !      swrad=light_and_dark2(time, 500.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
-      swrad=light_and_dark2(time, 1000.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
+!      swrad=light_and_dark2(time, 1000.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
 
 !      swrad=light_and_dark3(time, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
 
 !      swrad=short_radi(time, 0.0d0, 1.0d0, 24.0d0, 25.0d0, 50.0d0, 1) !shortwave radiation by Zillman equation
-!      swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
+      swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
 !      swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2)*0.25d0 !shortwave radiation around 3/21 by Zillman equation
 !      swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2)*0.5d0 !shortwave radiation around 3/21 by Zillman equation
     

@@ -19,6 +19,13 @@ contains
   SUBROUTINE files_open
   
     implicit none
+
+    character(256) :: OUTFILE_prefix
+
+    namelist/output/OUTFILE_prefix
+  
+    read (*, nml=output)
+  
 #if defined CHAMBER_SITE4
     open(10,file='./output/site04-env_his.csv')
 # if defined CORAL_TESTMODE
@@ -94,20 +101,20 @@ contains
 
 
 #else
-    open(10,file='./output/eco5-env_his.csv')
+    open(10,file='./output/'//trim(OUTFILE_prefix)//'-env_his.csv')
 # if defined CORAL_TESTMODE
-    open(11,file='./output/eco5-crl1_his.csv')
-    open(12,file='./output/eco5-crl2_his.csv')
-    open(21,file='./output/eco5-crl1_ave.csv')
-    open(22,file='./output/eco5-crl2_ave.csv')
+    open(11,file='./output/'//trim(OUTFILE_prefix)//'-crl1_his.csv')
+    open(12,file='./output/'//trim(OUTFILE_prefix)//'-crl2_his.csv')
+    open(21,file='./output/'//trim(OUTFILE_prefix)//'-crl1_ave.csv')
+    open(22,file='./output/'//trim(OUTFILE_prefix)//'-crl2_ave.csv')
 #  if defined CORAL_ZOOXANTHELLAE
-    open(31,file='./output/eco5-zoo1_his.csv')
-    open(32,file='./output/eco5-zoo2_his.csv')
-    open(41,file='./output/eco5-zphot1_his.csv')
+    open(31,file='./output/'//trim(OUTFILE_prefix)//'-zoo1_his.csv')
+    open(32,file='./output/'//trim(OUTFILE_prefix)//'-zoo2_his.csv')
+    open(41,file='./output/'//trim(OUTFILE_prefix)//'-zphot1_his.csv')
 #  endif
 # endif
 # if defined ECOSYS_TESTMODE
-    open(40,file='./output/eco5-ecosys_his.csv')
+    open(40,file='./output/'//trim(OUTFILE_prefix)//'-ecosys_his.csv')
 # endif
 
 #endif
@@ -205,10 +212,13 @@ END SUBROUTINE files_close
     
     integer, intent(in) :: fid
     
-    write(fid,'(*(g0:,", "))') 'time', 'PFDsurf'                            &
+    write(fid,'(*(g0:,", "))') 'time', 'PFDsurf'                           &
         ,'Temp','Salt','TA','DIC','DO'                                     &
 #if defined ORGANIC_MATTER
         ,'DOC1','DOC2','POC1','POC2','Phyt1','Phyt2','Phyt3','Zoop','PIC'  &
+# if defined FOODWEB_TESTMODE
+        ,'DeadPhyt1','DeadPhyt2','DeadPhyt3'                               &
+# endif
 #endif
 #if defined NUTRIENTS            
         ,'NO3','NH4','PO4'                                                 &
@@ -267,7 +277,7 @@ END SUBROUTINE files_close
     d13C_DIC=d13C_fromR13C(C(1,1,1,1,iT13C)/C(1,1,1,1,iTIC_))
 #endif
         
-    write(fid,'(*(g0:,", "))') time, PFDsurf                                &
+    write(fid,'(*(g0:,", "))') time, PFDsurf                               &
            , C(1,1,1,1,iTemp), C(1,1,1,1,iSalt)                            &
            , C(1,1,1,1,iTAlk), C(1,1,1,1,iTIC_), C(1,1,1,1,iOxyg)          &
 #if defined ORGANIC_MATTER
@@ -275,6 +285,10 @@ END SUBROUTINE files_close
            , C(1,1,1,1,iPOC(1)), C(1,1,1,1,iPOC(2))                        &
            , C(1,1,1,1,iPhyt(1)), C(1,1,1,1,iPhyt(2)), C(1,1,1,1,iPhyt(3)) &
            , C(1,1,1,1,iZoop(1)), C(1,1,1,1,iPIC(1))                       &
+# if defined FOODWEB_TESTMODE
+           , C(1,1,1,1,iDeadPhyt(1)), C(1,1,1,1,iDeadPhyt(2))              &
+           , C(1,1,1,1,iDeadPhyt(3))                                       &
+# endif
 #endif
 #if defined NUTRIENTS            
            , C(1,1,1,1,iNO3_), C(1,1,1,1,iNH4_), C(1,1,1,1,iPO4_)          &
