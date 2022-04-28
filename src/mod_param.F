@@ -226,7 +226,8 @@ contains
     namelist/initial/d15N_Phyt1_0, d15N_Phyt2_0, d15N_Phyt3_0, d15N_Zoop1_0
     namelist/initial/p_coral1_0, p_coral2_0, p_algae_0, p_sgrass_0, p_sand_0
   
-    read (*, nml=initial)
+    read (5, nml=initial)
+    rewind(5)
 !
 !-----------------------------------------------------------------------
 !  Initialize tracer identification indices.

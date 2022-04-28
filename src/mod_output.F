@@ -24,7 +24,8 @@ contains
 
     namelist/output/OUTFILE_prefix
   
-    read (*, nml=output)
+    read (5, nml=output)
+    rewind(5)
   
 #if defined CHAMBER_SITE4
     open(10,file='./output/site04-env_his.csv')

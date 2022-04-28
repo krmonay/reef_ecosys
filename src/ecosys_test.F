@@ -59,8 +59,9 @@ PROGRAM ecosys_test
   namelist/ecosys_config/Tmax, time0
   namelist/ecosys_config/nSetting
 
-  read (*, nml=ecosys_config)
-
+  read (5, nml=ecosys_config)
+  rewind(5)
+  
 !----- Open output files -------------------------
 
   CALL files_open

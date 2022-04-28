@@ -1699,7 +1699,7 @@ CONTAINS
       ( ng, n, i, j          & ! ng: nested grid number; n: coral compartment; i,j: position
       , dt                   & ! Time step (sec)
       , PFDsurf              & ! Photon flux density (umol m-2 s-1)
-      , Tamb                 & ! Temperature (K)
+      , Tamb                 & ! Temperature (oC)
       , cCO2aqcoe            & ! CO2 concentration in the coral tissue
       , ROS                  & ! ROS concentration in Zooxanthellar cell
 !        output parameters
@@ -1726,7 +1726,7 @@ CONTAINS
 !  Estimated from Saragosti et al. (2010) data
 !    F_zROS = 0.0072d0*exp(0.14d0*(TKamb-273.15))+0.0024d0*(PFDsurf) ! (fmol min-1 cell-1)
 !  Estimated from combined data of Saragosti et al. (2010) and McGinty et al. (2012)
-    F_zROS = 6.0d-7*exp(0.5d0*(TKamb-273.15))+0.0024d0*(PFDsurf) ! (fmol min-1 cell-1)
+    F_zROS = 6.0d-7*exp(0.5d0*Tamb)+0.0024d0*(PFDsurf) ! (fmol min-1 cell-1)
     F_zROS = F_zROS/60.0d0 * 1.0d-3   ! (pmol cell-1 s-1)
 # endif
       
@@ -2052,6 +2052,9 @@ CONTAINS
     real(8), save :: time(Ncl)         = (/ 0.d0, 0.d0 /) !sec
     real(8), save :: dsec(Ncl)         = (/ 0.d0, 0.d0 /) !sec
     real(8), save :: dday(Ncl)         = (/ 1.d0, 1.d0 /) !day
+    real(8) :: FvFm       
+    real(8) :: YII      
+
 # endif
 
 !---------------------------------------------------------------------   
@@ -2128,11 +2131,14 @@ CONTAINS
     time(n) = time(n) +dt  ! sec
     
     if(time(n).ge.dsec(n)) then
+
+      FvFm = (QAa/QAt)/(0.2d0+(QAa/QAt))
+      YII  = (ZPHOT(ng)%QAo(n,i,j)/QAt)/(0.2d0+(ZPHOT(ng)%QAo(n,i,j)/QAt))
       
       write(40+n,'(*(g0:,", "))')                                          &
          time(n)/86400.0d0, PFDsurf, Tamb                                  &
        , ZPHOT(ng)%QAo(n,i,j), ZPHOT(ng)%QAr(n,i,j), ZPHOT(ng)%QAi(n,i,j)  &
-       , QAt, QAa, QAa/QAt, ZPHOT(ng)%QAo(n,i,j)/QAt                       &
+       , QAt, QAa, FvFm, YII                       &
        , J_ea, J_ep_in, J_ep, J_ee, J_ep_max, Ji2a, Ja2i, kr, ko, F_zROS   &
        , Pg, J_ep_in*c2e, J_ep_max*c2e, RubisCO, ZPHOT(ng)%Rep(n,i,j)
 

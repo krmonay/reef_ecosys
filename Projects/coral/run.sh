@@ -7,5 +7,5 @@ rm *.mod
 #
 mkdir -p output
 #
-./ecosys_test.exe < coral.in
+./ecosys_test.exe < coral_01.in
 #

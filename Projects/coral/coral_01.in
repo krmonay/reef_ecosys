@@ -1,0 +1,99 @@
+&ecosys_config
+! Simulation period     
+  Tmax = 6.0d0  ! days
+! Start time
+  time0 = 0.0d0 ! day
+
+! Setting of condition (nsetting)
+!
+!     nSetting = 1: Stable condition
+!                2: Closed chamber condition
+!                3: Constant flow condition
+!                4: Reef simulation condition
+!                5: Incubation chamber simulation of Nakamura & Nakamori (2009) experiments
+!                6: Flume simulation of Comeau et al. (2016) experiments   
+  nSetting = 1
+/
+
+&input   
+  PFD_FILE   = 'input/PFD.dat'
+  SWRad_FILE = 'input/SWrad.dat'
+  LWRad_FILE = 'input/LWrad.dat'
+  Tair_FILE  = 'input/Tair.dat'
+  Pair_FILE  = 'input/Pair.dat'
+  Wind_FILE  = 'input/Wind.dat'
+  Rain_FILE  = 'input/Rain.dat'
+  RH_FILE    = 'input/RH.dat'    ! Relative humidity (%)
+  WAVE_FILE  = 'input/wave.dat'
+/
+
+&output   
+  OUTFILE_prefix = 'bleaching_test'
+/
+
+!--- Initial Condition -----------------------------------------------------
+&initial
+
+  d0 = 0.1d0           ! Depth (m)
+  T0 = 27.0d0          ! Water temperature (oC)
+  S0 = 34.0d0          ! Salinity (PSU)
+
+!  pCO2air = 400.0d0   ! 383.0d0  !!! RCP8.5: 936.0d0 (uatm); RCP2.6: 421.0d0 (uatm)
+
+  TAlk0 = 2232.0d0     ! TA  (umol kg-1) 
+  TIC_0 = 1915.0d0     ! DIC (umol kg-1)  !!! 2050.0d0 @ fCO2=800uatm;  2030.0d0 @ fCO2=700uatm 
+  Oxyg0 = 200.0d0      ! DO  (umol L-1)
+  Sed1_0  = 0.0d0      ! Sediment concentration (g m-3)
+
+  DOC1_0 = 5.0d0       ! Labile DOC  (umol L-1) 
+  DOC2_0 = 50.0d0      ! Refractory DOC  (umol L-1) 
+  POC1_0 = 1.0d0       ! Detritus POC  (umol L-1) 
+  POC2_0 = 0.0d0       ! Coarse POC  (umol L-1) 
+ Phyt1_0 = 1.0d0       ! Phytoplankton1: Dinoflagellate (umolC L-1) 
+ Phyt2_0 = 2.0d0       ! Phytoplankton2: Diatom (umolC L-1) 
+ Phyt3_0 = 2.0d0       ! Phytoplankton3: Coccolithophorids (umolC L-1) 
+ Zoop1_0 = 0.1d0       ! Zooplankton (umol L-1)
+  PIC1_0 = 0.5d0       ! PIC  (umol L-1) 
+
+d13C_TIC0 = 0.7d0      ! d13C_TIC (permill VPDB)
+d13C_DOC1_0 = -15.0d0  ! d13C_DOC (permill VPDB)
+d13C_DOC2_0 = -15.0d0  ! d13C_DOC (permill VPDB)
+d13C_POC1_0 = -15.0d0  ! d13C_POC (permill VPDB)
+d13C_POC2_0 = -15.0d0  ! d13C_POC (permill VPDB)
+d13C_Phyt1_0 = -15.0d0 ! d13C_phytoplankton1 (permill VPDB)
+d13C_Phyt2_0 = -15.0d0 ! d13C_phytoplankton2 (permill VPDB)
+d13C_Phyt3_0 = -15.0d0 ! d13C_phytoplankton3 (permill VPDB)
+d13C_Zoop1_0 = -20.0d0 ! d13C_zooplankton (permill VPDB)
+d13C_PIC1_0 = -5.0d0   ! d13C_PIC (permill VPDB)
+
+  NO3_0 = 3.5d0        ! NO3  (umol L-1)  control: 0.2d0, N: 1.8d0, N*2: 3.5d0
+  NH4_0 = 0.26d0       ! NH4  (umol L-1) 
+  PO4_0 = 0.04d0       ! PO4  (umol L-1)  control: 0.04d0, P: 0.2d0
+
+  DON1_0 = 1.0d0   ! Labile DON  (umol L-1) 
+  DON2_0 = 10.0d0  ! Refractory DON  (umol L-1) 
+  PON1_0 = 0.6d0   ! Detritus PON  (umol L-1) 
+  PON2_0 = 0.0d0   ! Coarse PON  (umol L-1) 
+  DOP1_0 = 0.06d0  ! Labile DOP  (umol L-1) 
+  DOP2_0 = 0.6d0   ! Refractory DOP  (umol L-1) 
+  POP1_0 = 0.04d0  ! Detritus POP  (umol L-1) 
+  POP2_0 = 0.0d0   ! Coarse POP  (umol L-1) 
+
+d15N_NO3_0 = 0.7d0       ! d15N_NO3 (permill)
+d15N_NH4_0 = 0.7d0       ! d15N_TIC (permill)
+d15N_DON1_0 = -15.0d0    ! d15N_DOC (permill)
+d15N_DON2_0 = -15.0d0    ! d15N_DOC (permill)
+d15N_PON1_0 = -15.0d0    ! d15N_POC (permill)
+d15N_PON2_0 = -15.0d0    ! d15N_POC (permill)
+d15N_Phyt1_0 = -15.0d0   ! d15N_phytoplankton (permill)
+d15N_Phyt2_0 = -15.0d0   ! d15N_phytoplankton (permill)
+d15N_Phyt3_0 = -15.0d0   ! d15N_phytoplankton (permill)
+d15N_Zoop1_0 = -20.0d0   ! d15N_zooplankton (permill)
+
+p_coral1_0 = 0.2d0  ! Coral1 (inner reef coral) coverage (0-1)
+p_coral2_0 = 0.2d0  ! Coral2 (outer reef coral) coverage (0-1)
+p_algae_0  = 0.0d0  ! Macro algae coverage (0-1)
+p_sgrass_0 = 0.0d0  ! Seagrass coverage (0-1)
+p_sand_0   = 0.0d0  ! Sand coverage (0-1)
+
+/
