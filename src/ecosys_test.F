@@ -1,5 +1,5 @@
 
-!!!=== Copyright (c) 2012-2020 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2022 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -106,9 +106,7 @@ PROGRAM ecosys_test
 # if defined CORAL_ZOOXANTHELLAE
   CALL write_zox_his_lavel(31)
   CALL write_zox_his_lavel(32)
-#  if defined CORAL_PHOTOINHIBITION
   CALL write_zphot_his_lavel(41)
-#  endif
 # endif
 #endif
 #if defined ECOSYS_TESTMODE

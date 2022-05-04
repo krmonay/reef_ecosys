@@ -68,7 +68,7 @@ d13C_PIC1_0 = -5.0d0   ! d13C_PIC (permill VPDB)
 
   NO3_0 = 3.5d0        ! NO3  (umol L-1)  control: 0.2d0, N: 1.8d0, N*2: 3.5d0
   NH4_0 = 0.26d0       ! NH4  (umol L-1) 
-  PO4_0 = 0.04d0       ! PO4  (umol L-1)  control: 0.04d0, P: 0.2d0
+  PO4_0 = 0.2d0       ! PO4  (umol L-1)  control: 0.04d0, P: 0.2d0
 
   DON1_0 = 1.0d0   ! Labile DON  (umol L-1) 
   DON2_0 = 10.0d0  ! Refractory DON  (umol L-1) 

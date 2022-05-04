@@ -1,5 +1,5 @@
 
-!!!=== Copyright (c) 2012-2020 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2022 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -288,7 +288,7 @@ contains
 ! -- Set solar radiation data -----------------------------------------------
 
 !      swrad=lin_interpol(time,swrad_data,dt_air,nm_air)   !data from file
-
+#if defined ANA_SWRAD_LIGHT_DARK
 !      swrad=solar_radi(time,1400.d0,0.d0)!9.d0/24.d0)                !Artificial solar radiation
 
 !      swrad=light_and_dark(time, 140.0d0, 10./60./24., 0.5/60./24.)   !light and dark method 10 min interval
@@ -297,16 +297,18 @@ contains
 !      swrad=light_and_dark2(time, 0.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
 !      swrad=light_and_dark2(time, 100.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
 !      swrad=light_and_dark2(time, 250.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
-!      swrad=light_and_dark2(time, 500.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
+      swrad=light_and_dark2(time, 500.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
 !      swrad=light_and_dark2(time, 1000.0d0, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
 
-!      swrad=light_and_dark3(time, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
-
+#elif defined ANA_SWRAD_TAKAHASHI_ET_AL_2004
+! --- Takahashi et al. (2004) experiment ----------------------
+      swrad=light_and_dark3(time, 3.0d0/24.0d0, 21.0d0/24.0d0, 0.5d0/60.0d0/24.0d0)   !light and dark method 1 hour interval
+#elif defined ANA_SWRAD_ZILLMAN
 !      swrad=short_radi(time, 0.0d0, 1.0d0, 24.0d0, 25.0d0, 50.0d0, 1) !shortwave radiation by Zillman equation
       swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2) !shortwave radiation around 3/21 by Zillman equation
 !      swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2)*0.25d0 !shortwave radiation around 3/21 by Zillman equation
 !      swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2)*0.5d0 !shortwave radiation around 3/21 by Zillman equation
-    
+#endif    
 !   Convert solar radiation (W m-2) to photosynthetic photon flux 
 !   density: 2.1 umol m-2 s-1 per W m-2 (Britton and Dodd 1976)
 !   Sea surface albedo: 0.07
@@ -333,6 +335,7 @@ contains
 !    tau = 1024*0.01*0.0**2. *0.5 !densSW*Cd*Ub**2    (0 cm s-1)
 !    tau = 1024*0.01*0.02**2. *0.5  !densSW*Cd*Ub**2  (2 cm s-1)
     tau = 1024*0.01*0.01**2. *0.5  !densSW*Cd*Ub**2  (1 cm s-1)
+!    tau = 1024*0.01*0.2**2. *0.5  !densSW*Cd*Ub**2  (20 cm s-1)
 
 !    tau = 1024*0.14*0.02**2. *0.5  !densSW*Cd*Ub**2  (2 cm s-1)
 !    tau = 1024*0.14*0.05**2. *0.5  !densSW*Cd*Ub**2  (5 cm s-1)
@@ -340,7 +343,7 @@ contains
 
 !    tau = 1024*0.01*0.2**2. *0.5 !densSW*Cd*Ub**2   (20 cm s-1)
     
-    pCO2air = 370.0d0 !(uatm)
+    pCO2air = 400.0d0 !(uatm)
     
     U10 = SQRT( Uwind*Uwind + Vwind*Vwind )
     
@@ -664,13 +667,13 @@ contains
     if (time <= 1.1d0) then
       PFD = 0.0d0
     else if (time <= 2.1d0) then
-      PFD = 0.0d0
-    else if (time <= 3.1d0) then
       PFD = 100.0d0
-    else if (time <= 4.1d0) then
+    else if (time <= 3.1d0) then
       PFD = 250.0d0
-    else if (time <= 5.1d0) then
+    else if (time <= 4.1d0) then
       PFD = 500.0d0
+    else if (time <= 5.1d0) then
+      PFD = 1000.0d0
     else
       PFD = 1000.0d0
     endif

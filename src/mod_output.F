@@ -1,5 +1,5 @@
 
-!!!=== Copyright (c) 2017-2020 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2017-2022 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -112,6 +112,7 @@ contains
     open(31,file='./output/'//trim(OUTFILE_prefix)//'-zoo1_his.csv')
     open(32,file='./output/'//trim(OUTFILE_prefix)//'-zoo2_his.csv')
     open(41,file='./output/'//trim(OUTFILE_prefix)//'-zphot1_his.csv')
+    open(42,file='./output/'//trim(OUTFILE_prefix)//'-zphot2_his.csv')
 #  endif
 # endif
 # if defined ECOSYS_TESTMODE
@@ -347,7 +348,7 @@ END SUBROUTINE files_close
        ,'c13CO2aqcoe','cH13CO3coe','c13CO3coe'               &
 # endif
 # if defined CORAL_ZOOXANTHELLAE
-       ,'ROS','F_ROS','F_detox','F_dam'                      &
+       ,'ROS','Rz', 'F_Csec', 'F_ROS','F_detox','F_dam'      &
 # endif
 # if defined CORAL_BORON_ISOTOPE
        ,'d11Barg'                                            &
@@ -405,13 +406,12 @@ END SUBROUTINE write_crl_ave_lavel
     
     integer, intent(in) :: fid
     
-    write(fid,'(*(g0:,", "))')                 &
+    write(fid,'(*(g0:,", "))')                &
        'time', 'PFD'                          &
-       ,'Pg', 'R'                             &
-       ,'dens','QC'                           &
-       ,'ROS'                                 &
-       ,'C_repro','Repro','Morta','F_ROS'     &
-       ,'F_Csec'                              &
+       ,'Pg','R','Pn','dens'                  &
+       ,'QC', 'Chl'                           &
+       ,'Cg_bio','Cn_bio','Repro','Morta','F_zROS','F_Csec' &
+       ,'F_Zelm','Repro*dens','Morta*dens'    &
 #  if defined CORAL_NUTRIENTS
        ,'QN','QP'                             &
        ,'N_repro','P_repro'                   &
@@ -422,34 +422,30 @@ END SUBROUTINE write_crl_ave_lavel
        ,'N_assim','N_dissim'                  &
        ,'PO4','PO4_trans','P_assim'           &
 #  endif
-       ,'F_Zexpul','Repro_x_dens'             &
-       ,'Morta_x_dens'
+       ,'ROS','ROS_pmol_cell-1'
 
     RETURN
 
   END SUBROUTINE write_zox_his_lavel
     
-#  if defined CORAL_PHOTOINHIBITION
-
   SUBROUTINE write_zphot_his_lavel(fid)
     
     implicit none
     
     integer, intent(in) :: fid
     
-    write(fid,'(*(g0:,", "))')                        &
-        'time','PFD','Tamb'                          &
-       ,'QAo','QAr','QAi','QAt','QAa'                &
-       ,'Fv/Fm','Y(II)'                              &
-       ,'J_ea','J_ep_in','J_ep','J_ee','J_ep_max'    &
-       ,'Ji2a','Ja2i','kr','ko','F_ROS'              &
-       ,'Pg','Pgcal','Pgmax','Ra','Repair'
+    write(fid,'(*(g0:,", "))')                                  &
+        'time','PFD','Tamb'                                     &
+       ,'QAo','QAr','QAi','QAid','QAit'                         &
+       ,'QAt','QAa','Fv/Fm','Y(II)'                             &
+       ,'J_ea','J_ep_in','J_ep','J_ee','J_ep_max'               &
+       ,'Ji2a','Ja2i','Ji2id','Jid2i','kr','s_ab','F_ROS','ROS' &
+       ,'Pg','Pgcal','Pgmax', 'F_zDIC', 'F_zDO'
      
     RETURN
 
   END SUBROUTINE write_zphot_his_lavel
 
-#  endif
 # endif
 #endif
 #if defined ECOSYS_TESTMODE

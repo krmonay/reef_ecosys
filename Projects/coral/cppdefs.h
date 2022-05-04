@@ -39,12 +39,11 @@
 /*** Coral Polyp model options. ***/
 # if defined CORAL_POLYP
 #  define CORAL_ZOOXANTHELLAE
-#  define CORAL_PHOTOINHIBITION
 /*#  define CORAL_MUCUS*/           /*Mucus release from coral */
 #  if defined ORGANIC_MATTER
 /*#   define CORAL_INGESTION*/
 #  endif
-#  define CORAL_SIZE_DYNAMICS
+/*#  define CORAL_SIZE_DYNAMICS*/
 #  if defined CARBON_ISOTOPE
 #   define CORAL_CARBON_ISOTOPE
 /*#   define CORAL_NONE_CO2_EQ*/
@@ -61,6 +60,9 @@
 /*** Box model option ***/
 
 #define ECOSYS_TESTMODE
+/*#define ANA_SWRAD_LIGHT_DARK*/
+#define ANA_SWRAD_TAKAHASHI_ET_AL_2004
+/*#define ANA_SWRAD_ZILLMAN*/
 
 #if defined CORAL_POLYP
 # define CORAL_TESTMODE
