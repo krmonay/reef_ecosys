@@ -665,9 +665,9 @@ contains
 
 !            !convert photon flux density (umol m-2 s-1) to solar radiation (W m-2)
     if (time <= 1.1d0) then
-      PFD = 0.0d0
+      PFD = 1000.0d0
     else if (time <= 2.1d0) then
-      PFD = 100.0d0
+      PFD = 0.0d0
     else if (time <= 3.1d0) then
       PFD = 250.0d0
     else if (time <= 4.1d0) then

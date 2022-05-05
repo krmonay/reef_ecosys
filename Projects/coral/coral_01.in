@@ -1,6 +1,6 @@
 &ecosys_config
 ! Simulation period     
-  Tmax = 6.0d0  ! days
+  Tmax = 2.0d0  ! days
 ! Start time
   time0 = 0.0d0 ! day
 
@@ -29,13 +29,16 @@
 
 &output   
   OUTFILE_prefix = 'bleaching_test'
+!  OUTFILE_prefix = 'CBL_33degC_feed'
+!  OUTFILE_prefix = 'CBL_27degC_LL'
+!  OUTFILE_prefix = 'T04_27degC'
 /
 
 !--- Initial Condition -----------------------------------------------------
 &initial
 
-  d0 = 0.1d0           ! Depth (m)
-  T0 = 28.0d0          ! Water temperature (oC)
+  d0 = 20.0d0           ! Depth (m)
+  T0 = 27.0d0          ! Water temperature (oC)
 !  T0 = 32.0d0          ! Water temperature (oC)
   S0 = 34.0d0          ! Salinity (PSU)
 

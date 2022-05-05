@@ -41,7 +41,7 @@
 #  define CORAL_ZOOXANTHELLAE
 /*#  define CORAL_MUCUS*/           /*Mucus release from coral */
 #  if defined ORGANIC_MATTER
-/*#   define CORAL_INGESTION*/
+#   define CORAL_INGESTION
 #  endif
 /*#  define CORAL_SIZE_DYNAMICS*/
 #  if defined CARBON_ISOTOPE

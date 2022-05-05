@@ -895,7 +895,8 @@ contains
 ! Compute coral polyp model.
 !-----------------------------------------------------------------------
 !
-    DO icl=1,Ncl
+!    DO icl=1,Ncl
+    DO icl=1,1  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Tentative!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       IF(p_coral(icl) .gt. 0.0d0) THEN          
 
@@ -913,8 +914,8 @@ contains
             , TA (1)          &   ! Total alkalinity (TA: umol kg-1)
             , DOx(1)          &   ! Dissolved oxygen (umol L-1)
 # if defined CORAL_INGESTION
-            , PHY(1)          &   ! phytoplankton (umol C L-1)
-            , ZOO(1)          &   ! zooplankton (umol C L-1)
+!            , PHY(1,1)          &   ! phytoplankton (umol C L-1)
+            , ZOO(1,iGzoo)          &   ! zooplankton (umol C L-1)
 # endif
 # if defined CORAL_CARBON_ISOTOPE
             , DI13C(1)        &   !13C of DIC (umol kg-1)
@@ -936,7 +937,7 @@ contains
             , Flux_POC(iDtr)       &   ! POC uptake rate (nmol cm-2 s-1) * direction of water column to coral is positive
 # endif
 # if defined CORAL_INGESTION
-            , Flux_PHY(iDnfl)       &   ! Phytoplankton ingestion rate (nmol cm-2 s-1)  * direction of water column to coral is positive
+!            , Flux_PHY(iDnfl)       &   ! Phytoplankton ingestion rate (nmol cm-2 s-1)  * direction of water column to coral is positive
             , Flux_ZOO(iGzoo)       &   ! Zooplankton ingestion rate (nmol cm-2 s-1)  * direction of water column to coral is positive
 # endif
 # if defined CORAL_CARBON_ISOTOPE
