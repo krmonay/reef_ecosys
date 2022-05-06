@@ -37,9 +37,9 @@
 !--- Initial Condition -----------------------------------------------------
 &initial
 
-  d0 = 20.0d0           ! Depth (m)
-  T0 = 27.0d0          ! Water temperature (oC)
-!  T0 = 32.0d0          ! Water temperature (oC)
+  d0 = 0.1d0           ! Depth (m)
+!  T0 = 28.0d0          ! Water temperature (oC)
+  T0 = 32.0d0          ! Water temperature (oC)
   S0 = 34.0d0          ! Salinity (PSU)
 
 !  pCO2air = 400.0d0   ! 383.0d0  !!! RCP8.5: 936.0d0 (uatm); RCP2.6: 421.0d0 (uatm)

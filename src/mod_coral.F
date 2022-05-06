@@ -231,7 +231,7 @@ CONTAINS
           ZOOX(ng)%dens(n,i,j) = 1.0d6 ! (cell/cm2)
           ZOOX(ng)%QC(n,i,j)   = 60.0d0  ! (pmolC/cell) 66 pmol/cell: Tanaka et al 2018;  600-1400 pgC cell-1: Muller-Parker et al., 1994)
 !          ZOOX(ng)%QC(n,i,j)   = 120.0d0  ! (pmolC/cell) 66 pmol/cell: Tanaka et al 2018;  600-1400 pgC cell-1: Muller-Parker et al., 1994)
-          ZOOX(ng)%Chl(n,i,j)  = 2.0d0 !2.0d0  !4.8d0  ! (pg/cell)
+          ZOOX(ng)%Chl(n,i,j)  = 3.0d0 !2.0d0  !4.8d0  ! (pg/cell)
           QAt = ZOOX(ng)%Chl(n,i,j)*1.2d-6 ! (pmolRCII/cell) 1.2d-6 ~1.7d-6 -> Suggett et al. 2008
           ZOOX(ng)%QAo(n,i,j) = QAt*0.6d0 ! (pmolRCII/cell) 1.2d-6 ~1.7d-6 -> Suggett et al. 2008
           ZOOX(ng)%QAr(n,i,j) = 0.0d0
@@ -1926,7 +1926,7 @@ CONTAINS
 !    real(8), parameter :: ka = 5.0d-11     ! Repair rate of QAi to QAa (s-1) estimated from Takahashi et al. (2009) !!! TBD
     real(8), parameter :: kad = 5.0d-5     ! Repair rate of QAid to QAi (s-1) estimated from Takahashi et al. (2009) !!! TBD
     real(8), parameter :: kros = 0.2d0   ! 
-    real(8), parameter :: kros2 = 0.1d0   ! 
+    real(8), parameter :: kros2 = 0.2d0   ! 
 
     real(8), parameter :: kid = 2.0d-6    ! Rate constant of photoinhibition (s-1 (umol m-2 s-1)-1)
     real(8), parameter :: kil = 3.0d-6    ! Rate constant of photoinhibition (s-1 (umol m-2 s-1)-1)
@@ -2039,7 +2039,7 @@ CONTAINS
 !---- Repair rate of QAid to QAi  (pmol RCII cell-1 s-1) --- !!!!!!!!!!!!!!!!! Need update
 !    K_QAid = QAt*0.3d0
 !    Jid2i = kil * ZOOX(ng)%QAid(n,i,j)/(K_QAid + ZOOX(ng)%QAid(n,i,j)) * exp(-kros2*ROS)
-!    Jid2i = kil * ZOOX(ng)%QAid(n,i,j) * exp(-kros2*ROS)
+    Jid2i = kil * ZOOX(ng)%QAid(n,i,j) * exp(-kros2*F_zROS)
 
 !===== Chl dynamics calculation ==============================================
 !===== Chl concentration (pg/cell) ================================================
@@ -2062,15 +2062,16 @@ CONTAINS
                     Ja2i                                & ! Active to inactive
                    -Ji2a                                & ! Repair of QAi to QAo
                    -Ji2id                               & ! Repair of QAi to QAo
-!                   +Jid2i                               & ! Repair of QAi to QAo
+                   +Jid2i                               & ! Repair of QAi to QAo
                   )*dt
 !    ZOOX(ng)%QAi(n,i,j)=max(ZOOX(ng)%QAi(n,i,j), 0.0d0) !Error handring
 
 !----- dynamics of deep damaged QAi  -----------------
     ZOOX(ng)%QAid(n,i,j) = ZOOX(ng)%QAid(n,i,j)  &
         +(  Ji2id                                &
-!          - Jid2i                                &
+          - Jid2i                                &
           - F_QAd                                &
+          + F_QAp                                &
         )*dt
 !    ZOOX(ng)%QAid(n,i,j)=min(ZOOX(ng)%QAid(n,i,j), 1.0d0)
 
