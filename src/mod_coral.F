@@ -183,8 +183,8 @@ CONTAINS
           CORAL(ng)%DICcoe (n,i,j)=1950.d0
           CORAL(ng)%DOcoe (n,i,j)=120.d0 !(umol/L)
 !          CORAL(ng)%QC (n,i,j)=15.d0 !450 ug/cm2 = 15 umol cm-2 -> 5.e6 umol kg-1 
-          CORAL(ng)%QC (n,i,j)=290.d0 ! (umolC/cm2) Tanaka et al. 2018
-
+          CORAL(ng)%QC (n,i,j)=300.0d0 !290.d0 ! (umolC/cm2) Tanaka et al. 2018
+                        ! QC0=250.0d0
 #if defined CORAL_NONE_CO2_EQ
           CORAL(ng)%cCO2aqcal(n,i,j)= 9.d0
           CORAL(ng)%cCO2aqcoe(n,i,j)=33.d0
@@ -229,9 +229,10 @@ CONTAINS
           ZOOX(ng)%Pg(n,i,j)=0.d0
           ZOOX(ng)%R (n,i,j)=0.d0
           ZOOX(ng)%dens(n,i,j) = 1.0d6 ! (cell/cm2)
-          ZOOX(ng)%QC(n,i,j)   = 60.0d0  ! (pmolC/cell) 66 pmol/cell: Tanaka et al 2018;  600-1400 pgC cell-1: Muller-Parker et al., 1994)
+          ZOOX(ng)%QC(n,i,j)   = 70.0d0  ! (pmolC/cell) 66 pmol/cell: Tanaka et al 2018;  600-1400 pgC cell-1: Muller-Parker et al., 1994)
 !          ZOOX(ng)%QC(n,i,j)   = 120.0d0  ! (pmolC/cell) 66 pmol/cell: Tanaka et al 2018;  600-1400 pgC cell-1: Muller-Parker et al., 1994)
-          ZOOX(ng)%Chl(n,i,j)  = 3.0d0 !2.0d0  !4.8d0  ! (pg/cell)
+                          ! QC0= 50.0d0
+          ZOOX(ng)%Chl(n,i,j)  = 2.0d0 !2.0d0  !4.8d0  ! (pg/cell)
           QAt = ZOOX(ng)%Chl(n,i,j)*1.2d-6 ! (pmolRCII/cell) 1.2d-6 ~1.7d-6 -> Suggett et al. 2008
           ZOOX(ng)%QAo(n,i,j) = QAt*0.6d0 ! (pmolRCII/cell) 1.2d-6 ~1.7d-6 -> Suggett et al. 2008
           ZOOX(ng)%QAr(n,i,j) = 0.0d0
@@ -471,7 +472,7 @@ CONTAINS
     real(8), parameter :: CAT(Ncl)     = [ 5.0d-11, 5.0d-11 ]   ! Catalase concentration (M): !!!!!!! Tuning
     real(8), parameter :: k_dam(Ncl)   = [ 0.0d-5, 0.0d-5 ]   ! Reaction rate constant (s-1): !!!!!!! Tuning
     real(8), parameter :: a_dam(Ncl)   = [ 2.0d3,  2.0d3  ]   ! Constant ((nmol cm-2 s-1) -1): !!!!!!! Tuning
-    real(8), parameter :: k_Zelm(Ncl)  = [ 0.2d0,  0.2d0 ]   ! Reaction rate constant (cell cm-2 s-1): !!!!!!! Tuning
+    real(8), parameter :: k_Zelm(Ncl)  = [ 5.0d-8,  5.0d-8 ]   ! Reaction rate constant (cell cm-2 s-1): !!!!!!! Tuning
 !    real(8), parameter :: F_cROS(Ncl)  = [ 3.0d-1, 3.0d-1 ]   ! ROS production rate by coral (nmol cm-2 s-1): !!!!!!! Tuning
     real(8), parameter :: a_cROS(Ncl)  = [ 1.0d-1, 1.0d-1 ]   ! ROS production rate by coral (nmol cm-2 s-1): !!!!!!! Tuning
 #endif
@@ -810,7 +811,7 @@ CONTAINS
 !    Damage = exp( a_dam(n) * F_dam ) - 1.0d0   !Damage by ROS (F_dam)
 !    F_Zelm  = k_Zelm(n) * Damage
 
-    F_Zelm  = 2.0d-8* CORAL(ng)%ROS(n,i,j)*ZOOX(ng)%dens(n,i,j)
+    F_Zelm  = k_Zelm(n) * CORAL(ng)%ROS(n,i,j)*ZOOX(ng)%dens(n,i,j)
 !    F_Zelm  = 0.0d0
     
 !----- Zooxanthellae internal model -----
@@ -2039,7 +2040,7 @@ CONTAINS
 !---- Repair rate of QAid to QAi  (pmol RCII cell-1 s-1) --- !!!!!!!!!!!!!!!!! Need update
 !    K_QAid = QAt*0.3d0
 !    Jid2i = kil * ZOOX(ng)%QAid(n,i,j)/(K_QAid + ZOOX(ng)%QAid(n,i,j)) * exp(-kros2*ROS)
-    Jid2i = kil * ZOOX(ng)%QAid(n,i,j) * exp(-kros2*F_zROS)
+    Jid2i = kil * ZOOX(ng)%QAid(n,i,j) * exp(-kros2*ROS)
 
 !===== Chl dynamics calculation ==============================================
 !===== Chl concentration (pg/cell) ================================================

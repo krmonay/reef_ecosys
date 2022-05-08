@@ -320,8 +320,8 @@ PROGRAM ecosys_test
           
         ! nothing to calculate
         
-        if (time >= 5.0d0 ) then
-!          C(1,1,k,1,iTemp) = 27.0d0
+        if (time >= 14.0d0 ) then
+          C(1,1,k,1,iTemp) = 27.0d0  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         end if
 
 !---------- for Closed Chamber condition -------------------------
