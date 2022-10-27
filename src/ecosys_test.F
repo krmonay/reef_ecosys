@@ -53,12 +53,16 @@ PROGRAM ecosys_test
   real(8) :: h1,h2
   real(8) :: fvol_rc, fvol_ch
 
+  integer :: in_file(12)
   real(8) :: Tmax, time0
   integer :: nSetting
 
+  namelist/input_info/in_file
   namelist/ecosys_config/Tmax, time0
   namelist/ecosys_config/nSetting
 
+  read (5, nml=input_info)
+  rewind(5)
   read (5, nml=ecosys_config)
   rewind(5)
   
@@ -73,7 +77,8 @@ PROGRAM ecosys_test
 !----- Import data -----------------------------------
 
   if (nSetting .eq. 4) then
-    CALL read_timeseies
+!    CALL read_timeseies
+    CALL read_data(in_file)
   else if (nSetting .eq. 5) then
     CALL read_chambercondition
   endif
@@ -112,6 +117,9 @@ PROGRAM ecosys_test
 #if defined ECOSYS_TESTMODE
   CALL write_ecosys_his_lavel(40)
 #endif
+#if defined REEF_FLOW_TESTMODE
+  CALL write_flow_lavel(45)
+#endif
 
 
 !----- Main loop -------------------------------------------
@@ -120,7 +128,7 @@ PROGRAM ecosys_test
 
 !------ Set environmental parameters ----------------------------
 
-    CALL setdata(nSetting)
+    CALL setdata(nSetting, in_file)
         
 #if defined REEF_FLOW
     if (nSetting .eq. 4) then
@@ -157,12 +165,13 @@ PROGRAM ecosys_test
               ,swrad          &   ! Surface shortwave radiation (W m-2)
               ,Tair           &   ! air temperature (oC)
               ,Pair           &   ! atm pressure (hPa)
-              ,Qair           &   ! vapor pressur (hPa)
+              ,Rh             &   ! vapor pressur (hPa)
               ,U10            &   ! wind speed (m s-1)
               ,rain           &   ! Precipitation volume flux (m s-1)
 #ifdef LONGWAVE_IN
               ,dlwrad         &   ! Downward longwave radiation (W m-2)
 #endif
+              ,cloud          &   ! cloud cover (0-1)
 
               ,C(1,1,:,1,iTemp)     &   ! Tmp(N): Temperature (oC)
               ,C(1,1,:,1,iSalt)     &   ! Sal(N): Salinity (PSU)

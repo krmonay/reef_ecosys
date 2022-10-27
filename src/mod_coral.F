@@ -490,14 +490,12 @@ CONTAINS
     real(8), parameter :: a_co2  =  -7.0d-3 + 1.0d0 !!!!! To Be Confirmed. Maybe ~-8-4.4
 # endif
 #endif
-#if ( defined CORAL_ZOOXANTHELLAE || defined CORAL_SIZE_DYNAMICS )
 !----- Coral minimum quota ------------------------
 !    real(8), parameter :: QC0(Ncl) = [ 2.0d0, 2.0d0 ]   ! Minimum quota (umol cm-2)  refereed minimum value of tissue C by Tanaka et al., (2009)
     real(8), parameter :: QC0(Ncl) = [250.0d0, 250.0d0 ] ! Minimum quota (umol cm-2)  refereed minimum value of tissue C by Tanaka et al., (2009)
-# if defined CORAL_NUTRIENTS
+#if defined CORAL_NUTRIENTS
     real(8), parameter :: QN0(Ncl) = [ 0.20d0, 0.20d0 ]   ! Minimum quota (umol cm-2)  
     real(8), parameter :: QP0(Ncl) = [ 0.02d0, 0.02d0 ]   ! Minimum quota (umol cm-2) 
-# endif
 #endif
 #if defined CORAL_SIZE_DYNAMICS
     real(8), parameter :: g_max(Ncl) = [ 1.0d-2, 1.0d-2 ] ! Maximum growth rate (nmol cm-2 s-1)  !!!!!! Tuning parameter
@@ -574,14 +572,14 @@ CONTAINS
     real(8) :: R13C_HCO3cal
     real(8) :: c13CO2aqamb
 #endif
-
+    real(8) :: QCcr
+    real(8) :: F_zDO, F_zDIC
 #if defined CORAL_ZOOXANTHELLAE
     real(8) :: F_Csec
     real(8) :: F_Cwaste
-    real(8) :: QCcr
     real(8) :: F_Zelm
     real(8) :: F_Zmort
-    real(8) :: F_zDO, F_zDIC, F_zROS
+    real(8) :: F_zROS
     real(8) :: F_detox
     real(8) :: F_dam
     real(8) :: F_cROS
@@ -885,6 +883,8 @@ CONTAINS
                         * cHCO3coe/(K_HCO3(n)+cHCO3coe)
     Rz = 0.0d0
 
+    F_zDIC = -CORAL(ng)%Pg(n,i,j)
+    F_zDO  =  CORAL(ng)%Pg(n,i,j)
 #endif
 
 !----- Respilation rate (nmolC cm-2 s-1) ---------------------------
@@ -893,7 +893,7 @@ CONTAINS
     f_temp=1.d0
 !    f_temp=exp(Eact(n)*(TKamb-298.)/298./Rgas/TKamb)
 
-    Rc = Rmax(n) * f_temp * QCcr/(K_QC(n)+QCcr)                      & 
+    Rc = Rmax(n) * f_temp * QCcr/(K_QC(n)+QCcr)                      &
          * CORAL(ng)%DOcoe(n,i,j)/(K_DO(n)+CORAL(ng)%DOcoe(n,i,j))   !  Michaelis-Menten equation
 
     CORAL(ng)%R(n,i,j) = Rc + Rz
@@ -1200,7 +1200,7 @@ CONTAINS
 
 !    DIC & TA (umol kg-1) in coelectron
     CORAL(ng)%DICcoe (n,i,j)=CORAL(ng)%DICcoe (n,i,j)          &
-                +(-CORAL(ng)%Pg(n,i,j)                         &
+                +(F_zDIC                                       &
                   +CORAL(ng)%R (n,i,j)*ratio(n)                & !!!!Test: add  *ratio(n)
                   +DICuptake                                   &
                   -F_CO2                                       &
@@ -1693,7 +1693,7 @@ CONTAINS
 
 
 !----- Respilation rate (pmol cell-1 s-1) ---------------------------
-    Rzm = Rzmax * QCzr/(K_QCzr+QCzr)                       & 
+    Rzm = Rzmax * QCzr/(K_QCzr+QCzr)                       &
                * CORAL(ng)%DOcoe(n,i,j)/(K_DO+CORAL(ng)%DOcoe(n,i,j))
 
     Rzrq = C_dec * p2r ! Gross biosyntesis rate (pmolC cell-1 s-1)

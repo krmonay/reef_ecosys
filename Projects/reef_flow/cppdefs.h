@@ -1,13 +1,17 @@
 
-/*#define USE_HEAT*/
-/*#define LONGWAVE_IN*/
+#define USE_HEAT
+#define LONGWAVE_IN
+/*#define PFD_BOTTOM*/
 
-/*#define REEF_FLOW*/
+#define REEF_FLOW
+#define REEF_FLOW_TESTMODE
 
-
+#define INPUT_ROMS_FRC
+#define INPUT_SWAN
+#define INPUT_ROMS_NCDUMP
 /*----- CPP defines for coral module ----------------*/
 /***  Biological model options. (Original CPP flags) ***/
-#define REEF_ECOSYS
+/*#define REEF_ECOSYS*/
 
 #if defined REEF_ECOSYS
 # define BIOLOGY

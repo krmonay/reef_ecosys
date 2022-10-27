@@ -1,5 +1,5 @@
 
-!!!=== Copyright (c) 2012-2020 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2022 Takashi NAKAMURA  =====
 
 !--------------------------------------------------------------------------------
 !
@@ -19,51 +19,89 @@ MODULE mod_param
 
   real(8) :: time    !(day)
   
-  real(8), allocatable :: tide_data(:)
-  real(8) :: tide
-  real(8) :: dt_tide
-  integer :: nm_tide
+  real(8), allocatable :: swrad_data(:)
+  real(8), allocatable :: swrad_time(:)
+  real(8), allocatable :: dlwrad_data(:)
+  real(8), allocatable :: dlwrad_time(:)
+  real(8), allocatable :: Tair_data (:)
+  real(8), allocatable :: Tair_time (:)
+  real(8), allocatable :: Pair_data (:)
+  real(8), allocatable :: Pair_time (:)
+  real(8), allocatable :: Uwind_data(:)
+  real(8), allocatable :: Vwind_data(:)
+  real(8), allocatable :: wind_time (:)
+  real(8), allocatable :: rain_data (:)
+  real(8), allocatable :: rain_time (:)
+  real(8), allocatable :: Rh_data   (:)
+  real(8), allocatable :: Rh_time   (:)
+  real(8), allocatable :: cloud_data(:)
+  real(8), allocatable :: cloud_time(:)
+  real(8) :: swrad
+  real(8) :: dlwrad
+  real(8) :: Tair
+  real(8) :: Pair
+  real(8) :: Uwind
+  real(8) :: Vwind
+  real(8) :: rain
+  real(8) :: Rh
+  real(8) :: cloud
+  integer :: num_swrad
+  integer :: num_dlwrad
+  integer :: num_Tair
+  integer :: num_Pair
+  integer :: num_wind
+  integer :: num_rain
+  integer :: num_Rh
+  integer :: num_cloud 
   
+  real(8), allocatable :: PFD_time(:)
+  real(8), allocatable :: PFD_data(:)
+  real(8) :: PFD
+  integer :: num_PFD
+  real(8), allocatable :: wtemp_data(:)
+  real(8), allocatable :: wtemp_time(:)
+  real(8) :: wtemp
+  integer :: num_wtemp
+  
+  real(8), allocatable :: tide_data(:)
+  real(8), allocatable :: tide_time(:)
+  real(8) :: tide
+  integer :: num_tide
+  
+  real(8), allocatable :: wv_time(:)
   real(8), allocatable :: Hs_data(:)
   real(8), allocatable :: Tp_data(:)
   real(8) :: Hs
   real(8) :: Tp
-  real(8) :: dt_wave
-  integer :: nm_wave
-  
-  real(8), allocatable :: Pair_data (:)
-  real(8), allocatable :: Uwind_data(:)
-  real(8), allocatable :: Vwind_data(:)
-  real(8), allocatable :: Tair_data (:)
-  real(8), allocatable :: Qair_data (:)
-  real(8), allocatable :: rain_data (:)
-  real(8), allocatable :: swrad_data(:)
-  real(8), allocatable :: cloud_data(:)
-  real(8) :: Pair
-  real(8) :: Uwind
-  real(8) :: Vwind
-  real(8) :: Tair
-  real(8) :: Qair
-  real(8) :: rain
-  real(8) :: swrad
-  real(8) :: cloud
-  real(8) :: dt_air
-  integer :: nm_air
-  
-  real(8), allocatable :: dlwrad_data(:)
-  real(8) :: dlwrad
-  real(8) :: dt_dlwrad
-  integer :: nm_dlwrad
-  
-  real(8), allocatable :: offtemp_data(:)
-  real(8) :: offtemp
-  real(8) :: dt_offtemp
-  integer :: nm_offtemp
-  
-  real(8), allocatable :: PFD_time(:)
-  real(8), allocatable :: PFD_data(:)
-  integer :: N_PFD
-  integer :: i_PFD = 1
+  integer :: num_wv
+
+  integer, parameter :: iswrad  = 1
+  integer, parameter :: idlwrad = 2
+  integer, parameter :: iTair   = 3
+  integer, parameter :: iPair   = 4
+  integer, parameter :: iwind   = 5
+  integer, parameter :: irain   = 6
+  integer, parameter :: iRh     = 7
+  integer, parameter :: icloud  = 8
+  integer, parameter :: iPFD    = 9
+  integer, parameter :: iwtemp  = 10
+  integer, parameter :: itide   = 11
+  integer, parameter :: iwv     = 12
+
+  integer :: id_swrad  = 1
+  integer :: id_dlwrad = 1
+  integer :: id_Tair   = 1
+  integer :: id_Pair   = 1
+  integer :: id_wind   = 1
+  integer :: id_rain   = 1
+  integer :: id_Rh     = 1
+  integer :: id_cloud  = 1
+  integer :: id_PFD    = 1
+  integer :: id_wtemp  = 1
+  integer :: id_tide   = 1
+  integer :: id_wv     = 1
+
+
   real(8), allocatable :: WQ_time(:)
   real(8), allocatable :: TA_data(:)
   real(8), allocatable :: DIC_data(:)

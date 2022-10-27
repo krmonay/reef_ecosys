@@ -59,6 +59,7 @@ CONTAINS
 #ifdef LONGWAVE_IN
     , dw_lwradi      &   ! Downward longwave radiation (W m-2)
 #endif
+    ,cloud           &   ! cloud cover (0-1)
     , Tmp            &   ! Tmp(N): Temperature (oC)
     , Sal            &   ! Sal(N): Salinity (PSU)
 
@@ -107,6 +108,7 @@ CONTAINS
 #ifdef LONGWAVE_IN
     real(8), intent(in) :: dw_lwradi ! Downward longwave radiation (W m-2)
 #endif
+    real(8), intent(in) :: cloud        
 
     real(8), intent(in) :: Tmp(N)        
     real(8), intent(in) :: Sal(N)        

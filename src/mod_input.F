@@ -15,139 +15,703 @@ contains
 ! **********************************************************************
 !  Read timeseries data file
 ! **********************************************************************
-
-  subroutine read_timeseies
-  
+  subroutine read_data(in_file)
     USE mod_param
     
     implicit none
     
-    integer :: nm_data, ios
-    integer i,j
-!
-! ----- READ Tide data (m) ---------------------------------------------
+    integer, intent(IN ) :: in_file(12)
 
-    open(77,file='./input/tide2010_0820-0930.dat')
-    dt_tide=1.d0  !1.0 hour interval
-      
-!  ---- count data number -----
-    nm_data = 0
-    do
-      read(77,*,iostat=ios) 
-      if(ios==-1) exit
-      nm_data = nm_data+1
-    end do
-    allocate( tide_data(nm_data) )
-    nm_tide = nm_data
-    rewind(77)
-    do i=1, nm_data
-      read(77,*) tide_data(i)
-    end do
-    close(77)
+    character(256), allocatable :: SWRad_FILE(:)
+    character(256), allocatable :: LWRad_FILE(:)
+    character(256), allocatable :: Tair_FILE(:)
+    character(256), allocatable :: Pair_FILE(:)
+    character(256), allocatable :: Wind_FILE(:)
+    character(256), allocatable :: Rain_FILE(:)
+    character(256), allocatable :: Rh_FILE(:)  
+    character(256), allocatable :: Cloud_FILE(:)  
+    character(256), allocatable :: PPFD_FILE(:)
+    character(256), allocatable :: WTEMP_FILE(:)
+    character(256), allocatable :: WLEVEL_FILE(:)
+    character(256), allocatable :: WAVE_FILE(:)
+    integer :: Ryear, Rmonth, Rday
 
-! ----- READ meterological dataset --------------------------------
+    integer, allocatable :: num_data(:)
+    integer :: ios
+    integer :: i,j
+    real(8) :: tmp
+    integer :: Num_header = 0
 
-    open(77,file='./input/air2010_0820-1001.dat')
-    dt_air=1.d0  !1.0 hour interval
-      
-!  ---- count data number -----
-    nm_data = 0
-    do
-      read(77,*,iostat=ios) 
-      if(ios==-1) exit
-      nm_data = nm_data+1
-    end do
-    allocate( Pair_data (nm_data))
-    allocate( Uwind_data(nm_data))
-    allocate( Vwind_data(nm_data))
-    allocate( Tair_data (nm_data))
-    allocate( Qair_data (nm_data))
-    allocate( rain_data (nm_data))
-    allocate( swrad_data(nm_data))
-    allocate( cloud_data(nm_data))
-    nm_air = nm_data
-    rewind(77)
+    namelist/refdate/Ryear, Rmonth, Rday
+    namelist/input/SWRad_FILE, LWRad_FILE, Tair_FILE, Pair_FILE  &
+                 , Wind_FILE, Rain_FILE, Rh_FILE, Cloud_FILE                 &
+                 , PPFD_FILE, WTEMP_FILE, WLEVEL_FILE, WAVE_FILE
+  
+    read (5, nml=refdate)
+    rewind(5)
 
-    do i=1, nm_data
-      read(77,*) Pair_data (i), Uwind_data(i), Vwind_data(i),    &
-                 Tair_data (i), Qair_data (i), rain_data (i),    &
-                 swrad_data(i), cloud_data(i)
-    end do
-    close(77)
+    if ( in_file(iswrad) == 0 ) then
+      allocate( SWRad_FILE(1) )
+    else
+      allocate( SWRad_FILE(in_file(iswrad)) )
+    endif
+    if ( in_file(idlwrad) == 0 ) then
+      allocate( LWRad_FILE(1) )
+    else
+      allocate( LWRad_FILE(in_file(idlwrad)) )
+    endif
+    if ( in_file(iTair) == 0 ) then
+      allocate( Tair_FILE(1) )
+    else
+      allocate( Tair_FILE(in_file(iTair)) )
+    endif
+    if ( in_file(iPair) == 0 ) then
+      allocate( Pair_FILE(1) )
+    else
+      allocate( Pair_FILE(in_file(iPair)) )
+    endif
+    if ( in_file(iwind) == 0 ) then
+      allocate( Wind_FILE(1) )
+    else
+      allocate( Wind_FILE(in_file(iwind)) )
+    endif
+    if ( in_file(irain) == 0 ) then
+      allocate( Rain_FILE(1) )
+    else
+      allocate( Rain_FILE(in_file(irain)) )
+    endif
+    if ( in_file(iRh) == 0 ) then
+      allocate( Rh_FILE(1) )
+    else
+      allocate( Rh_FILE(in_file(iRh)) )
+    endif
+    if ( in_file(icloud) == 0 ) then
+      allocate( Cloud_FILE(1) )
+    else
+      allocate( Cloud_FILE(in_file(icloud)) )
+    endif
+    if ( in_file(iPFD) == 0 ) then
+      allocate( PPFD_FILE(1) )
+    else
+      allocate( PPFD_FILE(in_file(iPFD)) )
+    endif
+    if ( in_file(iwtemp) == 0 ) then
+      allocate( WTEMP_FILE(1) )
+    else
+      allocate( WTEMP_FILE(in_file(iwtemp)) )
+    endif
+    if ( in_file(itide) == 0 ) then
+      allocate( WLEVEL_FILE(1) )
+    else
+      allocate( WLEVEL_FILE(in_file(itide)) )
+    endif
+    if ( in_file(iwv) == 0 ) then
+      allocate( WAVE_FILE(1) )
+    else
+      allocate( WAVE_FILE(in_file(iwv)) )
+    endif
 
-#ifdef LONGWAVE_IN
-      
-! ----- READ downward longwave radiation (W m-2) ---------------------------------------------
+    read (5, nml=input)
+    rewind(5)
 
-    open(77,file='./input/dwlw2010_0820-1001.dat')
-    dt_dlwrad=1.d0  !1.0 hour interval
-      
-!  ---- count data number -----
-    nm_data = 0
-    do
-      read(77,*,iostat=ios)
-      if(ios==-1) exit
-      nm_data = nm_data+1
-    end do
-    allocate( dlwrad_data(nm_data))
-    nm_dlwrad = nm_data
-    rewind(77)
-
-    do i=1, nm_data
-      read(77,*) dlwrad_data(i)
-    end do
-    close(77)
+! ==== READ swrad data =============================================
+    if ( in_file(iswrad) > 0 ) then
+      Num_header = 0
+#ifdef INPUT_ROMS_FRC
+      CALL read_infiles_nc(in_file(iswrad), SWRad_FILE, "swrad"          &
+             , num_swrad, swrad_time, swrad_data)
+#else
+      CALL read_infiles_ascii(in_file(iswrad), SWRad_FILE, Num_header    &
+             , num_swrad, swrad_time, swrad_data)
 #endif
+    endif
 
-! --------- READ Wave data ---------------------------------------------
+! ==== READ dlwrad data =============================================
+    if ( in_file(idlwrad) > 0 ) then
+      Num_header = 0
+#ifdef INPUT_ROMS_FRC
+      CALL read_infiles_nc(in_file(idlwrad), LWRad_FILE, "lwrad_down"          &
+             , num_dlwrad, dlwrad_time, dlwrad_data)
+#else
+      CALL read_infiles_ascii(in_file(idlwrad), LWRad_FILE, Num_header    &
+             , num_dlwrad, dlwrad_time, dlwrad_data)
+#endif
+!      do i=1, num_dlwrad
+!        write(94,*) dlwrad_time(i), dlwrad_data(i)
+!      end do
+    endif
 
-!    open(77,file='./input/wave2010_0820-0905test.dat')
-    open(77,file='./input/wave2010_0820-0905.dat')
-    dt_wave=0.25d0  !15 min interval
+! ==== READ Tair data =============================================
+    if ( in_file(iTair) > 0 ) then
+      Num_header = 0
+#ifdef INPUT_ROMS_FRC
+      CALL read_infiles_nc(in_file(iTair), Tair_FILE, "Tair"          &
+             , num_Tair, Tair_time, Tair_data)
+#else
+      CALL read_infiles_ascii(in_file(iTair), Tair_FILE, Num_header    &
+             , num_Tair, Tair_time, Tair_data)
+#endif
+    endif
+! ==== READ Pair data =============================================
+    if ( in_file(iPair) > 0 ) then
+      Num_header = 0
+#ifdef INPUT_ROMS_FRC
+      CALL read_infiles_nc(in_file(iPair), Pair_FILE, "Pair"          &
+             , num_Pair, Pair_time, Pair_data)
+#else
+      CALL read_infiles_ascii(in_file(iPair), Pair_FILE, Num_header    &
+             , num_Pair, Pair_time, Pair_data)
+#endif
+    endif
+! ==== READ wind data =============================================
+    if ( in_file(iwind) > 0 ) then
+      Num_header = 0
+#ifdef INPUT_ROMS_FRC
+      CALL read_infiles_nc2(in_file(iwind), Wind_FILE, "Uwind", "Vwind"    &
+             , num_wind, wind_time, Uwind_data, Vwind_data)
+#else
+      CALL read_infiles_ascii2(in_file(iwind), Wind_FILE, Num_header    &
+             , num_wind, wind_time, Uwind_data, Vwind_data)
+#endif
+!      do i=1, num_wind
+!        write(94,*) wind_time(i), Uwind_data(i), Vwind_data(i)
+!      end do
+    endif
+! ==== READ rain data =============================================
+    if ( in_file(irain) > 0 ) then
+      Num_header = 0
+#ifdef INPUT_ROMS_FRC
+      CALL read_infiles_nc(in_file(irain), Rain_FILE, "rain"          &
+             , num_rain, rain_time, rain_data)
+#else
+      CALL read_infiles_ascii(in_file(irain), Rain_FILE, Num_header    &
+             , num_rain, rain_time, rain_data)
+#endif
+    endif
+! ==== READ Rh data =============================================
+    if ( in_file(iRh) > 0 ) then
+      Num_header = 0
+#ifdef INPUT_ROMS_FRC
+      CALL read_infiles_nc(in_file(iRh), Rh_FILE, "Qair"          &
+             , num_Rh, Rh_time, Rh_data)
+#else
+      CALL read_infiles_ascii(in_file(iRh), Rh_FILE, Num_header    &
+             , num_Rh, Rh_time, Rh_data)
+#endif
+    endif
+! ==== READ cloud data =============================================
+    if ( in_file(icloud) > 0 ) then
+      Num_header = 0
+#ifdef INPUT_ROMS_FRC
+      CALL read_infiles_nc(in_file(icloud), Cloud_FILE, "cloud"          &
+             , num_cloud, cloud_time, cloud_data)
+#else
+      CALL read_infiles_ascii(in_file(icloud), Cloud_FILE, Num_header    &
+             , num_cloud, cloud_time, cloud_data)
+#endif
+    endif
 
+! ==== READ PPFD data =============================================
+    if ( in_file(iPFD) > 0 ) then
+      Num_header = 0
+      CALL read_infiles_ascii(in_file(iPFD), PPFD_FILE, Num_header    &
+             , num_PFD, PFD_time, PFD_data)
+    endif    
+
+! ==== READ water temp data =============================================
+    if ( in_file(iwtemp) > 0 ) then
+#ifdef INPUT_ROMS_NCDUMP
+      Num_header = 4
+#else
+      Num_header = 0
+#endif
+      CALL read_infiles_ascii(in_file(iwtemp), WTEMP_FILE, Num_header    &
+             , num_wtemp, wtemp_time, wtemp_data)
+#ifdef INPUT_ROMS_NCDUMP
+      wtemp_time(:) = wtemp_time(:)/86400.0d0  ! sec -> day
+#endif
+    endif
+      
+! ==== READ tide data =============================================
+    if ( in_file(itide) > 0 ) then
+#ifdef INPUT_ROMS_NCDUMP
+      Num_header = 4
+#else
+      Num_header = 0
+#endif
+      CALL read_infiles_ascii(in_file(itide), WLEVEL_FILE, Num_header    &
+             , num_tide, tide_time, tide_data)
+#ifdef INPUT_ROMS_NCDUMP
+      tide_time(:) = tide_time(:)/86400.0d0  ! sec -> day
+#endif
+    endif
+! ==== READ wave data =============================================
+    if ( in_file(iwv) > 0 ) then
+#ifdef INPUT_SWAN
+      Num_header = 1
+#else
+      Num_header = 0
+#endif
+      CALL read_infiles_wave(in_file(iwv), WAVE_FILE, Num_header    &
+             , Ryear, Rmonth, Rday                                &
+             , num_wv, wv_time, Hs_data, Tp_data)
+    endif
+  end subroutine read_data
+
+! **********************************************************************
+
+  subroutine read_infiles_ascii(Num_file, FILE_NAME, Num_header    &
+             , Num_data, time, data)
+
+    integer, intent(IN ) :: Num_file
+    character(256), intent(IN ) :: FILE_NAME(Num_file)
+    integer, intent(IN ) :: Num_header
+    integer, intent(OUT) :: Num_data
+    real(8), intent(OUT), allocatable :: time(:)
+    real(8), intent(OUT), allocatable :: data(:)
+
+    integer, allocatable :: num_d(:)
+
+    allocate( num_d(0:Num_file) )
+    Num_data = 0
+    num_d(0) = 0
+  
+    do j=1, Num_file
+! ----- Open data ---------------------------------------------
+      open(77,file=FILE_NAME(j))     
 !  ---- count data number -----
-    nm_data = 0
-    do
-      read(77,*,iostat=ios)
-      if(ios==-1) exit
-      nm_data = nm_data+1
+      num_d(j) = 0
+      do
+        read(77,*,iostat=ios) 
+        if(ios==-1) exit
+        num_d(j) = num_d(j)+1
+      end do
+      close(77)
+      num_d(j) = num_d(j) - Num_header 
+      Num_data = Num_data + num_d(j)
     end do
-    allocate( Hs_data(nm_data), Tp_data(nm_data) )
-    nm_wave = nm_data
-    rewind(77)
+  
+    allocate( time(Num_data) )
+    allocate( data(Num_data) )
 
-    do i=1, nm_data
-      read(77,*) Hs_data(i), Tp_data(i)
+    do j=1, Num_file
+! ----- Open data ---------------------------------------------
+      open(77,file=FILE_NAME(j))     
+        
+!  ---- Read data -----
+      do i=1, Num_header
+        read(77,*)
+      end do
+
+      do i=num_d(j-1)+1, num_d(j)+num_d(j-1)
+        read(77,*) time(i), data(i)
+!        write(97,*) time(i), data(i)
+      end do
+      close(77)
     end do
-    close(77)
+    deallocate( num_d )
 
-! --------- READ Offshre temperature data ---------------------------------------------
+  end subroutine read_infiles_ascii
 
-    open(77,file='./input/offshoretemp.dat')
-    dt_offtemp=3.0d0  !3 hour interval
+! **********************************************************************
 
+  subroutine read_infiles_ascii2(Num_file, FILE_NAME, Num_header    &
+             , Num_data, time, data1, data2)
+
+    integer, intent(IN ) :: Num_file
+    character(256), intent(IN ) :: FILE_NAME(Num_file)
+    integer, intent(IN ) :: Num_header
+    integer, intent(OUT) :: Num_data
+    real(8), intent(OUT), allocatable :: time(:)
+    real(8), intent(OUT), allocatable :: data1(:)
+    real(8), intent(OUT), allocatable :: data2(:)
+
+    integer, allocatable :: num_d(:)
+
+    allocate( num_d(0:Num_file) )
+    Num_data = 0
+    num_d(0) = 0
+  
+    do j=1, Num_file
+! ----- Open data ---------------------------------------------
+      open(77,file=FILE_NAME(j))     
 !  ---- count data number -----
-    nm_data = 0
-    do
-      read(77,*,iostat=ios) 
-      if(ios==-1) exit 
-      nm_data = nm_data+1
+      num_d(j) = 0
+      do
+        read(77,*,iostat=ios) 
+        if(ios==-1) exit
+        num_d(j) = num_d(j)+1
+      end do
+      close(77)
+      num_d(j) = num_d(j) - Num_header 
+      Num_data = Num_data + num_d(j)
     end do
-    allocate( offtemp_data(nm_data) )
-    nm_offtemp = nm_data
-    rewind(77)
+  
+    allocate( time(Num_data) )
+    allocate( data1(Num_data) )
+    allocate( data2(Num_data) )
 
-    do i=1, nm_data
-      read(77,*) offtemp_data(i)
+    do j=1, Num_file
+! ----- Open data ---------------------------------------------
+      open(77,file=FILE_NAME(j))     
+        
+!  ---- Read data -----
+      do i=1, Num_header
+        read(77,*)
+      end do
+
+      do i=num_d(j-1)+1, num_d(j)+num_d(j-1)
+        read(77,*) time(i), data1(i), data2(i)
+      end do
+      close(77)
     end do
-    close(77)
- 
-!-----------READ river data---------------------------------------------
+    deallocate( num_d )
+
+  end subroutine read_infiles_ascii2
+! **********************************************************************
+
+  subroutine read_infiles_nc(Num_file, FILE_NAME, NCNAME    &
+             , Num_data, time, data)
+    use netcdf
+
+    integer, intent(IN ) :: Num_file
+    character(256), intent(IN ) :: FILE_NAME(Num_file)
+    character(len=*), intent(IN ) :: NCNAME
+    integer, intent(OUT) :: Num_data
+    real(8), intent(OUT), allocatable :: time(:)
+    real(8), intent(OUT), allocatable :: data(:)
+
+    integer, allocatable :: num_d(:)
+    integer :: status
+    integer, allocatable :: ncid(:)
+    integer :: var_id, dimid
+    integer :: is,ie
+
+    allocate( num_d(0:Num_file) )
+    allocate( ncid(Num_file) )
+
+    Num_data = 0
+    num_d(0) = 0
+  
+    do j=1, Num_file
+! ----- Open nc file ---------------------------------------------
+      status = nf90_open(FILE_NAME(j), nf90_nowrite, ncid(j))
+!  ---- count data number -----
+      status = nf90_inq_dimid(ncid(j), 'time', dimid)
+      status = nf90_inquire_dimension(ncid(j), dimid, len=num_d(j))
+
+      Num_data = Num_data + num_d(j)
+    end do
+  
+    allocate( time(Num_data) )
+    allocate( data(Num_data) )
+
+    do j=1, Num_file
+! ----- Open data ---------------------------------------------
+      is = num_d(j-1)+1
+      ie = num_d(j)+num_d(j-1)
+      status = nf90_inq_varid(ncid(j), 'time', var_id)
+      status = nf90_get_var(ncid(j), var_id, time(is:ie)) 
+      status = nf90_inq_varid(ncid(j), NCNAME, var_id)
+      status = nf90_get_var(ncid(j), var_id, data(is:ie))
+      status = nf90_close(ncid(j))
+    end do
+    deallocate( num_d )
+    deallocate( ncid )
+
+  end subroutine read_infiles_nc
+! **********************************************************************
+
+  subroutine read_infiles_nc2(Num_file, FILE_NAME, NCNAME1, NCNAME2    &
+             , Num_data, time, data1, data2)
+    use netcdf
+
+    integer, intent(IN ) :: Num_file
+    character(256), intent(IN ) :: FILE_NAME(Num_file)
+    character(len=*), intent(IN ) :: NCNAME1
+    character(len=*), intent(IN ) :: NCNAME2
+    integer, intent(OUT) :: Num_data
+    real(8), intent(OUT), allocatable :: time(:)
+    real(8), intent(OUT), allocatable :: data1(:)
+    real(8), intent(OUT), allocatable :: data2(:)
+
+    integer, allocatable :: num_d(:)
+    integer :: status
+    integer, allocatable :: ncid(:)
+    integer :: var_id, dimid
+    integer :: is,ie
+
+    allocate( num_d(0:Num_file) )
+    allocate( ncid(Num_file) )
+
+    Num_data = 0
+    num_d(0) = 0
+  
+    do j=1, Num_file
+! ----- Open nc file ---------------------------------------------
+      status = nf90_open(FILE_NAME(j), nf90_nowrite, ncid(j))
+!  ---- count data number -----
+      status = nf90_inq_dimid(ncid(j), 'time', dimid)
+      status = nf90_inquire_dimension(ncid(j), dimid, len=num_d(j))
+
+      Num_data = Num_data + num_d(j)
+    end do
+  
+    allocate( time(Num_data) )
+    allocate( data1(Num_data) )
+    allocate( data2(Num_data) )
+
+    do j=1, Num_file
+! ----- Open data ---------------------------------------------
+      is = num_d(j-1)+1
+      ie = num_d(j)+num_d(j-1)
+      status = nf90_inq_varid(ncid(j), 'time', var_id)
+      status = nf90_get_var(ncid(j), var_id, time(is:ie)) 
+      status = nf90_inq_varid(ncid(j), NCNAME1, var_id)
+      status = nf90_get_var(ncid(j), var_id, data1(is:ie))
+      status = nf90_inq_varid(ncid(j), NCNAME2, var_id)
+      status = nf90_get_var(ncid(j), var_id, data2(is:ie))
+      status = nf90_close(ncid(j))
+    end do
+    deallocate( num_d )
+    deallocate( ncid )
+
+  end subroutine read_infiles_nc2
 
 
-    return
+! **********************************************************************
 
-  end subroutine read_timeseies
+  subroutine read_infiles_wave(Num_file, FILE_NAME, Num_header    &
+             , Ryear, Rmonth, Rday                                &
+             , Num_data, time, Hs_data, Tp_data)
+
+    integer, intent(IN ) :: Num_file
+    character(256), intent(IN ) :: FILE_NAME(Num_file)
+    integer, intent(IN ) :: Num_header
+    integer, intent(IN ) :: Ryear
+    integer, intent(IN ) :: Rmonth
+    integer, intent(IN ) :: Rday
+    integer, intent(OUT) :: Num_data
+    real(8), intent(OUT), allocatable :: time(:)
+    real(8), intent(OUT), allocatable :: Hs_data(:)
+    real(8), intent(OUT), allocatable :: Tp_data(:)
+
+    integer, allocatable :: num_d(:)
+    real(8) :: tmp
+
+    allocate( num_d(0:Num_file) )
+    Num_data = 0
+    num_d(0) = 0
+  
+    do j=1, Num_file
+! ----- Open data ---------------------------------------------
+      open(77,file=FILE_NAME(j))     
+!  ---- count data number -----
+      num_d(j) = 0
+      do
+        read(77,*,iostat=ios) 
+        if(ios==-1) exit
+        num_d(j) = num_d(j)+1
+      end do
+      close(77)
+      num_d(j) = num_d(j) - Num_header 
+      Num_data = Num_data + num_d(j)
+    end do
+  
+    allocate( time(Num_data) )
+    allocate( Hs_data(Num_data) )
+    allocate( Tp_data(Num_data) )
+
+    do j=1, Num_file
+! ----- Open data ---------------------------------------------
+      open(77,file=FILE_NAME(j))     
+        
+!  ---- Read data -----
+      do i=1, Num_header
+        read(77,*)
+      end do
+
+      do i=num_d(j-1)+1, num_d(j)+num_d(j-1)
+        read(77,*) tmp, Hs_data(i), Tp_data(i)
+#ifdef INPUT_SWAN
+!  ---- Convert format from swan time to roms ocean time -----
+        tmp = tmp + 0.00000001  !! For error handling
+        CALL convert_time_swan2roms(tmp, Ryear, Rmonth, Rday, time(i))
+#else
+        time(i) =tmp
+#endif  
+!        write(96,*)  tmp, time(i), Hs_data(i), Tp_data(i)
+      end do
+      close(77)
+    end do
+    deallocate( num_d )
+
+  end subroutine read_infiles_wave
+
+! **********************************************************************
+  subroutine convert_time_swan2roms(swan_time, Ryear, Rmonth, Rday, roms_time)
+    USE mod_calendar
+
+    real(8), intent(IN )  :: swan_time
+    integer, intent(IN )  :: Ryear
+    integer, intent(IN )  :: Rmonth
+    integer, intent(IN )  :: Rday
+    real(8), intent(OUT)  :: roms_time
+    integer :: yr, mon, day, hr, min, sec
+    integer :: days
+
+
+    yr  = floor( swan_time/10000.0d0 )
+    mon = floor( (swan_time - dble(yr)*10000.0d0)/100.0d0 )
+    day = floor( (swan_time - dble(yr)*10000.0d0- dble(mon)*100.0d0) )
+    hr  = floor( (swan_time-floor(swan_time))*100.0d0 )
+    min = floor( (swan_time-floor(swan_time))*10000.0d0 - dble(hr)*100.0d0 )
+    sec = floor( (swan_time-floor(swan_time))*1000000.0d0   &
+                 - dble(hr)*10000.0d0 - dble(min)*100.0d0 )
+
+    CALL ndays(mon, day, yr, Rmonth, Rday, Ryear, days)
+
+    roms_time = dble(days) + dble(hr)/24.0d0 + dble(min)/1440.0d0 &
+                     + dble(sec)/86400.0d0
+
+  end subroutine convert_time_swan2roms
+  
+! **********************************************************************
+!  Read timeseries data file
+! **********************************************************************
+
+!  subroutine read_timeseies
+!  
+!    USE mod_param
+!    
+!    implicit none
+!    
+!    integer :: nm_data, ios
+!    integer i,j
+!!
+!! ----- READ Tide data (m) ---------------------------------------------
+!
+!    open(77,file='./input/tide2010_0820-0930.dat')
+!    dt_tide=1.d0  !1.0 hour interval
+!      
+!!  ---- count data number -----
+!    nm_data = 0
+!    do
+!      read(77,*,iostat=ios) 
+!      if(ios==-1) exit
+!      nm_data = nm_data+1
+!    end do
+!    allocate( tide_data(nm_data) )
+!    num_tide = nm_data
+!    rewind(77)
+!    do i=1, nm_data
+!      read(77,*) tide_data(i)
+!    end do
+!    close(77)
+!
+!! ----- READ meterological dataset --------------------------------
+!
+!    open(77,file='./input/air2010_0820-1001.dat')
+!    dt_air=1.d0  !1.0 hour interval
+!      
+!!  ---- count data number -----
+!    nm_data = 0
+!    do
+!      read(77,*,iostat=ios) 
+!      if(ios==-1) exit
+!      nm_data = nm_data+1
+!    end do
+!    allocate( Pair_data (nm_data))
+!    allocate( Uwind_data(nm_data))
+!    allocate( Vwind_data(nm_data))
+!    allocate( Tair_data (nm_data))
+!    allocate( Qair_data (nm_data))
+!    allocate( rain_data (nm_data))
+!    allocate( swrad_data(nm_data))
+!    allocate( cloud_data(nm_data))
+!    nm_air = nm_data
+!    rewind(77)
+!
+!    do i=1, nm_data
+!      read(77,*) Pair_data (i), Uwind_data(i), Vwind_data(i),    &
+!                 Tair_data (i), Qair_data (i), rain_data (i),    &
+!                 swrad_data(i), cloud_data(i)
+!    end do
+!    close(77)
+!
+!#ifdef LONGWAVE_IN
+!      
+!! ----- READ downward longwave radiation (W m-2) ---------------------------------------------
+!
+!    open(77,file='./input/dwlw2010_0820-1001.dat')
+!    dt_dlwrad=1.d0  !1.0 hour interval
+!      
+!!  ---- count data number -----
+!    nm_data = 0
+!    do
+!      read(77,*,iostat=ios)
+!      if(ios==-1) exit
+!      nm_data = nm_data+1
+!    end do
+!    allocate( dlwrad_data(nm_data))
+!    nm_dlwrad = nm_data
+!    rewind(77)
+!
+!    do i=1, nm_data
+!      read(77,*) dlwrad_data(i)
+!    end do
+!    close(77)
+!#endif
+!
+!! --------- READ Wave data ---------------------------------------------
+!
+!!    open(77,file='./input/wave2010_0820-0905test.dat')
+!    open(77,file='./input/wave2010_0820-0905.dat')
+!    dt_wave=0.25d0  !15 min interval
+!
+!!  ---- count data number -----
+!    nm_data = 0
+!    do
+!      read(77,*,iostat=ios)
+!      if(ios==-1) exit
+!      nm_data = nm_data+1
+!    end do
+!    allocate( Hs_data(nm_data), Tp_data(nm_data) )
+!    num_wv = nm_data
+!    rewind(77)
+!
+!    do i=1, nm_data
+!      read(77,*) Hs_data(i), Tp_data(i)
+!    end do
+!    close(77)
+!
+!! --------- READ Offshre temperature data ---------------------------------------------
+!
+!    open(77,file='./input/offshoretemp.dat')
+!    dt_wtemp=3.0d0  !3 hour interval
+!
+!!  ---- count data number -----
+!    nm_data = 0
+!    do
+!      read(77,*,iostat=ios) 
+!      if(ios==-1) exit 
+!      nm_data = nm_data+1
+!    end do
+!    allocate( wtemp_data(nm_data) )
+!    num_wtemp = nm_data
+!    rewind(77)
+!
+!    do i=1, nm_data
+!      read(77,*) wtemp_data(i)
+!    end do
+!    close(77)
+! 
+!!-----------READ river data---------------------------------------------
+!
+!
+!    return
+!
+!  end subroutine read_timeseies
 
 
 ! **********************************************************************
@@ -186,26 +750,26 @@ contains
     open(77,file='./input/pfd_10.txt')
 #endif
 ! ----- Count data -----
-    N_PFD = 0
-    do
-      read(77,*,iostat=ios)
-      if(ios==-1) exit
-      N_PFD = N_PFD + 1
-    end do
-    allocate( PFD_time(N_PFD*N_rep), PFD_data(N_PFD*N_rep) )   ! Repeat same light condition for 5 times
-    rewind(77) 
-! ----- Read data -----
-    do j=1, N_rep
-      do i=1, N_PFD
-        read(77,*) PFD_time(i+N_PFD*(j-1)), PFD_data(i+N_PFD*(j-1))
-        if(j >= 2) then
-          PFD_time(i+N_PFD*(j-1)) = PFD_time(i+N_PFD*(j-1)) + PFD_time(N_PFD)*dble(j-1)
-        end if
-      end do
-      rewind(77) 
-    end do
-    N_PFD = N_PFD*N_rep
-    close(77)
+!    N_PFD = 0
+!    do
+!      read(77,*,iostat=ios)
+!      if(ios==-1) exit
+!      N_PFD = N_PFD + 1
+!    end do
+!    allocate( PFD_time(N_PFD*N_rep), PFD_data(N_PFD*N_rep) )   ! Repeat same light condition for 5 times
+!    rewind(77) 
+!! ----- Read data -----
+!    do j=1, N_rep
+!      do i=1, N_PFD
+!        read(77,*) PFD_time(i+N_PFD*(j-1)), PFD_data(i+N_PFD*(j-1))
+!        if(j >= 2) then
+!          PFD_time(i+N_PFD*(j-1)) = PFD_time(i+N_PFD*(j-1)) + PFD_time(N_PFD)*dble(j-1)
+!        end if
+!      end do
+!      rewind(77) 
+!    end do
+!    N_PFD = N_PFD*N_rep
+!    close(77)
 
 ! ===== READ TA and DIC data =================================================
 !         time (hour), TA & DIC (umol kg-1)
@@ -253,7 +817,7 @@ contains
 !  Set environmental condition
 ! **********************************************************************
 
-  subroutine setdata(nSetting)
+  subroutine setdata(nSetting, in_file)
 !   Setting of condition (nSetting)
 !
 !   nSetting = 1: Stable condition
@@ -266,28 +830,15 @@ contains
     
     implicit none
     
-    integer, intent(in) :: nSetting
+    integer, intent(IN ) :: nSetting
+    integer, intent(IN ) :: in_file(12)
 
-!  -- Set Tide data ---------------------------------------------
-    tide=0.0d0
-!    tide=lin_interpol(time,tide_data,dt_tide,nm_tide)
-! -- Set wind data -----------------------------------------------
-
-    Uwind=0.
-    Vwind=0.
-!    Uwind=lin_interpol(time,Uwind_data,dt_air,nm_air)
-!    Vwind=lin_interpol(time,Vwind_data,dt_air,nm_air)
-
-
-    if (nSetting .eq. 5) then
-    
-      CALL lin_interpol2(time*24.0d0,PFD_time,PFD_data,N_PFD, PFDsurf, i_PFD)
-    
-    else
+    integer :: id_tmp
 
 ! -- Set solar radiation data -----------------------------------------------
-
-!      swrad=lin_interpol(time,swrad_data,dt_air,nm_air)   !data from file
+    if(in_file(iswrad)>0) then
+      CALL lin_interpol(time, swrad_time, swrad_data, num_swrad, swrad, id_swrad)   !data from file
+    else
 #if defined ANA_SWRAD_LIGHT_DARK
 !      swrad=solar_radi(time,1400.d0,0.d0)!9.d0/24.d0)                !Artificial solar radiation
 
@@ -319,27 +870,84 @@ contains
 !      swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2)*0.25d0 !shortwave radiation around 3/21 by Zillman equation
 !      swrad=short_radi(time, 0.0d0, 77.0d0, 24.0d0, 27.0d0, 50.0d0, 2)*0.5d0 !shortwave radiation around 3/21 by Zillman equation
 #endif    
+    endif
+! -- Set dlwrad data -----------------------------------------------
+    if(in_file(idlwrad)>0) then
+      CALL lin_interpol(time, dlwrad_time, dlwrad_data, num_dlwrad, dlwrad, id_dlwrad)   !data from file
+    else
+      dlwrad = 300.0d0
+    endif
+! -- Set Tair data -----------------------------------------------
+    if(in_file(iTair)>0) then
+      CALL lin_interpol(time, Tair_time, Tair_data, num_Tair, Tair, id_Tair)   !data from file
+    else
+      Tair = 25.0d0
+    endif
+! -- Set Pair data -----------------------------------------------
+    if(in_file(iPair)>0) then
+      CALL lin_interpol(time, Pair_time, Pair_data, num_Pair, Pair, id_Pair)   !data from file
+    else
+      Pair = 1013.0d0
+    endif
+! -- Set wind data -----------------------------------------------
+    if(in_file(iwind)>0) then
+      id_tmp = id_wind
+      CALL lin_interpol(time, wind_time, Uwind_data, num_wind, Uwind, id_tmp  )   !data from file
+      CALL lin_interpol(time, wind_time, Vwind_data, num_wind, Vwind, id_wind )   !data from file
+    else
+      Uwind = 0.0d0
+      Vwind = 0.0d0
+    endif
+! -- Set rain data -----------------------------------------------
+    if(in_file(irain)>0) then
+      CALL lin_interpol(time, rain_time, rain_data, num_rain, rain, id_rain)   !data from file
+    else
+      rain = 0.0d0
+    endif
+! -- Set Rh data -----------------------------------------------
+    if(in_file(iRh)>0) then
+      CALL lin_interpol(time, Rh_time, Rh_data, num_Rh, Rh, id_Rh)   !data from file
+    else
+      Rh = 80.0d0
+    endif
+! -- Set cloud data -----------------------------------------------
+    if(in_file(icloud)>0) then
+      CALL lin_interpol(time, cloud_time, cloud_data, num_cloud, cloud, id_cloud)   !data from file
+    else
+      cloud = 0.0d0
+    endif
+! -- Set cloud data -----------------------------------------------
+    if(in_file(iPFD)>0) then
+      CALL lin_interpol(time, PFD_time, PFD_data, num_PFD, PFD, id_PFD)   !data from file
+    else
 !   Convert solar radiation (W m-2) to photosynthetic photon flux 
 !   density: 2.1 umol m-2 s-1 per W m-2 (Britton and Dodd 1976)
 !   Sea surface albedo: 0.07
+      PFD = 2.1d0 * swrad*(1.0d0-0.07d0)
+    endif
+! -- Set wtemp data -----------------------------------------------
+    if(in_file(iwtemp)>0) then
+      CALL lin_interpol(time, wtemp_time, wtemp_data, num_wtemp, wtemp, id_wtemp)   !data from file
+    else
+      wtemp = 25.0d0
+    endif
+! -- Set tide data -----------------------------------------------
+    if(in_file(itide)>0) then
+      CALL lin_interpol(time, tide_time, tide_data, num_tide, tide, id_tide)   !data from file
+    else
+      tide = 0.0d0
+    endif
+! -- Set wave data -----------------------------------------------
+    if(in_file(iwv)>0) then
+      id_tmp = id_wv
+      CALL lin_interpol(time, wv_time, Hs_data, num_wv, Hs, id_tmp)   !data from file
+      CALL lin_interpol(time, wv_time, Tp_data, num_wv, Tp, id_wv )   !data from file
+    else
+      Hs = 1.0d0
+      Tp = 8.0d0
+    endif
 
-      PFDsurf = 2.1d0 * swrad*(1.0d0-0.07d0)
-    end if
-
-!----- Temperature controle -----------------------------------------
-
-!    if(time > 5.0d0) then
-!
-!      do j=1,Jm
-!        do i=1,Im
-!          do k=1,N
-!            C(i,j,k,1,iTemp) = 27.0d0   !27.0d0 32.0d0
-!          enddo
-!        enddo
-!      enddo
-!    
-!    end if
-      
+    PFDsurf = PFD
 !----- Flux calculation -----------------------------------------
 
 !    tau = 1024*0.01*0.0**2. *0.5 !densSW*Cd*Ub**2    (0 cm s-1)
@@ -359,87 +967,46 @@ contains
     
     fvol_pre =0.0d0 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-#if defined USE_HEAT
-!--- Set heat data ------------------------------------------------
-    Pair = lin_interpol(time,Pair_data ,dt_air,nm_air)   !data from file
-    Tair = lin_interpol(time,Tair_data ,dt_air,nm_air)   !data from file
-    Qair = lin_interpol(time,Qair_data ,dt_air,nm_air)   !data from file
-    rain = lin_interpol(time,rain_data ,dt_air,nm_air)   !data from file (mm h-1)
-    rain = rain/3600000.0d0 ! mm h-1 -> m s-1
-    cloud= lin_interpol(time,cloud_data,dt_air,nm_air)   !data from file
-#endif
-#if defined REEF_FLOW
-    Hs = lin_interpol(time,Hs_data ,dt_wave,nm_wave)   !data from file
-    Tp = lin_interpol(time,Tp_data, dt_wave,nm_wave)   !data from file
-    
-    Co(1,1,iTemp) = lin_interpol(time,offtemp_data, dt_offtemp,nm_offtemp)   !data from file
+#if defined REEF_FLOW  
+    Co(1,1,iTemp) = wtemp   !data from file
 #endif
       
     return
 
   end subroutine setdata
 
-  real(8) function lin_interpol(time,dataset,dt_data,datamax)
-! **********************************************************************
-! *                                                                    *
-! * FUNCTION    :  linear interpolation between input data.            *
-! *              time:     progress time (day)                         *
-! *              dataset(i): data set                                  *
-! *              dt_data: data interval (hour)                         *
-! *                                                                    *
-! **********************************************************************
-!
-    implicit none
-
-    integer i
-!    real lin_interpol
-    real(8) dataset(datamax)
-    real(8) time,dt_data
-    integer datamax
-
-    i=int(time*24.e0/dt_data)+1
-    
-    if(i.ge.datamax) i=datamax-1
-
-    lin_interpol=dataset(i)+(dataset(i+1)-dataset(i))      &
-          *(time*24.e0/dt_data-real(i-1))
-
-    return
-
-  end function lin_interpol
     
 ! **********************************************************************
 
-  subroutine lin_interpol2(time,t_dat,d_dat,N_dat, out_dat, i_dat)
-!
+  subroutine lin_interpol(time,t_data,d_data,N_data, out_data, i_data)
+
     implicit none
 
 !    real lin_interpol
-    real(8), intent(in ) :: time
-    real(8), intent(in ) :: t_dat(N_dat)
-    real(8), intent(in ) :: d_dat(N_dat)
-    integer, intent(in ) :: N_dat
-    real(8), intent(out) :: out_dat
-    integer, intent(inout) :: i_dat
+    real(8), intent(in ) :: time           ! progress time
+    real(8), intent(in ) :: t_data(N_data) ! Data time
+    real(8), intent(in ) :: d_data(N_data) ! Data value
+    integer, intent(in ) :: N_data         ! Number of data
+    real(8), intent(out) :: out_data       ! Interpolated value
+    integer, intent(inout) :: i_data       ! Index of current data
 
     real(8) :: dt
     integer ::  i,j
 
-
-    do i=i_dat, N_dat-1
-      if( t_dat(i+1)>=time .and. t_dat(i+1)>t_dat(i) ) exit
+    do i=i_data, N_data-1
+      if( t_data(i+1)>=time .and. t_data(i+1)>t_data(i) ) exit
     end do
-    if(i+1.gt.N_dat) then
-      out_dat = d_dat(i)
+    if(i+1.gt.N_data) then
+      out_data = d_data(i)
     else
-      dt = t_dat(i+1)-t_dat(i)
-      out_dat = d_dat(i)+(d_dat(i+1)-d_dat(i)) * (time-t_dat(i))/dt
+      dt = t_data(i+1)-t_data(i)
+      out_data = d_data(i)+(d_data(i+1)-d_data(i)) * (time-t_data(i))/dt
     end if
-    i_dat = i
+    i_data = i
 
     return
 
-  end subroutine lin_interpol2
+  end subroutine lin_interpol
 
   real(8) function solar_radi(time,PFD,start_time)
 ! **********************************************************************

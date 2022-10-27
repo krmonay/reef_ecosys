@@ -118,6 +118,9 @@ contains
 # if defined ECOSYS_TESTMODE
     open(40,file='./output/'//trim(OUTFILE_prefix)//'-ecosys_his.csv')
 # endif
+# if defined REEF_FLOW_TESTMODE
+    open(45,file='./output/'//trim(OUTFILE_prefix)//'-flow_his.csv')
+# endif
 
 #endif
       
@@ -172,6 +175,9 @@ END SUBROUTINE files_open
 #endif
 #if defined ECOSYS_TESTMODE
     close(40)
+#endif
+#if defined REEF_FLOW_TESTMODE
+    close(45)
 #endif
 #if defined SEDIMENT_TESTMODE
     close(56)
@@ -244,6 +250,27 @@ END SUBROUTINE files_close
     RETURN
 
   END SUBROUTINE write_env_lavel
+
+! **********************************************************************
+!  Write lavel of reef_flow data
+! **********************************************************************
+
+  SUBROUTINE write_flow_lavel(fid)
+  
+    USE mod_param
+    
+    implicit none
+    
+    integer, intent(in) :: fid
+    
+    write(fid,'(*(g0:,", "))') 'time'   &
+    , 'Hs_o', 'Tp', 'd_o', 'd_i'        & 
+    , 'el_o', 'reef_el'                 &
+    , 'Qrc', 'Qch'
+
+    RETURN
+
+  END SUBROUTINE write_flow_lavel
 
 ! **********************************************************************
 !  Write timeseries environmental data

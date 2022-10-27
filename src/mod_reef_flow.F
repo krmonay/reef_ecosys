@@ -137,7 +137,13 @@ CONTAINS
     real(8) :: d_o          ! Water depth (m)
     real(8) :: d_i          ! Water depth (m)
     real(8) :: del          ! difference of elevation between inner and outer reef (m)
-    
+
+#if defined REEF_FLOW_TESTMODE
+    real(8), parameter :: OUTPUT_INTERVAL  = 5.0d0    ! Output interval (min)
+    real(8), save :: time = 0.d0  !sec
+    real(8), save :: dsec = 0.d0  !sec
+#endif
+
     d_o = el_o + REEF(ng)%Drc(i,j)
 !    d_o = el_o + REEF(ng)%Slp(i,j)*dx_o
     d_i = REEF(ng)%el (i,j) + REEF(ng)%Drc(i,j)
@@ -179,7 +185,25 @@ CONTAINS
                          REEF(ng)%Qrc(i,j)*REEF(ng)%Wrc(i,j)          &
                         +REEF(ng)%Qch(i,j)*REEF(ng)%Wch(i,j)          &
                        )/REEF(ng)%Air(i,j) * dt
-    write(98,*) el_o, REEF(ng)%el (i,j),REEF(ng)%Qrc(i,j),REEF(ng)%Qch(i,j)
+
+
+#if defined REEF_FLOW_TESTMODE
+!------------------------------------------------------------------------
+! Print section
+
+    time = time + dt  ! sec
+    
+    if(time.ge.dsec) then
+      
+      write(45,'(*(g0:,", "))') time/86400.0d0   &
+      , Hs_o, Ts, d_o, d_i                          & 
+      , el_o, REEF(ng)%el(i,j)                      &
+      , REEF(ng)%Qrc(i,j), REEF(ng)%Qch(i,j)
+
+      dsec =dsec+OUTPUT_INTERVAL*60.0d0
+    
+    endif
+# endif
 
   END SUBROUTINE reef_flow
     
@@ -281,7 +305,7 @@ CONTAINS
     q = q + (-g*d_m*del/dx -dSxx/rho/dx -tau/rho)*dt
 !    q = q + (-g*d_m*del/dx -dSxx/rho/dx)*dt
     
-    write(99,*) q, d_i2,d_o2,Sxx_i,Sxx_o,u, d_m, del, tau
+!    write(99,*) q, d_i2,d_o2,Sxx_i,Sxx_o,u, d_m, del, tau
 
   END SUBROUTINE momentum_eq
     
@@ -311,13 +335,15 @@ CONTAINS
 !-----------------------------------------------------------------------
 !
 !   c= L/T=sqrt( (g*L/2/pi*tanh(2*pi*h/L)) ) 
+!      L*L/(T*T) = g*L/2/pi*tanh(2*pi*h/L) 
+!      L = g/2/pi*tanh(2*pi*h/L) *T*T
     
     ! Initial wave length
     L = 0.5d0*g*T*T*pi  ! wave length of Deep water wave
-    L2 = sqrt(0.5d0*g*L/pi*tanh(2.0d0*pi*h/L))*T
+    L2 = 0.5d0*g/pi*tanh(2.0d0*pi*h/L)*T*T
     do while (abs(L-L2)>err)
       L=L2
-      L2 = sqrt(0.5d0*g*L/pi*tanh(2.0d0*pi*h/L))*T
+      L2 = 0.5d0*g/pi*tanh(2.0d0*pi*h/L)*T*T
     end do
     L=L2
 
