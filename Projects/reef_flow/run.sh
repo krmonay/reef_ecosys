@@ -9,5 +9,5 @@ rm *.mod
 #
 mkdir -p output
 #
-#./ecosys_test.exe < reef_flow_01.in
+./ecosys_test.exe < reef_flow_01.in
 #

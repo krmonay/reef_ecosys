@@ -15,16 +15,44 @@
   nSetting = 1
 /
 
-&input   
-  PFD_FILE   = 'input/PFD.dat'
-  SWRad_FILE = 'input/SWrad.dat'
-  LWRad_FILE = 'input/LWrad.dat'
-  Tair_FILE  = 'input/Tair.dat'
-  Pair_FILE  = 'input/Pair.dat'
-  Wind_FILE  = 'input/Wind.dat'
-  Rain_FILE  = 'input/Rain.dat'
-  RH_FILE    = 'input/RH.dat'    ! Relative humidity (%)
-  WAVE_FILE  = 'input/wave.dat'
+&input_info
+! frc_file(i) >= 1:  Number of input file for each parameter
+! frc_file(i) =  0:  No input file (set values analytically)
+!
+! 1: swrad, 2: lwrad_down 3: Tair, 4: Pair, 5: wind, 
+! 6: rain,  7: Relative humidity, 8: cloud
+! 9: Photosynthetic photon flux density
+! 10: water temp,  11: Water level 
+! 12: Wave
+!    
+!           1       5     8 9 10  12
+!           |       |     | | |   |
+  in_file = 0,0,0,0,0,0,0,0,0,0,0,0
+/
+
+&input
+! Both ascii text file and roms frc netcdf file (1D) are acceptable.
+! *if netcdf files are used, activate INPUT_ROMS_FRC in cppdefs.h.
+
+  SWRad_FILE = "input/Ishigaki_frc_JMAobs_2018_swrad.nc"
+  LWRad_FILE = "input/Ishigaki_frc_JMAobs_2018_lwrad_down.nc"
+  Tair_FILE  = "input/Ishigaki_frc_JMAobs_2018_Tair.nc"
+  Pair_FILE  = "input/Ishigaki_frc_JMAobs_2018_Pair.nc"
+  Wind_FILE  = "input/Ishigaki_frc_JMAobs_2018_wind.nc"
+  Rain_FILE  = "input/Ishigaki_frc_JMAobs_2018_rain.nc"
+  Rh_FILE    = "input/Ishigaki_frc_JMAobs_2018_Qair.nc"    ! Relative humidity (%)
+  Cloud_FILE = "input/Ishigaki_frc_JMAobs_2018_cloud.nc"    ! Relative humidity (%)
+
+! Only ascii text file is acceptable.
+  PPFD_FILE  = "input/PPFD.txt"
+! Only ascii text file is acceptable.
+  WTEMP_FILE  = "input/temp2017.txt",
+                "input/temp2018.txt"
+  WLEVEL_FILE = "input/level2017.txt",
+                "input/level2018.txt"
+! Only ascii text file is acceptable.
+  WAVE_FILE   = "input/Shiraho_wave2_201701.dat",
+                "input/Shiraho_wave2_201801.dat"
 /
 
 &output   
