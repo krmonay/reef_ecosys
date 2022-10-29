@@ -1,6 +1,6 @@
 &ecosys_config
 ! Simulation period     
-  Tmax = 6.0d0  ! days
+  Tmax = 4.0d0  ! days
 ! Start time
   time0 = 0.0d0 ! day
 
@@ -50,15 +50,13 @@
   Cloud_FILE = "input/Ishigaki_frc_JMAobs_2018_cloud.nc"    ! Relative humidity (%)
 
 ! Only ascii text file is acceptable.
-  PPFD_FILE  = "input/PPFD.txt"
+  PPFD_FILE  = "input/PPFD_day_since_20150828_000000.txt"  !!! Used
 ! Only ascii text file is acceptable.
-  WTEMP_FILE  = "input/temp.txt"
+  WTEMP_FILE  = "input/temp_day_since_20150828_000000.txt" !!! Used
   
-  WLEVEL_FILE = "input/level2017.txt",
-                "input/level2018.txt"
+  WLEVEL_FILE = "input/level2017.txt"
 ! Only ascii text file is acceptable.
-  WAVE_FILE   = "input/Shiraho_wave2_201701.dat",
-                "input/Shiraho_wave2_201801.dat"
+  WAVE_FILE   = "input/Shiraho_wave2_201701.dat"
 /
 
 &output   

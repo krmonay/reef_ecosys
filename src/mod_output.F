@@ -304,36 +304,36 @@ END SUBROUTINE files_close
 #if defined CARBON_ISOTOPE
     real(8) :: d13C_DIC
 
-    d13C_DIC=d13C_fromR13C(C(1,1,1,1,iT13C)/C(1,1,1,1,iTIC_))
+    d13C_DIC=d13C_fromR13C(C(1,1,1,iT13C)/C(1,1,1,iTIC_))
 #endif
         
     write(fid,'(*(g0:,", "))') time, PFDsurf                               &
-           , C(1,1,1,1,iTemp), C(1,1,1,1,iSalt)                            &
-           , C(1,1,1,1,iTAlk), C(1,1,1,1,iTIC_), C(1,1,1,1,iOxyg)          &
+           , C(1,1,1,iTemp), C(1,1,1,iSalt)                            &
+           , C(1,1,1,iTAlk), C(1,1,1,iTIC_), C(1,1,1,iOxyg)          &
 #if defined ORGANIC_MATTER
-           , C(1,1,1,1,iDOC(1)), C(1,1,1,1,iDOC(2))                        &
-           , C(1,1,1,1,iPOC(1)), C(1,1,1,1,iPOC(2))                        &
-           , C(1,1,1,1,iPhyt(1)), C(1,1,1,1,iPhyt(2)), C(1,1,1,1,iPhyt(3)) &
-           , C(1,1,1,1,iZoop(1)), C(1,1,1,1,iPIC(1))                       &
+           , C(1,1,1,iDOC(1)), C(1,1,1,iDOC(2))                        &
+           , C(1,1,1,iPOC(1)), C(1,1,1,iPOC(2))                        &
+           , C(1,1,1,iPhyt(1)), C(1,1,1,iPhyt(2)), C(1,1,1,iPhyt(3)) &
+           , C(1,1,1,iZoop(1)), C(1,1,1,iPIC(1))                       &
 # if defined FOODWEB_TESTMODE
-           , C(1,1,1,1,iDeadPhyt(1)), C(1,1,1,1,iDeadPhyt(2))              &
-           , C(1,1,1,1,iDeadPhyt(3))                                       &
+           , C(1,1,1,iDeadPhyt(1)), C(1,1,1,iDeadPhyt(2))              &
+           , C(1,1,1,iDeadPhyt(3))                                       &
 # endif
 #endif
 #if defined NUTRIENTS            
-           , C(1,1,1,1,iNO3_), C(1,1,1,1,iNH4_), C(1,1,1,1,iPO4_)          &
+           , C(1,1,1,iNO3_), C(1,1,1,iNH4_), C(1,1,1,iPO4_)          &
 # if defined ORGANIC_MATTER
-           , C(1,1,1,1,iDON(1)), C(1,1,1,1,iDON(2))                        &
-           , C(1,1,1,1,iPON(1)), C(1,1,1,1,iPON(2))                        &
-           , C(1,1,1,1,iDOP(1)), C(1,1,1,1,iDOP(2))                        &
-           , C(1,1,1,1,iPOP(1)), C(1,1,1,1,iPOP(2))                        &
+           , C(1,1,1,iDON(1)), C(1,1,1,iDON(2))                        &
+           , C(1,1,1,iPON(1)), C(1,1,1,iPON(2))                        &
+           , C(1,1,1,iDOP(1)), C(1,1,1,iDOP(2))                        &
+           , C(1,1,1,iPOP(1)), C(1,1,1,iPOP(2))                        &
 # endif
 #endif
 #if defined CARBON_ISOTOPE
            , d13C_DIC                                                      &
 #endif
 #if defined COT_STARFISH
-           , C(1,1,1,1,iCOTe), C(1,1,1,1,iCOTl)                            &
+           , C(1,1,1,iCOTe), C(1,1,1,iCOTl)                            &
 #endif
 #if defined REEF_FLOW
            , REEF(1)%Qrc(1,1), REEF(1)%Qch(1,1), REEF(1)%el (1,1)          &

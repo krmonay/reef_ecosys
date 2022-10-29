@@ -576,143 +576,6 @@ contains
 
   end subroutine convert_time_swan2roms
   
-! **********************************************************************
-!  Read timeseries data file
-! **********************************************************************
-
-!  subroutine read_timeseies
-!  
-!    USE mod_param
-!    
-!    implicit none
-!    
-!    integer :: nm_data, ios
-!    integer i,j
-!!
-!! ----- READ Tide data (m) ---------------------------------------------
-!
-!    open(77,file='./input/tide2010_0820-0930.dat')
-!    dt_tide=1.d0  !1.0 hour interval
-!      
-!!  ---- count data number -----
-!    nm_data = 0
-!    do
-!      read(77,*,iostat=ios) 
-!      if(ios==-1) exit
-!      nm_data = nm_data+1
-!    end do
-!    allocate( tide_data(nm_data) )
-!    num_tide = nm_data
-!    rewind(77)
-!    do i=1, nm_data
-!      read(77,*) tide_data(i)
-!    end do
-!    close(77)
-!
-!! ----- READ meterological dataset --------------------------------
-!
-!    open(77,file='./input/air2010_0820-1001.dat')
-!    dt_air=1.d0  !1.0 hour interval
-!      
-!!  ---- count data number -----
-!    nm_data = 0
-!    do
-!      read(77,*,iostat=ios) 
-!      if(ios==-1) exit
-!      nm_data = nm_data+1
-!    end do
-!    allocate( Pair_data (nm_data))
-!    allocate( Uwind_data(nm_data))
-!    allocate( Vwind_data(nm_data))
-!    allocate( Tair_data (nm_data))
-!    allocate( Qair_data (nm_data))
-!    allocate( rain_data (nm_data))
-!    allocate( swrad_data(nm_data))
-!    allocate( cloud_data(nm_data))
-!    nm_air = nm_data
-!    rewind(77)
-!
-!    do i=1, nm_data
-!      read(77,*) Pair_data (i), Uwind_data(i), Vwind_data(i),    &
-!                 Tair_data (i), Qair_data (i), rain_data (i),    &
-!                 swrad_data(i), cloud_data(i)
-!    end do
-!    close(77)
-!
-!#ifdef LONGWAVE_IN
-!      
-!! ----- READ downward longwave radiation (W m-2) ---------------------------------------------
-!
-!    open(77,file='./input/dwlw2010_0820-1001.dat')
-!    dt_dlwrad=1.d0  !1.0 hour interval
-!      
-!!  ---- count data number -----
-!    nm_data = 0
-!    do
-!      read(77,*,iostat=ios)
-!      if(ios==-1) exit
-!      nm_data = nm_data+1
-!    end do
-!    allocate( dlwrad_data(nm_data))
-!    nm_dlwrad = nm_data
-!    rewind(77)
-!
-!    do i=1, nm_data
-!      read(77,*) dlwrad_data(i)
-!    end do
-!    close(77)
-!#endif
-!
-!! --------- READ Wave data ---------------------------------------------
-!
-!!    open(77,file='./input/wave2010_0820-0905test.dat')
-!    open(77,file='./input/wave2010_0820-0905.dat')
-!    dt_wave=0.25d0  !15 min interval
-!
-!!  ---- count data number -----
-!    nm_data = 0
-!    do
-!      read(77,*,iostat=ios)
-!      if(ios==-1) exit
-!      nm_data = nm_data+1
-!    end do
-!    allocate( Hs_data(nm_data), Tp_data(nm_data) )
-!    num_wv = nm_data
-!    rewind(77)
-!
-!    do i=1, nm_data
-!      read(77,*) Hs_data(i), Tp_data(i)
-!    end do
-!    close(77)
-!
-!! --------- READ Offshre temperature data ---------------------------------------------
-!
-!    open(77,file='./input/offshoretemp.dat')
-!    dt_wtemp=3.0d0  !3 hour interval
-!
-!!  ---- count data number -----
-!    nm_data = 0
-!    do
-!      read(77,*,iostat=ios) 
-!      if(ios==-1) exit 
-!      nm_data = nm_data+1
-!    end do
-!    allocate( wtemp_data(nm_data) )
-!    num_wtemp = nm_data
-!    rewind(77)
-!
-!    do i=1, nm_data
-!      read(77,*) wtemp_data(i)
-!    end do
-!    close(77)
-! 
-!!-----------READ river data---------------------------------------------
-!
-!
-!    return
-!
-!  end subroutine read_timeseies
-
 
 ! **********************************************************************
 !  Read chamber condition data file
@@ -916,7 +779,7 @@ contains
     else
       cloud = 0.0d0
     endif
-! -- Set cloud data -----------------------------------------------
+! -- Set PPFD data -----------------------------------------------
     if(in_file(iPFD)>0) then
       CALL lin_interpol(time, PFD_time, PFD_data, num_PFD, PFD, id_PFD)   !data from file
     else
@@ -928,6 +791,11 @@ contains
 ! -- Set wtemp data -----------------------------------------------
     if(in_file(iwtemp)>0) then
       CALL lin_interpol(time, wtemp_time, wtemp_data, num_wtemp, wtemp, id_wtemp)   !data from file
+      if(nSetting==4) then
+        Co(1,1,iTemp) = wtemp
+      else
+        C(1,1,:,iTemp) = wtemp
+      endif
     else
       wtemp = 25.0d0
     endif
@@ -967,9 +835,6 @@ contains
     
     fvol_pre =0.0d0 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
-#if defined REEF_FLOW  
-    Co(1,1,iTemp) = wtemp   !data from file
-#endif
       
     return
 

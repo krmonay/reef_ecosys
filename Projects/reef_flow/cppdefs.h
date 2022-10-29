@@ -1,7 +1,7 @@
 
 #define USE_HEAT
 #define LONGWAVE_IN
-/*#define PFD_BOTTOM*/
+/*#define INPUT_BOTTOM_PFD*/
 
 #define REEF_FLOW
 #define REEF_FLOW_TESTMODE

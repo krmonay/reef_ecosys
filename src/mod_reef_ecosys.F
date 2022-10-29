@@ -785,6 +785,9 @@ contains
     END DO
 
     PFDbott=PFD  !!! Photon flux density at sea bottom
+#if defined  INPUT_BOTTOM_PFD
+    PFDbott=PFDsurf
+#endif
 
 #if defined ORGANIC_MATTER && !defined ECOSYS_TESTMODE
 !-----------------------------------------------------------------------

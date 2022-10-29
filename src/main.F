@@ -4,7 +4,7 @@
 #include "cppdefs.h"
 
 
-PROGRAM ecosys_test
+PROGRAM main
 ! **********************************************************************
 ! *                                                                    *
 ! *   Test program of mod_reef_ecosys                                  *
@@ -76,10 +76,9 @@ PROGRAM ecosys_test
 
 !----- Import data -----------------------------------
 
-  if (nSetting .eq. 4) then
-!    CALL read_timeseies
-    CALL read_data(in_file)
-  else if (nSetting .eq. 5) then
+  CALL read_data(in_file)
+
+  if (nSetting .eq. 5) then
     CALL read_chambercondition
   endif
 
@@ -173,8 +172,8 @@ PROGRAM ecosys_test
 #endif
               ,cloud          &   ! cloud cover (0-1)
 
-              ,C(1,1,:,1,iTemp)     &   ! Tmp(N): Temperature (oC)
-              ,C(1,1,:,1,iSalt)     &   ! Sal(N): Salinity (PSU)
+              ,C(1,1,:,iTemp)     &   ! Tmp(N): Temperature (oC)
+              ,C(1,1,:,iSalt)     &   ! Sal(N): Salinity (PSU)
 
 !          output parameters
               ,dC_dt(1,1,:,iTemp)   &   ! dDIC_dt(N): dDIC/dt (umol kg-1 s-1)
@@ -208,57 +207,57 @@ PROGRAM ecosys_test
               ,p_sand(1,1)    &   ! sediment coverage (0-1)
 #endif
 
-              ,C(1,1,:,1,iTemp)     &   ! Tmp(N): Temperature (oC)
-              ,C(1,1,:,1,iSalt)     &   ! Sal(N): Salinity (PSU)
-              ,C(1,1,:,1,iTIC_)     &   ! DIC(N): Total dissolved inorganic carbon (DIC: umol kg-1)
-              ,C(1,1,:,1,iTAlk)     &   ! TA (N): Total alkalinity (TA: umol kg-1)
-              ,C(1,1,:,1,iOxyg)     &   ! DOx(N): Dissolved oxygen (umol L-1)
+              ,C(1,1,:,iTemp)     &   ! Tmp(N): Temperature (oC)
+              ,C(1,1,:,iSalt)     &   ! Sal(N): Salinity (PSU)
+              ,C(1,1,:,iTIC_)     &   ! DIC(N): Total dissolved inorganic carbon (DIC: umol kg-1)
+              ,C(1,1,:,iTAlk)     &   ! TA (N): Total alkalinity (TA: umol kg-1)
+              ,C(1,1,:,iOxyg)     &   ! DOx(N): Dissolved oxygen (umol L-1)
 #if defined ORGANIC_MATTER
-              ,C(1,1,:,1,iDOC(:))       &   ! DOC(N): Dissolved organic carbon (DOC: umol L-1)
-              ,C(1,1,:,1,iPOC(:))       &   ! POC(N): Particulate organic carbon (POC: umol L-1)
-              ,C(1,1,:,1,iPhyt(:))      &   ! PHY(N): phytoplankton (umol C L-1)
-              ,C(1,1,:,1,iZoop(:))      &   ! ZOO(N): zooplankton (umol C L-1)
-              ,C(1,1,:,1,iPIC(:))       &   ! PIC(N): Particulate inorganic carbon (PIC: umol L-1), coccolith (CaCO3)
+              ,C(1,1,:,iDOC(:))       &   ! DOC(N): Dissolved organic carbon (DOC: umol L-1)
+              ,C(1,1,:,iPOC(:))       &   ! POC(N): Particulate organic carbon (POC: umol L-1)
+              ,C(1,1,:,iPhyt(:))      &   ! PHY(N): phytoplankton (umol C L-1)
+              ,C(1,1,:,iZoop(:))      &   ! ZOO(N): zooplankton (umol C L-1)
+              ,C(1,1,:,iPIC(:))       &   ! PIC(N): Particulate inorganic carbon (PIC: umol L-1), coccolith (CaCO3)
 # if defined FOODWEB_TESTMODE
-              ,C(1,1,:,1,iDeadPhyt(:))  &   ! DeadPHY(Nphy): Dead phytoplankton (umol C L-1)
+              ,C(1,1,:,iDeadPhyt(:))  &   ! DeadPHY(Nphy): Dead phytoplankton (umol C L-1)
 # endif
 #endif
 #if defined CARBON_ISOTOPE
-              ,C(1,1,:,1,iT13C)         &   ! DI13C(N): 13C of DIC (umol kg-1)
+              ,C(1,1,:,iT13C)         &   ! DI13C(N): 13C of DIC (umol kg-1)
 # if defined ORGANIC_MATTER
-              ,C(1,1,:,1,iDO13C(:))     &   ! DO13C (N): 13C of Labile Dissolved organic carbon (LDOC: umol L-1)
-              ,C(1,1,:,1,iPO13C(:))     &   ! PO13C (N): 13C of Particulate organic carbon (POC: umol L-1)
-              ,C(1,1,:,1,iPhyt13C(:))   &   ! PHY13C(N): 13C of phytoplankton1 (umol C L-1), dinoflagellate
-              ,C(1,1,:,1,iZoop13C(:))   &   ! ZOO13C(N): 13C of zooplankton (umol C L-1)
-              ,C(1,1,:,1,iPI13C(:))     &   ! PI13C (N): 13C of Particulate inorganic carbon (PIC: umol L-1), coccolith (CaCO3)
+              ,C(1,1,:,iDO13C(:))     &   ! DO13C (N): 13C of Labile Dissolved organic carbon (LDOC: umol L-1)
+              ,C(1,1,:,iPO13C(:))     &   ! PO13C (N): 13C of Particulate organic carbon (POC: umol L-1)
+              ,C(1,1,:,iPhyt13C(:))   &   ! PHY13C(N): 13C of phytoplankton1 (umol C L-1), dinoflagellate
+              ,C(1,1,:,iZoop13C(:))   &   ! ZOO13C(N): 13C of zooplankton (umol C L-1)
+              ,C(1,1,:,iPI13C(:))     &   ! PI13C (N): 13C of Particulate inorganic carbon (PIC: umol L-1), coccolith (CaCO3)
 # endif
 #endif
 #if defined NUTRIENTS         
-              ,C(1,1,:,1,iNO3_)     &   ! NO3(N): NO3 (umol L-1)
-!              ,C(1,1,:,1,iNO2_)     &   ! NO2(N): NO2 (umol L-1)
-              ,C(1,1,:,1,iNH4_)     &   ! NH4(N): NH4 (umol L-1)
-              ,C(1,1,:,1,iPO4_)     &   ! PO4(N): PO4 (umol L-1)
+              ,C(1,1,:,iNO3_)     &   ! NO3(N): NO3 (umol L-1)
+!              ,C(1,1,:,iNO2_)     &   ! NO2(N): NO2 (umol L-1)
+              ,C(1,1,:,iNH4_)     &   ! NH4(N): NH4 (umol L-1)
+              ,C(1,1,:,iPO4_)     &   ! PO4(N): PO4 (umol L-1)
 # if defined ORGANIC_MATTER
-              ,C(1,1,:,1,iDON(:))     &   ! DON(N): Dissolved organic nitrogen (DON: umol L-1)
-              ,C(1,1,:,1,iPON(:))     &   ! PON(N): Particulate organic nitrogen (PON: umol L-1)
-              ,C(1,1,:,1,iDOP(:))     &   ! DOP(N): Dissolved organic phosporius (DOP: umol L-1)
-              ,C(1,1,:,1,iPOP(:))     &   ! POP(N): Particulate organic phosporius (POP: umol L-1)
+              ,C(1,1,:,iDON(:))     &   ! DON(N): Dissolved organic nitrogen (DON: umol L-1)
+              ,C(1,1,:,iPON(:))     &   ! PON(N): Particulate organic nitrogen (PON: umol L-1)
+              ,C(1,1,:,iDOP(:))     &   ! DOP(N): Dissolved organic phosporius (DOP: umol L-1)
+              ,C(1,1,:,iPOP(:))     &   ! POP(N): Particulate organic phosporius (POP: umol L-1)
 # endif
 # if defined NITROGEN_ISOTOPE
-             ,C(1,1,:,1,i15NO3)     &   ! NO3_15N(N): 15N of NO3 (umol L-1)
-!             ,C(1,1,:,1,i15NO2)     &   ! NO2_15N(N): 15N of NO2 (umol L-1)
-             ,C(1,1,:,1,i15NH4)     &   ! NH4_15N(N): 15N of NH4 (umol L-1)
+             ,C(1,1,:,i15NO3)     &   ! NO3_15N(N): 15N of NO3 (umol L-1)
+!             ,C(1,1,:,i15NO2)     &   ! NO2_15N(N): 15N of NO2 (umol L-1)
+             ,C(1,1,:,i15NH4)     &   ! NH4_15N(N): 15N of NH4 (umol L-1)
 #  if defined ORGANIC_MATTER
-             ,C(1,1,:,1,iDO15N(:))     &   ! DO15N (N): 15N of Labile Dissolved organic nitrogen (LDON: umol L-1)
-             ,C(1,1,:,1,iPO15N(:))     &   ! PO15N (N): 15N of Particulate organic nitrogen (PON: umol L-1)
-             ,C(1,1,:,1,iPhyt15N(:))   &   ! PHY15N(N): 15N of phytoplankton1 (umol C L-1), dinoflagellate
-             ,C(1,1,:,1,iZoop15N(:))   &   ! ZOO15N(N): 15N of zooplankton (umol C L-1)
+             ,C(1,1,:,iDO15N(:))     &   ! DO15N (N): 15N of Labile Dissolved organic nitrogen (LDON: umol L-1)
+             ,C(1,1,:,iPO15N(:))     &   ! PO15N (N): 15N of Particulate organic nitrogen (PON: umol L-1)
+             ,C(1,1,:,iPhyt15N(:))   &   ! PHY15N(N): 15N of phytoplankton1 (umol C L-1), dinoflagellate
+             ,C(1,1,:,iZoop15N(:))   &   ! ZOO15N(N): 15N of zooplankton (umol C L-1)
 #  endif
 # endif
 #endif
 #if defined COT_STARFISH         
-              ,C(1,1,:,1,iCOTe)     &   ! COTe(N): COT starfish egg (umol L-1)
-              ,C(1,1,:,1,iCOTl)     &   ! COTl(N): COT starfish larvae (umol L-1)
+              ,C(1,1,:,iCOTe)     &   ! COTe(N): COT starfish egg (umol L-1)
+              ,C(1,1,:,iCOTl)     &   ! COTl(N): COT starfish larvae (umol L-1)
 #endif
 !      output parameters
               ,dC_dt(1,1,:,iTIC_)   &   ! dDIC_dt(N): dDIC/dt (umol kg-1 s-1)
@@ -328,21 +327,17 @@ PROGRAM ecosys_test
       if (nSetting .eq. 1) then
           
         ! nothing to calculate
-        
-        if (time >= 14.0d0 ) then
-          C(1,1,k,1,iTemp) = 27.0d0  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        end if
 
 !---------- for Closed Chamber condition -------------------------
 
       else if (nSetting .eq. 2) then
         
-        C(1,1,k,1,iTemp)=C(1,1,k,1,iTemp)+0.
-        C(1,1,k,1,iSalt)=C(1,1,k,1,iSalt)+0.
-        C(1,1,k,1,iSedi)=C(1,1,k,1,iSedi)+0.
+        C(1,1,k,iTemp)=C(1,1,k,iTemp)+0.
+        C(1,1,k,iSalt)=C(1,1,k,iSalt)+0.
+        C(1,1,k,iSedi)=C(1,1,k,iSedi)+0.
         
         do id=4,Nid
-          C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
+          C(1,1,k,id)=C(1,1,k,id) + dC_dt(1,1,k,id)*dt
         end do
 
 !---------- Constant Flow condition ------------------------------------
@@ -364,13 +359,13 @@ PROGRAM ecosys_test
         fvol_rc = REEF(1)%Qrc(1,1)*REEF(1)%Wrc(1,1)
         fvol_ch = REEF(1)%Qch(1,1)*REEF(1)%Wch(1,1)
         do id=1,Nid
-          C(1,1,k,1,id) = C(1,1,k,1,id)*h1/h2                          &
-                        +(0.5d0*(ABS(fvol_rc)+fvol_rc)* Co(1,1,id)     &  !  (t unit) m s-1
-                         -0.5d0*(ABS(fvol_rc)-fvol_rc)* C(1,1,k,1,id)  &  !  (t unit) m s-1
-                         +0.5d0*(ABS(fvol_ch)+fvol_ch)* Co(1,1,id)     &  !  (t unit) m s-1
-                         -0.5d0*(ABS(fvol_ch)-fvol_ch)* C(1,1,k,1,id)  &  !  (t unit) m s-1
+          C(1,1,k,id) = C(1,1,k,id)*h1/h2                          &
+                        +(0.5d0*(ABS(fvol_rc)+fvol_rc)* Co(1,1,id)   &  !  (t unit) m s-1
+                         -0.5d0*(ABS(fvol_rc)-fvol_rc)* C(1,1,k,id)  &  !  (t unit) m s-1
+                         +0.5d0*(ABS(fvol_ch)+fvol_ch)* Co(1,1,id)   &  !  (t unit) m s-1
+                         -0.5d0*(ABS(fvol_ch)-fvol_ch)* C(1,1,k,id)  &  !  (t unit) m s-1
                          )/h2/REEF(1)%Air(1,1)*dt
-          C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
+          C(1,1,k,id)=C(1,1,k,id) + dC_dt(1,1,k,id)*dt
         end do
 #endif
 
@@ -378,29 +373,29 @@ PROGRAM ecosys_test
 
       else if (nSetting .eq. 5) then
         if( ipcl == 1) then
-          C(1,1,k,1,iTIC_) = DIC_data(1)
-          C(1,1,k,1,iTAlk) = TA_data(1)
-          C(1,1,k,1,iOxyg) = DO_data(1)
-!          C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+          C(1,1,k,iTIC_) = DIC_data(1)
+          C(1,1,k,iTAlk) = TA_data(1)
+          C(1,1,k,iOxyg) = DO_data(1)
+!          C(1,1,k,iOxyg) = O2satu(C(1,1,k,iTemp)+273.15d0, C(1,1,k,iSalt))
 #if defined CARBON_ISOTOPE
           R13C=R13C_fromd13C(0.7d0)
-          C(1,1,k,1,iT13C) =R13C*C(1,1,k,1,iTIC_) !DI13C (umol kg-1) 
+          C(1,1,k,iT13C) =R13C*C(1,1,k,iTIC_) !DI13C (umol kg-1) 
 #endif
           ipcl = 2
         end if
       
         if (time >= 4.0d0 ) then
           do id=4,Nid
-            C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
+            C(1,1,k,id)=C(1,1,k,id) + dC_dt(1,1,k,id)*dt
           end do
           if (WQ_time(ipcl)-15.0d0/60.0d0 < time*24.0d0 .and. time*24.0d0 < WQ_time(ipcl)  ) then
-            C(1,1,k,1,iTIC_) = DIC_data(ipcl)
-            C(1,1,k,1,iTAlk) = TA_data(ipcl) 
-            C(1,1,k,1,iOxyg) = DO_data(ipcl)
-!            C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+            C(1,1,k,iTIC_) = DIC_data(ipcl)
+            C(1,1,k,iTAlk) = TA_data(ipcl) 
+            C(1,1,k,iOxyg) = DO_data(ipcl)
+!            C(1,1,k,iOxyg) = O2satu(C(1,1,k,iTemp)+273.15d0, C(1,1,k,iSalt))
 #if defined CARBON_ISOTOPE
             R13C=R13C_fromd13C(0.7d0)
-            C(1,1,k,1,iT13C) =R13C*C(1,1,k,1,iTIC_) !DI13C (umol kg-1) 
+            C(1,1,k,iT13C) =R13C*C(1,1,k,iTIC_) !DI13C (umol kg-1) 
 #endif
           else if (time*24.0d0 >= WQ_time(ipcl)  ) then
             ipcl = ipcl +1
@@ -458,30 +453,30 @@ PROGRAM ecosys_test
         
         if( inight == 1 .and. iflag == 1 ) then  ! Night treatment ~pH -0.1 (18:00-06:00)
 #if defined FLUME_AMBIENT
-          C(1,1,k,1,iTIC_) = 2090.0d0
+          C(1,1,k,iTIC_) = 2090.0d0
 #elif defined FLUME_HPCO2
-          C(1,1,k,1,iTIC_) = 2269.0d0
+          C(1,1,k,iTIC_) = 2269.0d0
 #endif
-          C(1,1,k,1,iTAlk) = 2340.0d0
-          C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+          C(1,1,k,iTAlk) = 2340.0d0
+          C(1,1,k,iOxyg) = O2satu(C(1,1,k,iTemp)+273.15d0, C(1,1,k,iSalt))
 #if defined CARBON_ISOTOPE
           R13C=R13C_fromd13C(0.7d0)
-          C(1,1,k,1,iT13C) =R13C*C(1,1,k,1,iTIC_) !DI13C (umol kg-1) 
+          C(1,1,k,iT13C) =R13C*C(1,1,k,iTIC_) !DI13C (umol kg-1) 
 #endif
           iflag = 0
         end if
         
         if( inight == 0 .and. iflag == 1 ) then
 #if defined FLUME_AMBIENT
-          C(1,1,k,1,iTIC_) = 2033.0d0
+          C(1,1,k,iTIC_) = 2033.0d0
 #elif defined FLUME_HPCO2
-          C(1,1,k,1,iTIC_) = 2243.0d0
+          C(1,1,k,iTIC_) = 2243.0d0
 #endif
-          C(1,1,k,1,iTAlk) = 2340.0d0
-          C(1,1,k,1,iOxyg) = O2satu(C(1,1,k,1,iTemp)+273.15d0, C(1,1,k,1,iSalt))
+          C(1,1,k,iTAlk) = 2340.0d0
+          C(1,1,k,iOxyg) = O2satu(C(1,1,k,iTemp)+273.15d0, C(1,1,k,iSalt))
 #if defined CARBON_ISOTOPE
           R13C=R13C_fromd13C(0.7d0)
-          C(1,1,k,1,iT13C) =R13C*C(1,1,k,1,iTIC_) !DI13C (umol kg-1) 
+          C(1,1,k,iT13C) =R13C*C(1,1,k,iTIC_) !DI13C (umol kg-1) 
 #endif
           iflag = 0
         end if
@@ -492,7 +487,7 @@ PROGRAM ecosys_test
 !          tau = 1024*0.14*0.05**2. *0.5  !densSW*Cd*Ub**2  (5 cm s-1)
           tau = 1024*0.14*0.10**2. *0.5  !densSW*Cd*Ub**2  (10 cm s-1)
           do id=4,Nid
-            C(1,1,k,1,id)=C(1,1,k,1,id) + dC_dt(1,1,k,id)*dt
+            C(1,1,k,id)=C(1,1,k,id) + dC_dt(1,1,k,id)*dt
           end do
         end if
 
@@ -537,7 +532,7 @@ PROGRAM ecosys_test
 
   CALL files_close
 
-END PROGRAM ecosys_test
+END PROGRAM main
 !----------------------------------------------------------------------!
 
 !     End of main program
