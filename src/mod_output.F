@@ -102,24 +102,24 @@ contains
 
 
 #else
-    open(10,file='./output/'//trim(OUTFILE_prefix)//'-env_his.csv')
+    open(10,file=trim(OUTFILE_prefix)//'-env_his.csv')
 # if defined CORAL_TESTMODE
-    open(11,file='./output/'//trim(OUTFILE_prefix)//'-crl1_his.csv')
-    open(12,file='./output/'//trim(OUTFILE_prefix)//'-crl2_his.csv')
-    open(21,file='./output/'//trim(OUTFILE_prefix)//'-crl1_ave.csv')
-    open(22,file='./output/'//trim(OUTFILE_prefix)//'-crl2_ave.csv')
+    open(11,file=trim(OUTFILE_prefix)//'-crl1_his.csv')
+    open(12,file=trim(OUTFILE_prefix)//'-crl2_his.csv')
+    open(21,file=trim(OUTFILE_prefix)//'-crl1_ave.csv')
+    open(22,file=trim(OUTFILE_prefix)//'-crl2_ave.csv')
 #  if defined CORAL_ZOOXANTHELLAE
-    open(31,file='./output/'//trim(OUTFILE_prefix)//'-zoo1_his.csv')
-    open(32,file='./output/'//trim(OUTFILE_prefix)//'-zoo2_his.csv')
-    open(41,file='./output/'//trim(OUTFILE_prefix)//'-zphot1_his.csv')
-    open(42,file='./output/'//trim(OUTFILE_prefix)//'-zphot2_his.csv')
+    open(31,file=trim(OUTFILE_prefix)//'-zoo1_his.csv')
+    open(32,file=trim(OUTFILE_prefix)//'-zoo2_his.csv')
+    open(41,file=trim(OUTFILE_prefix)//'-zphot1_his.csv')
+    open(42,file=trim(OUTFILE_prefix)//'-zphot2_his.csv')
 #  endif
 # endif
 # if defined ECOSYS_TESTMODE
-    open(40,file='./output/'//trim(OUTFILE_prefix)//'-ecosys_his.csv')
+    open(40,file=trim(OUTFILE_prefix)//'-ecosys_his.csv')
 # endif
 # if defined REEF_FLOW_TESTMODE
-    open(45,file='./output/'//trim(OUTFILE_prefix)//'-flow_his.csv')
+    open(45,file=trim(OUTFILE_prefix)//'-flow_his.csv')
 # endif
 
 #endif

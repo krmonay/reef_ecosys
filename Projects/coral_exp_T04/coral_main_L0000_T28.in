@@ -1,6 +1,6 @@
 &ecosys_config
 ! Simulation period     
-  Tmax = 150.0d0  ! days
+  Tmax = 0.5d0  ! days
 ! Start time
   time0 = 0.0d0 ! day
 
@@ -33,7 +33,7 @@
 !    
 !           1       5     8 9 10  12
 !           |       |     | | |   |
-  in_file = 0,0,0,0,0,0,0,0,0,0,0,0
+  in_file = 0,0,0,0,0,0,0,0,1,0,0,0
 /
 
 &input
@@ -50,29 +50,25 @@
   Cloud_FILE = "input/Ishigaki_frc_JMAobs_2018_cloud.nc"    ! Relative humidity (%)
 
 ! Only ascii text file is acceptable.
-  PPFD_FILE  = "input/PPFD.txt"
+  PPFD_FILE  = "input/PPFD_T04_main_0000.txt"
 ! Only ascii text file is acceptable.
-  WTEMP_FILE  = "input/temp2018.txt"
+  WTEMP_FILE  = "input/temp_T04_pre_2w.txt"
+
   WLEVEL_FILE = "input/level2018.txt"
 ! Only ascii text file is acceptable.
   WAVE_FILE   = "input/Shiraho_wave2_201801.dat"
 /
 
 &output   
-!  OUTFILE_prefix = 'bleaching_test'
-!  OUTFILE_prefix = 'CBL_33degC_feed'
-!  OUTFILE_prefix = 'CBL_27degC_LL'
-!  OUTFILE_prefix = 'CBL_33-27oC_nofeed'
-!  OUTFILE_prefix = 'CBL_33-27oC_iniQC_z53_c260'
-  OUTFILE_prefix = 'CBL_33-27oC_iniQC_z70_c300'
+
+  OUTFILE_prefix = 'output/main_L0000_T28'
 /
 
 !--- Initial Condition -----------------------------------------------------
 &initial
 
   d0 = 3.0d0           ! Depth (m)
-!  T0 = 28.0d0          ! Water temperature (oC)
-  T0 = 33.0d0          ! Water temperature (oC)
+  T0 = 28.0d0          ! Water temperature (oC)
   S0 = 34.0d0          ! Salinity (PSU)
 
 !  pCO2air = 400.0d0   ! 383.0d0  !!! RCP8.5: 936.0d0 (uatm); RCP2.6: 421.0d0 (uatm)

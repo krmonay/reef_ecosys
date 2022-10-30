@@ -111,6 +111,7 @@ PROGRAM main
   CALL write_zox_his_lavel(31)
   CALL write_zox_his_lavel(32)
   CALL write_zphot_his_lavel(41)
+  CALL write_zphot_his_lavel(42)
 # endif
 #endif
 #if defined ECOSYS_TESTMODE
