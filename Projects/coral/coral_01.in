@@ -59,12 +59,8 @@
 /
 
 &output   
-!  OUTFILE_prefix = 'bleaching_test'
-!  OUTFILE_prefix = 'CBL_33degC_feed'
-!  OUTFILE_prefix = 'CBL_27degC_LL'
-!  OUTFILE_prefix = 'CBL_33-27oC_nofeed'
-!  OUTFILE_prefix = 'CBL_33-27oC_iniQC_z53_c260'
-  OUTFILE_prefix = 'CBL_33-27oC_iniQC_z70_c300'
+
+  OUTFILE_prefix = 'output/coral_01'
 /
 
 !--- Initial Condition -----------------------------------------------------

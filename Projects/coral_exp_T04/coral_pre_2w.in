@@ -60,12 +60,8 @@
 /
 
 &output   
-!  OUTFILE_prefix = 'bleaching_test'
-!  OUTFILE_prefix = 'CBL_33degC_feed'
-!  OUTFILE_prefix = 'CBL_27degC_LL'
-!  OUTFILE_prefix = 'CBL_33-27oC_nofeed'
-!  OUTFILE_prefix = 'CBL_33-27oC_iniQC_z53_c260'
-  OUTFILE_prefix = 'output_exp_T04/Pre_2w'
+
+  OUTFILE_prefix = 'output/Pre_2w'
 /
 
 !--- Initial Condition -----------------------------------------------------
