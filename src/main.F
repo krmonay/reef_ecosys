@@ -48,7 +48,7 @@ PROGRAM main
 #endif
 !  For Output      
   real(8), parameter :: OUTPUT_INTERVAL = 5.0d0     ! Output interval (min)
-  real(8), save :: dsec = 0.d0 !sec
+  real(8) :: dsec = 0.d0 !sec
   
   real(8) :: h1,h2
   real(8) :: fvol_rc, fvol_ch
@@ -96,7 +96,8 @@ PROGRAM main
 !  call Coral_Size2Cover
 
   time=time0
-  
+  dsec=time0*86400.0d0
+
   istep=0
   iprint=0
       
