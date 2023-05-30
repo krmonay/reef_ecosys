@@ -236,7 +236,8 @@ CONTAINS
 !          QAt = ZOOX(ng)%Chl(n,i,j)*1.2d-6 ! (pmolRCII/cell) 1.2d-6 ~1.7d-6 -> Suggett et al. 2008
 !         QAt: 4.3d-6 ~ 19.9d-6 (pmolRCII/cell) Iglesias-Prieto & Trench, 1994
 !         QAt: 0.8d-3 ~ 2.3d-3 (pmolRCII/cell) Suggett et al. 2008 (*maybe typo of order d-3 -> d-6)         
-          QAt = 1.5d-6 ! (pmolRCII/cell)
+!          QAt = 1.5d-6 ! (pmolRCII/cell)
+          QAt = 1.5d-3 ! (pmolRCII/cell)
           ZOOX(ng)%QAo(n,i,j) = QAt*0.65d0 ! (pmolRCII/cell) 1.2d-6 ~1.7d-6 -> Suggett et al. 2008
           ZOOX(ng)%QAr(n,i,j) = 0.0d0
           ZOOX(ng)%QAi(n,i,j) = QAt*0.35d0
@@ -1922,8 +1923,8 @@ CONTAINS
     real(8), parameter :: PI  = 3.14159265359d0
     real(8), parameter :: Rg  = 8.31d0    ! Gass constant (J K–1 mol–1)
 
-    real(8), parameter :: s_0 = 1.0d1    ! Absorption cross-section (m2 (umol photon)-1); ~390 (ANGSTROM quanta-1) Suggett et al. (2008) * 6.02x10^23 quanta = 1 mol photon
-    real(8) :: s_ab    ! Absorption cross-section (m2 (umol photon)-1); ~390 (ANGSTROM quanta-1) Suggett et al. (2008) * 6.02x10^23 quanta = 1 mol photon
+    real(8), parameter :: s_0 = 2.3d0    ! Absorption cross-section (m2 (umol photon)-1); ~390 (ANGSTROM^2 quanta-1) Suggett et al. (2008) * 6.02x10^23 quanta = 1 mol photon
+    real(8) :: s_ab    ! Absorption cross-section (m2 (umol photon)-1); ~390 (ANGSTROM^2 quanta-1) Suggett et al. (2008) * 6.02x10^23 quanta = 1 mol photon
     real(8), parameter :: phi = 1.0d0     ! quantum efficiency of charge separation at PSII(e- photon-1)  Ross et al. (2008) !!!!!!!!!!!!!check
     real(8), parameter :: Trb = 33.8d0    ! (oC) estimated from Lilley et al. (2010)
     real(8), parameter :: arb = 0.55d0    ! (K-1) estimated from Lilley et al. (2010)
@@ -1932,7 +1933,7 @@ CONTAINS
     real(8), parameter :: e2c = e2o*o2c   ! (mol C (mol e-)-1)
 
     !   ---- RubisCO activity related parameters -----------------
-    real(8), parameter :: Vcmax= 1.0d-3   ! maximum carboxylation rate (pmol cell-1 s-1) !!! Tuning
+    real(8), parameter :: Vcmax= 1.0d0   ! maximum carboxylation rate (pmol cell-1 s-1) !!! Tuning
     real(8), parameter :: Vomax= 0.21d0*Vcmax   ! maximum oxygenation rate (pmol cell-1 s-1), (Badger & Andrews, 1974)
 !    real(8), parameter :: Kco2 = 400.0d0 ! Half saturation constant (uM) !!! Tuning (Ref. von Caemmerer, 2000)
 !    real(8), parameter :: Ko2  = 300.0d0 ! Half saturation constant (uM) !!! Tuning (Ref. von Caemmerer, 2000)
@@ -1949,7 +1950,7 @@ CONTAINS
     real(8), parameter :: ka2i = 5.0d-7   ! Rate constant of photoinhibition (s-1 (umol m-2 s-1)-1)
                                           !      Tyystjarvi & Aro (1996): 6.11d-8 (s-1 (umol m-2 s-1)-1);
                                           !      Nishiyama et al. (2004): 1.7d-7  (s-1 (umol m-2 s-1)-1)
-    real(8), parameter :: ki2a = 5.0d-4   ! Repair rate of QAi to QAa (s-1) estimated from Takahashi et al. (2009) !!! TBD
+    real(8), parameter :: ki2a = 4.0d-4   ! Repair rate of QAi to QAa (s-1) estimated from Takahashi et al. (2009) !!! TBD
     real(8), parameter :: kros = 0.2d0    ! 
     real(8), parameter :: kros2 = 0.2d0   ! 
 
@@ -2043,7 +2044,7 @@ CONTAINS
 
 !---- Repair rate of QAi to QAo  (pmol RCII cell-1 s-1) --- !!!!!!!!!!!!!!!!! Need update
 !    Ji2a = ki2a * QAi
-    Ji2a = ki2a * tanh(PFDsurf/500.0d0) *exp(-1.0d0*ROS)* QAi
+    Ji2a = ki2a * tanh(PFDsurf/200.0d0) *exp(-1.0d0*ROS)* QAi
 
 !===== Time step progressing ================================================
 
@@ -2091,7 +2092,7 @@ CONTAINS
        , J_ea, J_ep_in, J_ep, J_ee, J_ep_max                               &
        , Ji2a, Ja2i, ko2r, s_ab, F_zROS, ROS                   &
        , Pg, J_ep_in*e2c, J_ep_max*e2c, F_zDIC, F_zDO                      &
-       , Chl
+       , Chl, cCO2, cDO
 
       dsec(n)=dsec(n)+OUTPUT_INTERVAL*60.0d0
       

@@ -470,7 +470,7 @@ END SUBROUTINE write_crl_ave_lavel
        ,'J_ea','J_ep_in','J_ep','J_ee','J_ep_max'               &
        ,'Ji2a','Ja2i','kr','s_ab','F_ROS','ROS'                 &
        ,'Pg','Pgcal','Pgmax', 'F_zDIC', 'F_zDO'                 &
-       ,'Chl'
+       ,'Chl', '[CO2]', 'DO'
      
     RETURN
 
