@@ -339,7 +339,7 @@ CONTAINS
 !      L = g/2/pi*tanh(2*pi*h/L) *T*T
     
     ! Initial wave length
-    L = sqrt( g*h )*T  ! wave length of Deep water wave
+    L = sqrt( g*h )*T  ! wave length of shallow water wave
     L2 = sqrt( (0.5d0*g*L/pi*tanh(2.0d0*pi*h/L)) )*T
     do while (abs(L-L2)>err)
       L=L2
