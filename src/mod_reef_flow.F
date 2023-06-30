@@ -1,5 +1,5 @@
 
-!!!=== Copyright (c) 2017-2020 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2017-2023 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -343,7 +343,8 @@ CONTAINS
     L2 = 0.5d0*g/pi*tanh(2.0d0*pi*h/L)*T*T
     do while (abs(L-L2)>err)
       L=L2
-      L2 = 0.5d0*g/pi*tanh(2.0d0*pi*h/L)*T*T
+      L2 = sqrt( (0.5d0*g*L/pi*tanh(2.0d0*pi*h/L)) )*T
+!      L2 = 0.5d0*g/pi*tanh(2.0d0*pi*h/L)*T*T
     end do
     L=L2
 

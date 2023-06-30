@@ -1,5 +1,5 @@
 
-!!!=== Copyright (c) 2012-2020 Takashi NAKAMURA  =====
+!!!=== Copyright (c) 2012-2023 Takashi NAKAMURA  =====
 
 #include "cppdefs.h"
 
@@ -151,7 +151,7 @@ CONTAINS
 
 ! Long wave radiation (W m-2)
 #ifdef LONGWAVE_IN
-    lradi = up_long_wave_radi(Tmp(N))-dw_lwradi
+    lradi = dw_lwradi - up_long_wave_radi(Tmp(N))
 #else
     lradi = net_long_wave_radi(Tmp(N),tair,Hum,cloud)
 #endif
@@ -164,7 +164,7 @@ CONTAINS
       
 
 
-    dTmp_dt(N) = dTmp_dt(N) + ( (-lradi -sens -fvol_evap*Eevap)/Cpw     &
+    dTmp_dt(N) = dTmp_dt(N) + ( (lradi +sens -fvol_evap*Eevap)/Cpw     &
                                  +fvol_pre*(tair-Tmp(N))                &
                               )  /dz(N)
 
@@ -271,7 +271,7 @@ CONTAINS
 
 
 ! **********************************************************************
-!  Sensible heat (W m-2)  [sea surface to air is postive]
+!  Sensible heat (W m-2)  [input side to water surface is positibe]
 ! **********************************************************************
 
   real(8) function sensheat(tsurf, tair, pair, Hum, u10) !sensible heat (W m-2)
@@ -294,8 +294,8 @@ CONTAINS
     eair=sat_vapor_press(tair)*Hum/100.e0    ! vapor pressur (hPa)
 
     rhoatm=dens_air(tair,pair,eair)                 !density of air (kg m-3)
-    sensheat=1005.d0*rhoatm*1.2d-3*u10*(tsurf-tair) !sensible heat (W m-2)
-            !1005 J kg-1 K-1 -> ��C�̒舳��M
+    sensheat=1005.d0*rhoatm*1.2d-3*u10*(tair-tsurf) !sensible heat (W m-2)
+            !1005 J kg-1 K-1
     return
   end function sensheat
 
