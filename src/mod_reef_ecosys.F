@@ -383,6 +383,14 @@ contains
     real(8) :: cCO2aq, cHCO3, cCO3, R13C
     real(8) :: PFD, Att, AttFac, ExpAtt, Itop
     real(8) :: cff, cff1, cff2, cff3, cff4, cff5
+!-----------------------------------------------------------------------
+!  Light-limited computations, KM
+!-----------------------------------------------------------------------
+    real(8) :: ssza, POM, PIM, TSS
+    real(8) :: Aw490, Aop440, Aop490, Aip440, Aip490, Ag440, Ag490, Bbw490, Bbp490, Bbp560, Kd490, Kdpar
+!-----------------------------------------------------------------------
+!  Light-limited computations, KM
+!-----------------------------------------------------------------------
 
     real(8) :: Flux_Tmp, Flux_Sal
     real(8) :: Flux_DIC, Flux_TA,  Flux_DO
@@ -609,7 +617,39 @@ contains
 
     DO k=N,1,-1
     
-!!
+!-----------------------------------------------------------------------
+!  Light-limited computations, KM
+!-----------------------------------------------------------------------
+
+! constants that should be computed
+      ssza = 0.0d0
+      POM = 6.53428995d-1
+      PIM = 9.53215857d-1
+      TSS = 2.091246266d0
+
+! actual calculations
+      Aw490 = 1.5d-2
+      Aop440 = 8.7682d-2*POM
+      Aop490 = (5.83174d-1+7.66d-12*LOG(Aop440))*Aop440
+      Aip440 = 3.5925d-2*PIM**5.81749d-1
+      Aip490 = Aip440*EXP(-5.6303965d-1)
+      Ag440 = -4.362d-2*Sal(k)+1.617d0
+      Ag490 = Ag440*EXP(-4.2204005d-1)
+      Bbw490 = 1.622d-3
+      Bbp560 = 2.1291d-1*TSS**9.99925d-1
+      Bbp490 = Bbp560*1.138105699d0
+      Kd490 = (Aw490+Aop490+Aip490+Bbw490+Bbp490)/COS(ssza)
+
+    IF (Kd490.GT.1.15d-1) THEN
+        Kdpar = 8.1d-1*Kd490**8.256d-1
+    ELSE
+        Kdpar = 4.6051d0*Kd490/(8.1d-1*Kd490+3.2)
+    END IF
+!-----------------------------------------------------------------------
+!  Light-limited computations, KM
+!-----------------------------------------------------------------------
+
+
 !!  Compute average light attenuation for each grid cell. To include
 !!  other attenuation contributions like suspended sediment or CDOM
 !!  modify AttFac.
@@ -628,11 +668,12 @@ contains
 !        Chl2C=MIN(Bio(i,k,iChlo)/(Bio(i,k,iPhyt)*cff+eps),      &
 !     &            Chl2C_m(ng))
 !
-      Att= AttSW*dz(k) 
+!      Att= AttSW*dz(k) 
+      Att= Kdpar*dz(k) !KM
       ExpAtt=EXP(-Att)
       Itop=PFD
-      PFD=Itop*(1.0d0-ExpAtt)/Att    ! average at cell center
-
+!      PFD=Itop*(1.0d0-ExpAtt)/Att    ! average at cell center
+      PFD = Itop*ExpAtt !KM
 
 #if defined FOODWEB
 !-----------------------------------------------------------------------
